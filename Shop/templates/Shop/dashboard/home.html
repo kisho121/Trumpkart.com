@@ -1,0 +1,76 @@
+
+{% extends 'Shop/layouts/main.html' %}
+{% load static %}
+{% block title %}
+Home|Trumpkart
+{% endblock title %}
+
+{% block content %}
+
+<div class="row m-0 p-0 " >
+  <div class="col-2 col-sm-2 col-md-2 col-lg-1 ps-1 border-end border-end-secondary">
+     <h4 class="sidetitle">{{category_title}}</h4>
+     
+      {% for item in categorys %}
+    <p style="list-style: none; " class="mb-4">
+      
+     <a href="{% url 'collection' item.name  %}"><i class="fa-solid fa-circle-chevron-right side-icon"></i> <span class="sidebar">{{item.name}}</span></a>
+    </p>
+    
+  
+     {% endfor %}
+    
+  </div>
+
+<div class="col-10 col-sm-10 col-md-10 col-lg-11 m-0 ">
+<div id="demo" class="carousel slide"  >
+  <div class="carousel-indicators">
+    {% for slide in slides %}
+    <button type="button" data-bs-target="#demo" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %} active {% endif %}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="slide{{ forloop.counter}}"></button>
+    {% endfor %}
+    </div>
+  <div class="carousel-inner">
+    {% for slide in slides %}
+    <div class="carousel-item {% if forloop.first %} active {% endif %}">
+      <img src="{{ slide.carousel_image.url}}" class=" w-100 h-auto position-relative " alt="{{slide.alt_text}}">
+    </div>
+    {% endfor %}
+   
+  </div>
+  
+  <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+  </button>
+</div>
+
+<h1 class="fw-bold text-center" >{{title}}</h1>
+
+<div class="row bg-light my-4 pb-4 ">
+
+{% for item in products %}
+<div class="col-6 col-sm-6 col-md-3 col-lg-2 my-4">
+ <div class="card w-100 h-100 mx-auto text-center">   
+    <img src="{{item.product_image.url}}" class="card-img-top mx-auto " alt="..." >  
+    <div class="hot">{{Hot}}</div>
+    <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
+    <div class="card-body">
+      <h6 class="card-title mb-1 ">{{item.name}}</h6>
+    
+      <h6 class="text-dark fw-bold"><span class="text-danger ">{{item.discount}} %</span> {{off}}</h6>
+    </div>
+  </a>
+ </div>
+</div>
+{% endfor %}
+
+</div>
+
+
+</div>
+
+</div>
+
+{% endblock content %}

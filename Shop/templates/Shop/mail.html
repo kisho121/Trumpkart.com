@@ -1,0 +1,94 @@
+
+{% extends 'Shop/layouts/main.html' %}
+{% load widget_tweaks %}
+{% block title %}
+Register|Ecom
+{% endblock title %}
+
+{% block content %}
+<h2 class="fw-bold text-dark text-center"> Help Center | 24x7 Customer Care Support</h2>
+<p style="text-indent: 4vw;">The TrumpKart Help Centre page lists out various types of issues that you may have encountered so that there can be quick resolution and you can go back to shopping online. For example, you can get more information regarding order tracking, delivery date changes, help with returns (and refunds), and much more. </p>
+
+
+<div class="container bg-white ">
+    <h1 class="text-info fw-bold text-center">{{selected_content.heading}}</h1>
+    <p style="text-indent: 3vw;">&#9733 {{selected_content.paragraph}}</p>
+   
+ <div class="col-8 col-sm-8 col md-6 col-lg-6 my-3">
+ <form id="supportteam" method="POST" action="{% url 'support_team' %}">
+    {% csrf_token %}
+    <label for="" class="form-label">Name</label>
+    {{form.name}}
+    <label for="" class="form-label">Email</label>
+    {{form.email}}
+    <label for="" class="form-label">Feedback</label>
+    
+    {{form.feedback}}
+    
+    <br>
+    <button type="submit" class="btn btn-warning">Sent</button>
+    
+ </form>
+
+
+</div>
+
+
+</div>
+
+
+
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+   
+document.addEventListener('DOMContentLoaded', function() {
+document.getElementById('supportteam').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+
+    fetch("{% url 'support_team' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message,
+                confirmButtonText: 'OK'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: data.message,
+                confirmButtonText: 'Try Again'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'There was a problem submitting your issue.',
+            confirmButtonText: 'Try Again'
+        });
+    });
+});
+
+
+
+});
+
+
+</script>
+{% endblock scripts %}

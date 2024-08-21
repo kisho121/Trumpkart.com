@@ -1,0 +1,83 @@
+
+{% extends 'Shop/layouts/main.html' %}
+
+{% block title %}
+Register|Ecom
+{% endblock title %}
+
+{% block content %}
+
+
+{% include 'Shop/inc/message.html' %}
+
+
+
+
+<h2 class=" text-center text-secondary fw-bold " style="font-family:serif">Cart Item <i class="fa-solid fa-cart-shopping" style="font-size: 1.5vw;"></i></h2>
+<div class="bg-light">
+   {% if cart %}
+<table class=" container-fluid table table-striped mb-3">
+   <thead>
+      <tr class="bg-primary text-light ">
+         <th>Product_image</th>
+         <th>Product_Name</th>
+         <th>Unit</th>
+         <th>Quantity</th>
+         <th>Price</th>
+         <th>Remove</th>
+      </tr>
+   </thead>
+   <tbody>
+      {% for item in cart %}
+     
+      <tr>
+         
+         <td><img class="cart-image" src="{{ item.Product.product_image.url }}" alt="" width="100px"></td>
+         <td>{{ item.Product.name }}</td>
+         <td>{{item.Product.selling_price}}</td>
+         <td>{{ item.product_qty }}</td>
+         <td class="price">{{ item.total_cost }}</td>
+         <td><a href="{% url 'removecart' item.id %}" onclick="return confirm('Are you Sure to Remove')"><button class="btn btn-outline-danger fw-bold delete"><i class="fa fa-trash"> </i> Remove </button></a></td>
+         
+  
+      {% endfor %}
+
+   </tr>
+   <td></td>
+   <td></td>
+   <td></td>
+   <td class="text-dark fw-bold">Total Amount:</td>
+   <td id="total" class="text-danger text-center fw-bold">0</td>
+   <td>
+      <a href="{% url 'checkout' %} " ><button class="btn btn-success fw-bold text-white buy"> Buynow</button></a>
+   </td>
+   
+</tr>
+      
+     
+     
+   </tbody>
+
+</table>
+{% else %}
+<h2 class=" text-center my-5 py-5">
+    There is no item in the cart..
+</h2>
+
+
+{% endif %}
+
+
+
+</div>
+
+   <script>
+      let price=document.querySelectorAll('.price');
+      let node=Array.from(price);
+      let result=node.reduce((acc,curr) => {
+         return acc += Number(curr.textContent)
+      } ,0 )
+      document.getElementById('total').innerHTML='Rs:'+result
+   </script>
+
+{% endblock content %}

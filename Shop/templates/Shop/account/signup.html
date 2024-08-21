@@ -1,0 +1,131 @@
+{% extends 'Shop/layouts/main.html' %}
+{% load i18n %}
+{% load account socialaccount %}
+
+{% load static %}
+
+{% block title %}
+Register|TrumpKart
+{% endblock title %}
+
+{% block content %}
+<div class="bg-register pb-4" style="background-image: url('/static/images/register.jpg'); background-repeat: no-repeat; background-size: cover; background-position:center;">
+    {% include 'shop/inc/message.html' %}
+<h1 class="text-center text-light fw-bold p-0">REGISTER</h1>
+
+    <div class="container col-10 col-sm-10 col-md-6 col-lg-4 px-5 pb-3 register" >
+        <section class="pt-2 mb-2 ">
+           
+                <form method="POST" action="">
+                   {% csrf_token %}
+                   <div class="mb-2">
+                     <label for="" class="form-label fw-bold">Username</label>
+                     {{form.username}}
+                     
+                    </div>
+
+                   <div class="">
+                    <label for="" class="form-label fw-bold">Email</label>
+                    {{form.email}}
+                   
+                </div>
+
+                   <div class="">
+                    <label for="" class="form-label fw-bold">Password</label>
+                    {{form.password1}}
+                    <input type="checkbox" id="showpwd1">
+                    
+                </div>
+
+                   <div class="mb-2">
+                    <label for="" class="form-label fw-bold">Confirm Password</label>
+                    {{form.password2}}
+                    <input type="checkbox" id="showpwd2">
+                   
+                </div>
+
+                   <button class="btn btn-success" type="submit">Submit</button>
+
+                </form>
+                <p class="my-2 fw-bold">Already an user?? <a class="fs-4 fw-bold ms-2" href="{% url 'account_login' %}"> <button class="btn btn-primary  fw-bold">Login</button></a></p>
+               
+            
+
+            <div class="col-6">
+              
+                <div class="mb-2">
+                    
+                     {% if form.errors.username %}
+                     <label class="text-danger" for="">{{ form.errors.username }}</label>
+                     {% endif %}
+                </div>
+                    
+                <div class="mb-2">
+                   
+                    {% if form.errors.email %}
+                    <label class="text-danger" for="">{{ form.errors.email }}</label>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    
+                    {% if form.errors.password1 %}
+                    <label class="text-danger" for="">{{ form.errors.password1 }}</label>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                   
+                    {% if form.errors.password2 %}
+                    <label class="text-danger" for="">{{ form.errors.password2 }}</label>
+                    {% endif %}
+                </div>
+        </section>
+    
+    <div class="login-or  my-3 text-dark text-center">{% trans 'OR' %}</div>
+
+    <div class="text-center container ">
+      <div class="socialaccount_providers">
+        {% include "Shop/socialaccount/snippets/provider_list.html" with process="login" %}
+      </div>
+  
+      {% get_providers as socialaccount_providers %}
+  
+      {% if socialaccount_providers %}
+      <p class="m-0">Please sign in with one
+      of your existing third party accounts.<br>Or, <a href="{% url 'account_signup' %}">sign up</a>
+      for a {{ site_name }} account.</p>
+  
+      <div class="socialaccount_ballot">
+      </div>
+  
+      <!--{% include "Shop/socialaccount/snippets/provider_list.html" %}-->
+  
+      {% else %}
+      <p>If you have not created an account yet, then please
+      <a href="{% url 'account_signup' %}">sign up</a> first.</p>
+      {% endif %}
+    </div>
+  
+    
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    </div>
+
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.getElementById('showpwd1').addEventListener('change', function(){
+        var passwordfield = document.querySelector('input[name="password1"]');
+        passwordfield.type = this.checked ? 'text': 'password';
+    });
+
+    document.getElementById('showpwd2').addEventListener('change', function(){
+        var passwordfield = document.querySelector('input[name="password2"]');
+        passwordfield.type = this.checked ? 'text': 'password';
+    });
+</script>
+{% endblock scripts %}

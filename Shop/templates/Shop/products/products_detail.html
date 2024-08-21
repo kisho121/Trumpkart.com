@@ -1,0 +1,234 @@
+
+{% extends 'Shop/layouts/main.html' %}
+{% load static %}
+{% block title %}
+Register|Ecom
+{% endblock title %}
+
+{% block content %}
+<h1 class="text-center mb-2 fw-bold" style="font-family: serif;">{{products}}</h1>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item fw-bold text-dark"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item fw-bold"><a href="{% url 'collection' products.category.name %}">Collections</a></li>
+      <li class="breadcrumb-item active fw-bold" aria-current="page">{{products}}</li>
+    </ol>
+  </nav>
+  {% include 'shop/inc/message.html' %}
+
+<div class="container col-7 mb-3 py-3" >
+     <div class="row justify-content-around">
+      
+           <div class="col-12 col-sm-12 col-md-6 col-lg-5 card" >
+               {% if products.trending %}
+                  <div class="hot">Hot</div>
+               {% endif %}
+               
+                  <img src="{{products.product_image.url}}" class=" mx-auto w-100" alt="..." >
+                     <div class="card-body text-center">
+                       <h5 class="card-title">{{products.name}}</h5>
+                       <p class="card-text"><span>RS. </span><s style="color: red;">{{products.original_price}}</s>  | {{products.selling_price}} </p>
+                       <h6 class="text-center text-decoration-underline">Discount: <b class="text-danger fs-5">{{products.discount}} %</b></h6>
+
+                           
+                              <input type="hidden" value="{{products.id}}" id="pid">
+                                   
+                              <input type="hidden" name="" value="{{products.id}}" id="pid">
+                              <p>
+                                  <div class="input-group mx-auto" style="width: 150px;">
+                                     <button class="input-group-text bg-success text-light" id="btnminus"><i class="fa fa-minus"></i></button>
+                                     <input type="text" name="qty" id="txtQty" value="1" class="form-control text-center ">
+                                     <button class="input-group-text bg-success text-light" id="btnplus"><i class="fa fa-plus"></i></button>
+
+                                   </div>
+                              </p>
+                              <div class="fav-cart mx-auto">
+                              {% if products.quantity > 0 %}
+                              <button class="available text-white" id="btncart" style="background-color: rgb(23, 89, 255); border:none; border-radius:0.3rem; padding:0.2rem"><i class="fa fa-shopping-cart"></i>Add To Cart</button>
+                                {% else %} 
+                              <button class="unavailable text-white" style="background-color:red; border:none; border-radius:0.3rem ;padding:0.2rem;"><i class="fa fa-minus"></i>Out of Stock</button>
+                                 {% endif %}
+                              <button id="favbtn" style="background-color: red; border:none; border-radius:0.2rem; padding:0.1rem"><i class="fa-solid fa-heart" style="color:white"></i></button>
+                            </div>                  
+                       </div>
+                    </div>
+
+     <div class="col-12 col-sm-12 col-md-6 col-lg-5">
+      <h3 class="text-decoration-underline text-center text-primary">About this Item:</h3>
+      <p class="details">{{products.description }}</p>
+    </div>
+    
+  
+</div>
+
+
+</div>
+<div class="container text-center d-flex justify-content-around mb-5">
+  
+  <div class=" col-4 " >
+    <img src="{% static 'images/secure-payment.png' %}" alt="" width="50px" height="50px" ><br>
+    <button class="btn btn-outline-success mb-2 d-button" data-bs-toggle="collapse" data-bs-target="#demo1" style="min-width: 50%;">Secured-payment</button><br>
+    <div class="collapse text-start " id="demo1">
+      Razorpay uses advanced encryption technologies to protect your sensitive data during transactions. This means that your payment details are securely transmitted and cannot be accessed by unauthorized parties.    </div>
+  </div>
+  <div class="col-4">
+    <img src="{% static 'images/free-Shipping.png' %}" alt="" width="50px" height="50px" ><br>
+    <button class="btn btn-outline-primary mb-2 d-button" data-bs-toggle="collapse" data-bs-target="#demo2" style="min-width: 50%;">Free Delivery</button><br>
+    <div class="collapse text-start px-2" id="demo2">
+      Enjoy the convenience of free delivery on every order, no matter the size.
+      Shop your favorite items without worrying about shipping costs.
+      We deliver straight to your doorstep, absolutely free!    </div>
+  </div>
+  <div class="col-4">
+    <img src="{% static 'images/product-return.png' %}" alt="" width="50px" height="50px" ><br>
+    <button class="btn btn-outline-danger mb-2 d-button " data-bs-toggle="collapse" data-bs-target="#demo3" style="min-width: 50%;">10 Days Return Policy</button><br>
+    <div class="collapse text-start " id="demo3">
+      Shop with confidence with our 10-day return policy.
+      If you're not completely satisfied, you have 10 days to return your purchase.
+      Hassle-free returns to ensure you get exactly what you need!    </div>
+    
+  </div>
+ 
+</div>
+
+<div class="container bg-body ">
+  <div class="row bg-light my-5 pb-4 px-3">
+  
+  {% for item in hot_product %}
+  <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-4">
+   <div class="card w-100 h-100 mx-auto ">   
+      <img src="{{item.product_image.url}}" class="card-img-top h-75 w-75 mx-auto" alt="..." >  
+      <div class="hot">Hot</div>
+      <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
+      <div class="card-body">
+        <h6 class="card-title ">{{item.name}}</h6>
+        <p class="card-text text-success text-center fw-bold"><span>₹</span><s style="color: red;">{{item.original_price}}</s>  | {{item.selling_price}} </p>
+      </div>
+    </a>
+   </div>
+  </div>
+  {% endfor %}
+  
+  </div>
+  </div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded",function(event){
+    const minus=document.getElementById('btnminus');
+    const plus=document.getElementById('btnplus');
+    const ip=document.getElementById('txtQty');
+    const pid= document.getElementById('pid');
+    const tkn=document.querySelector('[name="csrfmiddlewaretoken"]');
+    const btncart=document.getElementById('btncart');
+    const favbtn=document.getElementById('favbtn');
+  
+    plus.addEventListener("click",function(){
+      let qty=parseInt(txtQty.value,10);
+      qty=isNaN(qty)?0:qty;
+      if(qty < 10){
+        qty++;
+        txtQty.value=qty;
+      }
+    });
+  
+    
+    minus.addEventListener("click",function(){
+      let qty=parseInt(txtQty.value,10);
+      qty=isNaN(qty)?0:qty;
+      if(qty > 1 ){
+        qty--;
+        txtQty.value=qty;
+      }
+    });
+  
+    btncart.addEventListener("click",function(){
+      let qty=parseInt(txtQty.value,10);
+      qty=isNaN(qty)?0:qty;
+      if(qty > 0 ){
+        let postobj={
+          'product_qty':qty,
+          'pid':pid.value,
+        }
+       
+        fetch("/addtocart",{
+          method:'POST',
+          credentials:'same-origin',
+          headers:{
+            'Accept':'application/json',
+            'X-Requested-With':'XMLHttpRequest',
+            'X-CSRFToken':'{{ csrf_token }}',
+          },
+          body:JSON.stringify(postobj)
+    
+        }).then(response =>{
+          return response.json();
+        }).then(data => {
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: data['status'],
+            timer: 2000,  // Auto close after 2 seconds
+            showConfirmButton: false
+        });
+    }).catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong! Please try again.',
+        });
+    });
+        
+      }else{
+         Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Please enter the quantity.',
+        });
+      }
+    });
+
+    favbtn.addEventListener("click",function(){
+        let postobj={
+          'pid':pid.value,
+        }
+        
+        fetch("/fav",{
+          method:'POST',
+          credentials:'same-origin',
+          headers:{
+            'Accept':'application/json',
+            'X-Requested-With':'XMLHttpRequest',
+            'X-CSRFToken':'{{ csrf_token }}',
+          },
+          body:JSON.stringify(postobj)
+    
+        }).then(response =>{
+          return response.json();
+        }).then(data => {
+         
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: data['status'],
+            timer: 2000,  // Auto close after 2 seconds
+            showConfirmButton: false
+        });
+    }).catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong! Please try again.',
+        });
+    });
+   });
+     
+   });
+    
+  
+ 
+  </script>
+{% endblock scripts %}

@@ -1,0 +1,77 @@
+{% load static %}
+<nav class="navbar navbar-dark navbar-expand-lg fixed-top " >
+    <div class="container-fluid">
+      <a href="{% url 'home' %}">
+      <img class="brandname" src="{% static 'images/TKicon.png' %}" alt="icon" width="30">
+      </a>
+      <form method="GET" action="{% url 'search'  %}" class="input-group" >
+        <input name="q" type="text" class="form-control" placeholder="Search for Products, Brands and more..">
+        <button class="btn btn-light"><i class="fa fa-search"></i></button>
+       </form>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse " id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          
+          {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            
+            <a class="nav-link text-light" href="{% url 'socialaccount_connections' %}"><span class="fw-bold me-1" style="color: rgb(35, 246, 60);">Hello! </span><i class="fa fa-user"></i> {{request.user}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'account_logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+          </li>
+
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Login</a>
+          </li> <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'account_signup' %}"><i class="fa fa-users"></i> Register</a>
+          </li>
+         {% endif %}
+
+          <li class="nav-item">
+            <a class="nav-link tex-light active" aria-current="page" href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Home</a>
+          </li>
+
+         
+
+          <li class="nav-item">
+            
+            <a class="nav-link text-light" href="{% url 'collection' %}"><i class="fa-solid fa-cubes"></i> Collections</a>
+          </li>
+          {% if request.user.is_authenticated %}
+          <li class="nav-item ">
+          
+            <a class="nav-link text-light" href="{% url 'cart' %}"> <i class="fa-solid fa-cart-shopping "></i> <span class="text-light badge bg-success">{{cart_count}}</span> Cart</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'favrt' %}"> <i class="fa-solid fa-heart "></i> <span class=" badge bg-danger text-light badge ">{{wish_count}}</span> Wishlist</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'order' %}"> <i class="fa-solid fa-bag-shopping "></i> <span class="badge bg-primary text-light">{{order_count}}</span> My Orders</a>
+          </li>
+          <li class="nav-item " style="float: right;">
+            <a class="nav-link text-light " href="{% url 'socialaccount_connections' %}"> <i class="fa-solid fa-gear "></i> Settings</a>
+          </li>
+          {% else%}
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-cart-shopping "></i> {{cart_count}} Cart</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-heart "></i> {{wish_count}} Wishlist</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-bag-shopping "></i> {{order_count}} My Orders</a>
+
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-gear "></i> Settings</a>
+          </li>
+         {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  

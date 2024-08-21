@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order_confirmation_mail</title>
+    <style>
+        h1 {
+            background-color: rgb(5, 97, 244);
+            text-align: center;
+            color: white;
+        }
+        h2{
+            color: blue;
+            display: inline;
+            text-align: center;
+        }
+        h3{
+            color: black;
+            text-align: center;
+        }
+        b{
+            color: red;
+        }
+        span{
+            
+            color: black;
+        }
+        ul{
+            list-style-type: none;
+        }
+    </style>
+  
+</head>
+<body>
+
+    <h1 class="bg-primary">Thank you for your order ❤️, <span>{{user.username}}</span></h1>
+   
+     <h3>Order Successfully placed! 🎉</h3>
+    <p>Your order ID :  <b>{{razorpay_order_id}}.</b></p><br>
+    
+    <ul>
+        {% for item in order_items %}
+            
+            <li>
+                <h2>{{ item.Product.name }}</h2>
+            </li><br>
+        {% endfor %}
+           <li>Total cost: <b>₹ {{order.total_cost}}</b>   </li>
+    </ul>
+    
+    <p>Your order will be Delivered within 3 - 5 working days.</p>
+    
+
+    
+</body>
+</html>

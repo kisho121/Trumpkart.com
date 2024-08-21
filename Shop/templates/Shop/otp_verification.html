@@ -1,0 +1,31 @@
+{% extends 'Shop/layouts/main.html' %}
+
+{% block title %}
+Otp Verification
+{% endblock title %}
+
+{% block content %}
+<h3 class="bg-primary text-center text-light py-2 fw-bold">OTP Verification</h3>
+{% include 'Shop/inc/message.html' %}
+<div class="container d-block mx-auto bg-secondary my-5 py-5 ">
+    <div class="row">
+    <div class="col-10 col-sm-8 col-md-6 col-lg-4 mx-auto bg-light">
+        <h5 class="fw-bold text-center">Please Enter your Otp:</h5>
+        <form method="POST" >
+            {% csrf_token %}
+           
+            <input class="form-control" placeholder=" Enter your OTP" type="text" id="otp" name="otp"><br>
+            <button class="btn btn-primary mb-2" type="submit">Verify OTP</button>
+        </form>
+         
+        <form method="POST" >
+            {% csrf_token %}
+           
+            <input class="form-control" type="hidden"  value="{{form.email}}" ><br>
+            <button class="btn btn-danger mb-2" type="submit">Resent OTP</button>
+        </form>
+    </div>
+</div>
+</div>
+
+{% endblock content %}

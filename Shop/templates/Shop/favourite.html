@@ -1,0 +1,68 @@
+
+{% extends 'Shop/layouts/main.html' %}
+
+{% block title %}
+Register|Ecom
+{% endblock title %}
+
+{% block content %}
+{% include 'Shop/inc/message.html' %}
+
+<h2 class="text-secondary text-center fw-bold py-2">My Wishlist <i class="fa fa-heart "></i> </h2>
+<div class="container bg-light">
+
+
+
+{% if fav %}
+
+  
+  
+      {% for item in fav %}
+       <div class="row justify-content-around mb-5">
+        
+         <div class="card col-12 col-sm-12 col-md-4 col-lg-3  ">
+            <div class="text-center">
+            
+              <img class="card-img-top " src="{{ item.Product.product_image.url }}" alt="" style="max-width: 200px;">
+              <p class="card-body text-primary text-center fw-bold">{{ item.Product.name }}</p>
+            
+         </div>
+         </div>
+         
+         <div class="col-6 col-sm-6 col-md-4 col-lg-3 mx-auto" >
+            <p class="text-dark">{{ item.Product.description }}</p>
+
+         </div>
+         <div class="col-6 col-sm-6 col-md-4 col-lg-3  ">
+            <h5 class="text-dark text-center ">Amount: &#8377<b class="text-success">{{item.Product.selling_price}}</b></h5>
+            <div class="justify-content-center d-flex">
+            <a class=" mx-auto" href="{% url 'removefavrt' item.id %}" onclick="return confirm('Are you Sure to Remove')"><button class="btn btn-danger"><i class="fa fa-trash"></i> Remove</button></a>
+            <a href="{% url 'collectiondetails' item.Product.category.name item.Product.name %}"><button class="btn btn-primary fw-bold"><i class="fa fa-shopping-cart"></i> Details </button></a>
+         </div>
+         </div>
+         
+       </div>
+      
+     
+     
+      {% endfor %}
+     
+ 
+   
+
+
+{% else %}
+
+<h2 class="text-center my-5 py-5">There is No item in the Wishist..</h2>
+{% endif %}
+
+
+
+
+</div>
+  
+
+{% endblock content %}
+{% block scripts %}
+
+{% endblock scripts %}

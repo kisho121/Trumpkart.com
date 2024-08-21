@@ -1,0 +1,117 @@
+{% extends 'Shop/layouts/main.html' %}
+{% load static  %}
+{% block title %}
+Pay with Razorpay | Ecom
+{% endblock title %}
+
+{% block content %}
+<div class="container-fluid my-2 bg-light">
+    <h2 class="text-secondary text-center fw-bold py-2">Order Summary</h2>
+    <div class="row mx-auto justify-content-center py-2">
+        {% if orders %}
+        {% for item in orders %}
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 mx-0">
+
+            <table class="table table-stripped mt-3  ">
+                <thead class="bg-secondary text-light">
+                     <th>Order ID</th>
+                     <th>Order placed on</th>
+                     <th>
+                        {% if item.payment_method == 'COD' %}
+                        Amount to pay
+                        {% else %}
+                        Amount Paid
+                        {% endif %}
+                     </th>
+                     <th>Payment Mode</th>
+                     <th>Status</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            {% if item.final_order_id %}
+                            <p> {{ item.final_order_id }}</p>
+                            {% else %}
+                            <p>{{ item.razorpay_order_id }}</p>
+                            {% endif %}
+                        </td>
+                         <td>{{item.created_at}}</td>
+                         <td>{{item.total_cost}}</td>
+                         <td class="text-success fw-bold">{{item.payment_method }}</td>
+                         <td>
+                          {% if item.status == 0 %}
+                            <p class="text-warning fw-bold">Pending <i class="fa-solid fa-clock"></i></p>
+                            {% elif item.status == 1 %}
+                            <p class=" fw-bold text-success">Delivered <i class="fa-regular fa-circle-check fw-bold"></i></p>
+                            {% elif item.status == 2 %}
+                            <p class=" fw-bold text-danger">Canceled <i class="fa-solid fa-circle-xmark fw-bold"></i></p>
+                            {% elif item.status == 3 %}
+                            <p class=" fw-bold text-danger">Return <i class="fa-solid fa-circle-xmark fw-bold"></i></p>
+                           {% endif %}
+                         </td>
+                     </tr>
+                 </tbody>
+            </table>
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-3 col-lg-3 ">
+            {% for order_item in item.order_items.all %}
+            <div class="justify-content-center text-center my-3">
+                <img class="card-img-top w-50" src="{{ order_item.Product.product_image.url }}" alt="{{ order_item.Product.name }}" width="80" height="80">
+                <p class="text-center text-decoration-underline fw-bold text-primary">{{ order_item.Product.name }}</p>
+                <p class="text-center">Sold by: <b>{{ order_item.Product.vendor }}</b></p>
+                <p class="text-center">Quantity: {{ order_item.quantity }}</p>
+                <p class="text-center">Price: ₹{{ order_item.price }}</p>
+                <a type="button" class="btn btn-outline-secondary" href="{% url 'invoice' item.id %}">Invoice</a>
+            </div>
+            {% endfor %}
+            </div>
+               
+                <div class="col-12 col-sm-12 col-md-3 col-lg-3">
+                    <p class="fw-bold">{{item.address.name}}</p>
+                    <p>{{item.address.house}},</p>
+                    <p>{{item.address.area}},</p>
+                    <p>{{item.address.city}},</p>
+                    <p>{{item.address.state}}, </p>
+                    <p>{{item.address.country}}, </p>
+                    <p>{{item.address.zipcode}}.</p>
+                    <p>{{item.address.phone}}</p>
+                    <p>{{item.address.email}}</p>
+
+                    {% if item.status == 0 %}
+                    <form action="{% url 'cancel_order' item.id %}" method="POST">
+                        {% csrf_token %}
+                    <button class="btn btn-outline-danger fw-bold">Cancel</button>
+                    </form>
+                    {% elif item.status == 1 %}
+                        {% if item.is_old_order %}
+                        <a href="{% url 'cart' %}">
+                        <button class="btn btn-outline-success fw-bold">Buy more</button>
+                        </a>
+                        {% else %}
+                        <form action="{% url 'return_order' item.id %}" method="POST">
+                            {% csrf_token %}
+                         <button class="btn btn-outline-warning fw-bold">Return</button>
+                        </form>
+                        {% endif %}
+
+                    {% endif %}
+                    
+                </div>
+                <hr class="bg-dark mt-3">
+           
+            {% endfor %}
+
+            {% else %}
+            <h1 class=" text-center container bg-light my-5">You haven't ordered anything Yet!!</h1>
+            {% endif %}
+    </div>
+</div>
+
+
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

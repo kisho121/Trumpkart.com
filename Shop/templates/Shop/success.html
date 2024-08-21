@@ -1,0 +1,41 @@
+{% extends 'Shop/layouts/main.html' %}
+{% load static %}
+{% block title %}
+Order Success Page
+{% endblock title %}
+
+{% block content %} 
+
+<div class="container my-5 mx-auto text-center " >
+
+     <img src="{% static 'images/placed.png' %}" alt="" width="200px" height="200px">
+     <h5 class="display-3 text-info fw-bold">Thank You</h5>
+     <h2 class="display-4 text-success fw-bold py-5">Your order placed Successfully..</h2>
+     <div class="container text-center d-flex justify-content-around">
+   
+         <div class="">
+           <img src="{% static 'images/secure-payment.png' %}" alt="" width="50px" height="50px" >
+           <p class="card-body">Secured-payment</p>
+         </div>
+         <div class="">
+           <img src="{% static 'images/free-Shipping.png' %}" alt="" width="50px" height="50px" >
+           <p class="card-body">Free Delivery</p>
+         </div>
+         <div class="">
+           <img src="{% static 'images/product-return.png' %}" alt="" width="50px" height="50px" >
+           <p class="card-body">10 Days Return Policy</p>
+         </div>
+        
+       </div>
+ </div>
+ <div class=" container fluid mx-auto">
+ <a class="text-decoration-none" href="{% url 'order' %}"><button class="btn btn-outline-primary mx-auto">My orders</button></a>
+ </div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+
+
+{% endblock scripts %}
