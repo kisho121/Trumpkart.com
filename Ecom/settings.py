@@ -13,6 +13,9 @@ import os
 from pathlib import Path
 from decouple import config
 
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1','localhost']
 
@@ -223,15 +226,10 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
-#212043536195-nrknbjqembcklrurk4uk8c83qsoofvh0.apps.googleusercontent.com
-
-#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
 
 
-#fb
 
-#946387210578067
-#98694383d5b16b712f578577e290e22c
+
 
 
 
@@ -239,12 +237,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_PASSWORD = 'upve ptlq ejap ioqp'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+
+
 RAZORPAY_KEY_ID= config('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET= config('RAZORPAY_KEY_SECRET')
-#RAZORPAY_ORDER_ID= 'order_OeqK48r8GyNVcT'
+
 
 
