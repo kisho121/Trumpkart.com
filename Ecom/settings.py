@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1:8000']
+ALLOWED_HOSTS = ['127.0.0.1','localhost']
 
 
 # Application definition
@@ -49,11 +50,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
-    
-    
-    
-    
-   
 ]
 
 LOCALE_PATHS = [
@@ -99,14 +95,15 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+SECRET_KEY = config('SECRET_KEY')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME':'kd',
-        'HOST':'localhost',
-        'USER':'root',
-        'PASSWORD':'1234',
-        'PORT':'3306',
+        'NAME': config('DB_NAME'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
 
@@ -145,7 +142,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 MEDIA_URL = '/images/'
 
@@ -154,6 +151,8 @@ MEDIA_ROOT = BASE_DIR/'static'
 STATICFILES_DIRS=[
     BASE_DIR/'static'
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -189,8 +188,7 @@ SOCIALACCOUNT_PROVIDERS = {
     
     
     'facebook': {
-        'METHOD': 'oauth2',  # Set to 'js_sdk' to use the Facebook connect SDK
-        #'SDK_URL': '//connect.facebook.net/{locale}/sdk.js',
+        'METHOD': 'oauth2', 
         'SCOPE': ['email', 'public_profile'],
         'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
         'INIT_PARAMS': {'cookie': True},
@@ -205,7 +203,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'short_name'
         ],
         'EXCHANGE_TOKEN': True,
-       # 'LOCALE_FUNC': 'path.to.callable',
+       
         'VERIFIED_EMAIL': False,
         'VERSION': 'v13.0',
         'GRAPH_API_URL': 'https://graph.facebook.com/v13.0',
@@ -240,13 +238,13 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'trumpkartshoppy@gmail.com'
-EMAIL_HOST_PASSWORD ='dsxj slyf faoi nbsk'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-RAZORPAY_KEY_ID= 'rzp_test_4Hjkyweq2IDJ6O'
-RAZORPAY_KEY_SECRET= 'f2Ng1IDjtHs6DyJkip2fRktY'
+RAZORPAY_KEY_ID= config('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET= config('RAZORPAY_KEY_SECRET')
 #RAZORPAY_ORDER_ID= 'order_OeqK48r8GyNVcT'
 
 
