@@ -17,7 +17,7 @@ Category|TrumpKart
 <div class="col-6 col-sm-6 col-md-4 col-lg-4 my-4">
  <div class="card w-100 h-100 text-center">
   <a class="text-decoration-none" href="{% url 'collection' item.name %}">
-    <img src="{{ item.image.url }}" class="card-img-top mx-auto" alt="...">
+    <img src="{{ item.image.url }}" class="card-img-top mx-auto" alt="{{item.name}}">
     <div class="card-body">
       <h6 class="card-title text-dark fw-bold">{{item.name}}</h6>
       <p class="card-text text-dark text-center ">{{item.description}}</p>  

@@ -97,7 +97,7 @@ Register|Ecom
   {% for item in hot_product %}
   <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-4">
    <div class="card w-100 h-100 mx-auto ">   
-      <img src="{{item.product_image.url}}" class="card-img-top h-75 w-75 mx-auto" alt="..." >  
+      <img src="{{item.product_image.url}}" class="card-img-top h-75 w-75 mx-auto" alt="{{item.name}}" >  
       <div class="hot">Hot</div>
       <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
       <div class="card-body">
