@@ -16,7 +16,9 @@ body.poppins-regular {
   font-style: normal;
 }
 .brandname{
-   width: 10vw;
+   width: 8vw;
+   filter: brightness(200%);
+  
 }
 .iconname{
   font-size: 2vw;
@@ -588,7 +590,7 @@ span{
       width:18px;
     }
     .brandname{
-      width: 25vw;
+      width: 22vw;
      
    }
  
