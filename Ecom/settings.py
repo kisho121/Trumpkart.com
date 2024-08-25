@@ -11,12 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
-import sys
+
 from decouple import config
 
-
-
-port = os.environ.get('PORT', '8000')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +28,7 @@ SECRET_KEY = 'django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -166,13 +163,6 @@ else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-
-
-if __name__ == '__main__':
-    from django.core.management import execute_from_command_line
-    execute_from_command_line([sys.argv[0], 'runserver', f'0.0.0.0:{port}'])
-
 
 
 # Default primary key field type
