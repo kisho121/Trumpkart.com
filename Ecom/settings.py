@@ -151,6 +151,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Directory where collected static files will be placed
+
 STATIC_ROOT = BASE_DIR / 'static'  # Destination for collected static files
 STATICFILES_DIRS = [
     BASE_DIR / 'staticfiles',  # Directory containing your static files

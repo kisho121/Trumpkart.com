@@ -49,6 +49,7 @@ document.getElementById('supportteam').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const formData = new FormData(this);
+    const form = this;
 
     fetch("{% url 'support_team' %}", {
         method: 'POST',
@@ -65,7 +66,13 @@ document.getElementById('supportteam').addEventListener('submit', function(e) {
                 title: 'Success!',
                 text: data.message,
                 confirmButtonText: 'OK'
+            })
+            .then(() => {
+                // Only reset the form after the SweetAlert confirmation
+                console.log('Form is being reset');
+                form.reset();
             });
+           
         } else {
             Swal.fire({
                 icon: 'error',
