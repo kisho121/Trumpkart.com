@@ -11,12 +11,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+import sys
 from decouple import config
-import django_heroku
-import dj_database_url
 
 
 
+port = os.environ.get('PORT', '8000')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -169,7 +169,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
-
+if __name__ == '__main__':
+    from django.core.management import execute_from_command_line
+    execute_from_command_line([sys.argv[0], 'runserver', f'0.0.0.0:{port}'])
 
 
 
@@ -184,8 +186,6 @@ AUTHENTICATION_BACKENDS = [
 
    
     'allauth.account.auth_backends.AuthenticationBackend',
-    
-    
     
 ]
 
@@ -230,9 +230,6 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 }
 
-
-
-
 LOGIN_REDIRECT_URL ="home"
 
 ACCOUNT_LOGOUT_REDIRECT_URL ='account_login'
@@ -242,13 +239,6 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
-
-
-
-
-
-
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -256,8 +246,6 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = 'upve ptlq ejap ioqp'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-
 
 RAZORPAY_KEY_ID= config('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET= config('RAZORPAY_KEY_SECRET')
