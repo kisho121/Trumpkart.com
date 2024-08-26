@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: shopkart
-    env: python
-    plan: free
-    buildCommand: ./build.sh
-    startCommand: gunicorn project.wsgi:application
