@@ -98,15 +98,17 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-SECRET_KEY = config('SECRET_KEY')
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'PORT': config('DB_PORT', default='3306'),
+        'NAME': os.environ.get('DB_NAME'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),  # Default to localhost if not set
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
 
