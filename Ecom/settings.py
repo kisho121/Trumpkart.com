@@ -14,6 +14,10 @@ from pathlib import Path
 
 from decouple import config
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +32,14 @@ SECRET_KEY = 'django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+
+# Security settings for production
+SECURE_SSL_REDIRECT = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 
 
 # Application definition
@@ -97,6 +108,8 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+SILENCED_SYSTEM_CHECKS = ['models.W036']
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
