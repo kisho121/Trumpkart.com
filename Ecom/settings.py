@@ -32,13 +32,7 @@ SECRET_KEY = 'django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost']
-
-
-# Security settings for production
-SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+ALLOWED_HOSTS = ['*']
 
 
 
@@ -119,7 +113,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DB_NAME'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),  # Default to localhost if not set
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),  # Default to localhost if not set
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'PORT': os.environ.get('DB_PORT', '3306'),
