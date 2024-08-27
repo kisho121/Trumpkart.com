@@ -113,7 +113,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DB_NAME'),
-        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),  # Default to localhost if not set
+        'HOST': os.environ.get('DB_HOST'), 
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'PORT': os.environ.get('DB_PORT', '3306'),
