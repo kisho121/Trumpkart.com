@@ -12,11 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
-from decouple import config
+from decouple import config,Csv
 
-from dotenv import load_dotenv
 
-load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,12 +25,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ALLOWED_HOSTS = ['trumpkart-35.onrender.com', 'www.trumpkart-35.onrender.com']
+
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
 
 
 
@@ -49,10 +51,7 @@ INSTALLED_APPS = [
     'Shop',
     'widget_tweaks',
     'razorpay',
-   
-    
     'django.contrib.sites',
-    
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -63,8 +62,6 @@ INSTALLED_APPS = [
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
-
-
 
 MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
@@ -157,22 +154,13 @@ USE_TZ = True
 
 
 
+
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Directory where collected static files will be placed
-
-STATIC_ROOT = BASE_DIR / 'static'  # Destination for collected static files
-STATICFILES_DIRS = [
-    BASE_DIR / 'staticfiles',  # Directory containing your static files
-]
 MEDIA_URL = '/media/'
-
-if DEBUG:
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type
