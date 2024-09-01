@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Shop',
+    'debug_toolbar',
     'widget_tweaks',
     'razorpay',
     'django.contrib.sites',
@@ -74,6 +75,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'Ecom.urls'
@@ -179,6 +181,10 @@ AUTHENTICATION_BACKENDS = [
     
 ]
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
 
 SITE_ID = 1
 
@@ -232,7 +238,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_USER = 'trumpkartshoppy@gmail.com'
 EMAIL_HOST_PASSWORD = 'upve ptlq ejap ioqp'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
