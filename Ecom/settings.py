@@ -110,14 +110,7 @@ SILENCED_SYSTEM_CHECKS = ['models.W036']
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME'),
-        'HOST': os.environ.get('DB_HOST'), 
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
-    }
+    'default': dj_database_url.config( default=os.environ.get('DATABASE_URL', 'mysql://root:1234@localhost/mysql') )
 }
 
 
