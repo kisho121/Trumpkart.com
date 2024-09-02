@@ -10,6 +10,12 @@ services:
         fromDatabase:
           name: my-mysql-db
           property: connectionString
+
+      - key: SECRET_KEY 
+        value: "k%)#g0($75tyqfk86@l6swzp=d))6+$mw3c8i1#kdbychav4+a" 
+      - key: DEBUG 
+        value: "False"
+
       - key: DJANGO_SETTINGS_MODULE
         value: "Ecom.settings.production"
 

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+import dj_database_url
 
 from decouple import config,Csv
 
@@ -33,7 +34,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-wz#=vy&18^j$y$zi=#0o%
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', "trumpkart-35.onrender.com"]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 
