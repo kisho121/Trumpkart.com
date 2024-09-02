@@ -15,7 +15,7 @@ import dj_database_url
 
 from decouple import config,Csv
 
-
+from django.core.management import execute_from_command_line
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -113,6 +113,10 @@ DATABASES = {
 }
 
 DATABASES["default"] = dj_database_url.parse(config("DATABASE_URL"))
+
+if __name__ == "__main__":
+    port = os.getenv('PORT', '5432')  # Use the port Render provides or default to 8000
+    execute_from_command_line(['manage.py', 'runserver', '0.0.0.0:' + port])
 
 
 # Password validation
