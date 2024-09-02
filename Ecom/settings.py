@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-wz#=vy&18^j$y$zi=#0o%rerfq8q^h@i!4h!qi$lku=p#00p*o')
+SECRET_KEY = config("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -34,7 +34,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-wz#=vy&18^j$y$zi=#0o%
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
 
 
@@ -100,7 +100,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Ecom.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -110,8 +109,10 @@ SILENCED_SYSTEM_CHECKS = ['models.W036']
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DATABASES = {
-    'default': dj_database_url.config( default=os.environ.get('DATABASE_URL', 'mysql://root:1234@localhost/mysql') )
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
+
+DATABASES["default"] = dj_database_url.parse(config("DATABASE_URL"))
 
 
 # Password validation

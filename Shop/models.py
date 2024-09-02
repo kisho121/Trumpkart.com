@@ -73,7 +73,7 @@ class addressModel(models.Model):
     city=models.CharField(max_length=150)
     state=models.CharField(max_length=150)
     country=models.CharField(max_length=150)
-    zipcode=models.IntegerField()
+    zipcode = models.CharField(max_length=10)
     phone=models.CharField( max_length=20)
     email=models.EmailField()
     
