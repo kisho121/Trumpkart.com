@@ -20,7 +20,7 @@ class carousel(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
 
 class category(models.Model):
-    name=models.CharField(max_length=200,null=False,blank=False)
+    name=models.CharField(max_length=100,null=False,blank=False)
     image=models.ImageField(upload_to=getFileName,null=True,blank=True)
     description=models.TextField(max_length=500,null=False,blank=False)
     status=models.BooleanField(default=False,help_text="0-show,1-Hidden")
@@ -31,7 +31,7 @@ class category(models.Model):
     
 class product(models.Model):
     category=models.ForeignKey(category,on_delete=models.CASCADE)
-    name=models.CharField(max_length=200,null=False,blank=False)
+    name=models.CharField(max_length=150,null=False,blank=False)
     vendor=models.CharField(max_length=150,null=False,blank=False)
     product_image=models.ImageField(upload_to=getFileName,null=True,blank=True)
     quantity=models.IntegerField(null=False,blank=False)

@@ -32,7 +32,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Shop',
-    'debug_toolbar',
+    #'debug_toolbar',
     'widget_tweaks',
     'razorpay',
     'django.contrib.sites',
@@ -76,7 +76,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'Ecom.urls'
@@ -106,13 +106,9 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 SILENCED_SYSTEM_CHECKS = ['models.W036']
 
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
-
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': dj_database_url.parse(config('DATABASE_URL'))
 }
-
-DATABASES["default"] = dj_database_url.parse(config("DATABASE_URL"))
 
 if __name__ == "__main__":
     port = os.getenv('PORT', '5432')  # Use the port Render provides or default to 8000
@@ -153,13 +149,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-
-
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 

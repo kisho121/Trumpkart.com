@@ -7,18 +7,24 @@
 {% block content %}
 
 <h1 class=" text-center fw-bold" style="margin: 0px;;">{{category_name}}</h1>
-<div class="container-fluid bg-light d-flex justify-content-center">
-<img class="w-50 h-50" src="{{ category_image.url}}" alt="" width="">
+<div class="container-fluid d-flex justify-content-center" style="background-image: linear-gradient(rgb(4, 9, 90),white);">
+<img class="cltn-image" src="{{ category_image.url}}" alt="{{category_name}}" width="">
 </div>
-<h3 class="text-center text-dark"> {{category_description}}</h3>
+<h3 class="text-center text-dark fw-bold text-decoration-underline"> {{category_description}}</h3>
 <div class="container bg-light">
 <div class="row my-4 pb-4 px-3">
 
 {% for item in products %}
-<div class=" col-6 col-sm-6 col-md-4 col-lg-3 my-4">
- <div class="card w-100 h-100 mx-auto text-center">
-    <img src="{{item.product_image.url}}" class="card-img-top  mx-auto" alt="{{item.name}}" >
-    
+<div class=" col-6 col-sm-6 col-md-4 col-lg-3 my-3">
+ <div class="card w-100 h-100 px-2 text-center">
+  <a class="link text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
+    <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}" >
+  </a>
+  {% if item.trending %}
+  <div class="hot">hot</div>
+  {% endif %}
+  
+
     <a class="link text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
     <div class="card-body" >
       <h6 class="card-title mb-1">{{item.name}}</h6>

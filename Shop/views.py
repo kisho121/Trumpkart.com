@@ -483,12 +483,19 @@ def collections(request, name):
     cart_count=Cart.objects.filter(user=request.user.id).count()
     wish_count=favourite.objects.filter(user=request.user.id).count()
     order_count=Order.objects.filter(user=request.user.id).count()
+   
     
     if category_obj is not None:
         products = product.objects.filter(category=category_obj)
-        return render(request, 'Shop/products/index.html',{"products": products, "category_name": name, "category_description": category_obj.description,"category_image":category_obj.image,"cart_count":cart_count,
+        return render(request, 'Shop/products/index.html',{
+        "products": products, 
+        "category_name": name, 
+        "category_description": category_obj.description,
+        "category_image":category_obj.image,
+        "cart_count":cart_count,
         "wish_count":wish_count,
-        "order_count":order_count,})
+        "order_count":order_count,
+        })
     else:
         messages.warning(request, "No such category found")
         return redirect('collection')

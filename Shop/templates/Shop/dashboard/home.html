@@ -53,7 +53,9 @@ Home|Trumpkart
 {% for item in products %}
 <div class="col-6 col-sm-6 col-md-3 col-lg-2 my-4">
  <div class="card w-100 h-100 mx-auto text-center">   
+  <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
     <img src="{{item.product_image.url}}" class="card-img-top mx-auto " alt="{{item.name}}" >  
+  </a>
     <div class="hot">{{Hot}}</div>
     <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
     <div class="card-body">
