@@ -62,7 +62,11 @@ Pay with Razorpay | Ecom
                 <p class="text-center">Sold by: <b>{{ order_item.Product.vendor }}</b></p>
                 <p class="text-center">Quantity: {{ order_item.quantity }}</p>
                 <p class="text-center">Price: ₹{{ order_item.price }}</p>
-                <a type="button" class="btn btn-outline-secondary" href="{% url 'invoice' item.id %}">Invoice</a>
+                {% if item.status == 1 %} 
+                <a type="button" class="btn btn-outline-secondary" href="{% url 'invoice' item.id %}">Invoice</a> 
+                {% else %} 
+                <button class="btn btn-outline-secondary" disabled>Invoice</button>
+                 {% endif %}
             </div>
             {% endfor %}
             </div>
