@@ -384,6 +384,9 @@ span{
     button.buy{
       font-size: 2vw;
      }
+     .li{
+      font-size: 1.3vw;
+    }
      
   }
 
@@ -476,7 +479,9 @@ span{
     } button.buy{
       font-size: 2vw;
      }
-     
+     .li{
+      font-size: 1.6vw;
+    }
   }
               /*media query @max-width:576px*/
   @media screen and (max-width:576px) {
@@ -609,6 +614,9 @@ span{
       width: 22vw;
      
    }
+   .li{
+    font-size: 2.5vw;
+  }
  
     }
 
