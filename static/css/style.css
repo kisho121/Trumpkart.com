@@ -129,7 +129,6 @@ a{
 .hot{
   background-color:orangered;
   border-top-right-radius: 4px;
-  
   color: white;
   display: inline;
   font-weight: 700;
@@ -138,6 +137,7 @@ a{
   text-align: center;
   width: 50px;
   z-index: 1;
+  text-shadow: 1px 1px 3px black;
 }
 img.card-img-top{ 
     object-position: center;
