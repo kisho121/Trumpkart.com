@@ -100,8 +100,23 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = { 'default': dj_database_url.config(default='postgresql://postgres:1234@localhost:5432/trump_db') # Local default
+DATABASES = {
+    
+    'default': dj_database_url.parse(config('DATABASE_URL')),
+    'default': {
+        
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'trump_db',
+        'USER': 'postgres',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
+
+if __name__ == "__main__":
+    port = os.getenv('PORT', '5432')  # Use the port Render provides or default to 8000
+    execute_from_command_line(['manage.py', 'runserver', '0.0.0.0:' + port])
 
 
 
