@@ -9,7 +9,7 @@ Home|Trumpkart
 
 <div class="row m-0 p-0 " >
   <div class="col-2 col-sm-2 col-md-2 col-lg-1 ps-1 border-end border-end-secondary">
-     <div class="sidetitle fw-bold mb-1" >{{category_title}}</div>
+     <h4 class="sidetitle">{{category_title}}</h4>
      
       {% for item in categorys %}
     <p style="list-style: none; " class="mb-4">
@@ -32,7 +32,7 @@ Home|Trumpkart
   <div class="carousel-inner">
     {% for slide in slides %}
     <div class="carousel-item {% if forloop.first %} active {% endif %}">
-      <img src="{{ slide.carousel_image.url}}" class=" w-100 position-relative caro-image " alt="{{slide.alt_text}}">
+      <img src="{{ slide.carousel_image.url}}" class=" w-100 h-auto position-relative " alt="{{slide.alt_text}}">
     </div>
     {% endfor %}
    

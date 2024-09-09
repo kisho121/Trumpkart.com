@@ -146,44 +146,43 @@ Register|Ecom
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    var total_price ="{{total_cost}}";
-    var amount_int_paise = total_price*100;
-    var options = {
-        "key": "rzp_test_4Hjkyweq2IDJ6O",
-        "amount": amount_int_paise,
-        "currency": "INR",
-        "name": "TrumpKart",
-        "description": "Test Transaction",
-        "image": "https://example.com/your_logo",
-        "order_id": "", 
-        "handler": function (response){
-            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
-            document.getElementById('razorpay_signature').value = response.razorpay_signature;
-            document.getElementById('payment_mode').value = "Razorpay"
-            document.getElementById('checkout-form').submit();
-        },
-        "prefill": {
-            "name": "Kishore",
-            "email": "kishoor121@gmail.com",
-            "contact": "8220557366"
-        },
-        "notes": {
-            "address": "Razorpay Corporate Office"
-        },
-        "theme": {
-            "color": "#3399cc"
-        }
-    };
-    var rzp1 = new Razorpay(options);
+    
+var options = {
+    "key": "rzp_test_4Hjkyweq2IDJ6O",
+    "amount": "{{total_cost}}",
+    "currency": "INR",
+    "name": "TrumpKart",
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": "", 
+    "handler": function (response){
+        document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+        document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+        document.getElementById('razorpay_signature').value = response.razorpay_signature;
+        document.getElementById('payment_mode').value = "Razorpay"
+        document.getElementById('checkout-form').submit();
+    },
+    "prefill": {
+        "name": "Kishore",
+        "email": "kishoor121@gmail.com",
+        "contact": "8220557366"
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
 
-    document.getElementById('rzp-button1').onclick = function(e){
-        rzp1.open();
-        e.preventDefault();
-    }
-    document.getElementById('cod_button').onclick = function(e){
-        document.getElementById('payment_mode').value = "COD";
-        document.getElementById('checkout-form').submit()
-    }
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+document.getElementById('cod_button').onclick = function(e){
+    document.getElementById('payment_mode').value = "COD";
+    document.getElementById('checkout-form').submit()
+}
 </script>
 {% endblock scripts %}

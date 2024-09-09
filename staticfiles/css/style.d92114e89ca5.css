@@ -74,24 +74,16 @@ nav.navbar-expand-lg{
 .navbar-nav {
   float: auto;
 }
-
 .nav-link{
   color: white !important;
   font-size: 1vw;
   margin: 0px;
   padding: 0%;
-  border: none;
 }
-
 .nav-link:hover{
-
-  border-radius: 5px;
+  border-bottom: 1px solid white;
   transition-delay: 5s;
   
-}
-.cltn-image{
-  width: 60%;
-  height: 50vh;
 }
 
 .form-control{
@@ -304,10 +296,6 @@ span{
       font-size: 1.5vw;
       padding-bottom: 5px;
     }
-    .cltn-image{
-      width: 80vw;
-      height: auto;
-    }
 
     .brandname{
       width: 10vw;
@@ -384,9 +372,6 @@ span{
     button.buy{
       font-size: 2vw;
      }
-     .li{
-      font-size: 1.3vw;
-    }
      
   }
 
@@ -400,10 +385,6 @@ span{
       padding-bottom: 5px;
     }
      
-    .cltn-image{
-      width: 100vw;
-      height: auto;
-    }
     .brandname{
       width: 15vw;
    }
@@ -479,9 +460,7 @@ span{
     } button.buy{
       font-size: 2vw;
      }
-     .li{
-      font-size: 1.6vw;
-    }
+     
   }
               /*media query @max-width:576px*/
   @media screen and (max-width:576px) {
@@ -614,9 +593,6 @@ span{
       width: 22vw;
      
    }
-   .li{
-    font-size: 2.5vw;
-  }
  
     }
 
