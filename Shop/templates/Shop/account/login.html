@@ -15,7 +15,7 @@ Login|TrumpKart
 <div class="bg-login pb-4" style="background-image: url('/static/images/login.jpg'); background-repeat: no-repeat; background-size: cover; ">
 {% include 'Shop/inc/message.html' %}
 <h1 class="text-center text-light fw-bold">Login</h1>
-<div class="container col-10 col-sm-10 col-md-6 col-lg-4 pb-3 login">
+<div class="container col-10 col-sm-10 col-md-6 col-lg-4 pb-3 login rounded-3">
   
   <section class="container pt-3 my-2 ">
      
@@ -36,13 +36,9 @@ Login|TrumpKart
                  <button type="submit" class="btn btn-primary fw-bold">Sign-in</button>
 
                  <a href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a> <br>
-                 <p>Create New Account <a  href="{% url 'account_signup' %}"><button class="btn btn-outline-success fw-bold ">Sign up</button></a> </p>
                   </form>
   
   </section>
-  
-  
-
 
   <div class="login-or my-3  text-center mb-2">{% trans 'OR' %}</div>
 

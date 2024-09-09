@@ -452,17 +452,22 @@ def registerpage(request):
 def otp_verification(request):
     email = request.GET.get('email')
     if request.method == 'POST':
-        otp = request.POST.get('otp')
-        try:
-            user_otp = OTPVerification.objects.get(user__email=email, otp=otp)
-            user = user_otp.user
-            user.is_active = True
-            user.save()
-            user_otp.delete()  # OTP is used, so delete it
-            messages.success(request, "Registration successfull> Login Now..")
-            return redirect('account_login')
-        except OTPVerification.DoesNotExist:
-            return HttpResponse('Invalid OTP. Please try again.')
+        if 'otp' in request.POST:
+            otp = request.POST.get('otp')
+            try:
+                user_otp = OTPVerification.objects.get(user__email=email, otp=otp)
+                user = user_otp.user
+                user.is_active = True
+                user.save()
+                user_otp.delete()  # OTP is used, so delete it
+                messages.success(request, "Registration successful. Login Now..")
+                return redirect('account_login')
+            except OTPVerification.DoesNotExist:
+                messages.error(request, 'Invalid OTP. Please try again.')
+                return redirect(f'{reverse("otp_verification")}?email={email}')
+        elif 'resend_otp' in request.POST:
+            pass
+            return redirect(f'{reverse("otp_verification")}?email={email}')
     return render(request, 'Shop/otp_verification.html', {'email': email})
 
 def collectionpage(request):

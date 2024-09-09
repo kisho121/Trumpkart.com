@@ -27,9 +27,6 @@ class customuserform(UserCreationForm):
         model = User
         fields = ['username','email','password1','password2']
 
-
-
-
 class addressForm(forms.ModelForm):    
     
      name = forms.CharField(

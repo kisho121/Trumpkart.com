@@ -37,8 +37,6 @@ DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
 
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -92,7 +90,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.request',
             ],
         },
     },
@@ -103,16 +100,9 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-SILENCED_SYSTEM_CHECKS = ['models.W036']
-
-
-DATABASES = {
-    'default': dj_database_url.parse(config('DATABASE_URL'))
+DATABASES = { 'default': dj_database_url.config(default='postgresql://postgres:1234@localhost:5432/trump_db') # Local default
 }
 
-if __name__ == "__main__":
-    port = os.getenv('PORT', '5432')  # Use the port Render provides or default to 8000
-    execute_from_command_line(['manage.py', 'runserver', '0.0.0.0:' + port])
 
 
 # Password validation
