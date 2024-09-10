@@ -88,9 +88,9 @@ nav.navbar-expand-lg{
 .menu-list{
   background-color: aliceblue;
   position: sticky;
-  height: 90vh;
+  height: 92vh;
   left: 0%;
-  top: 10vh;
+  top: 8vh;
   overflow-y: auto;
 
 }
@@ -301,7 +301,7 @@ span{
     font-size: 1vw;
    }
    .sidetitle{
-    font-weight: 500;
+    font-weight:700;
     font-size: 1vw;
     text-decoration: underline;
    }
