@@ -17,10 +17,8 @@ from decouple import config,Csv
 
 from django.core.management import execute_from_command_line
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -28,13 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
 DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 
 # Application definition
@@ -101,17 +98,7 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    
-    'default': dj_database_url.parse(config('DATABASE_URL')),
-    'default': {
-        
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'trump_db',
-        'USER': 'postgres',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+   'default': dj_database_url.config(default='postgresql://postgres:1234@localhost:5432/trump_db')
 }
 
 if __name__ == "__main__":
@@ -160,8 +147,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -171,8 +157,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTHENTICATION_BACKENDS = [
     
     'django.contrib.auth.backends.ModelBackend',
-
-   
+  
     'allauth.account.auth_backends.AuthenticationBackend',
     
 ]
@@ -181,9 +166,7 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-
 SITE_ID = 1
-
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -230,12 +213,11 @@ ACCOUNT_LOGOUT_REDIRECT_URL ='account_login'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'trumpkartshoppy@gmail.com'
-EMAIL_HOST_PASSWORD = 'upve ptlq ejap ioqp'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 

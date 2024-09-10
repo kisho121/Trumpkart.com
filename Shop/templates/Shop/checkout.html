@@ -105,7 +105,7 @@ Register|Ecom
                 <tbody>
                     {% for item in cart_items %}
                     <tr>
-                        <td><img src="{{ item.Product.product_image.url }}" alt="" width="80" height="80"></td>
+                        <td><img class="cart-image" src="{{ item.Product.product_image.url }}" alt="" width="80" height="80"></td>
                         <td><p>{{ item.Product.name }}</p></td>
                         <td>{{item.product_qty}}</td>
                         <td>{{item.total}}</td>

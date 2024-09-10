@@ -37,7 +37,7 @@ Register|Ecom
          <td>{{item.Product.selling_price}}</td>
          <td>{{ item.product_qty }}</td>
          <td class="price">{{ item.total_cost }}</td>
-         <td><a href="{% url 'removecart' item.id %}" onclick="return confirm('Are you Sure to Remove')"><button class="btn btn-outline-danger fw-bold delete"><i class="fa fa-trash"> </i> Remove </button></a></td>
+         <td><a href="{% url 'removecart' item.id %}" onclick="return confirm('Are you Sure to Remove')"><button class="btn btn-outline-danger fw-bold delete"><i class="fa fa-trash"> </i></button></a></td>
          
   
       {% endfor %}

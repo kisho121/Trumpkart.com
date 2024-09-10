@@ -30,12 +30,16 @@ body.poppins-regular {
 }
 .login:hover{
   background-color: white ;
+  opacity: 0.8;
+  border-radius: 1vw;
   transition-duration: 0.7s;
 }
 .register{
   background-color: transparent;
 }
 .register:hover{
+  opacity: 0.9;
+  border-radius: 1vw;
   background-color: white ;
   transition-duration: 0.7s;
 }
@@ -65,7 +69,6 @@ h3{
 
 nav.navbar-expand-lg{
   background-color: rgb(4, 9, 90);
-  
 
 }
 .brand-image{
@@ -76,22 +79,30 @@ nav.navbar-expand-lg{
 }
 
 .nav-link{
-  color: white !important;
   font-size: 1vw;
   margin: 0px;
   padding: 0%;
   border: none;
+  border-radius: 1vw;
+}
+.menu-list{
+  background-color: aliceblue;
+  position: sticky;
+  height: 90vh;
+  left: 0%;
+  top: 10vh;
+  overflow-y: auto;
+
 }
 
 .nav-link:hover{
-
-  border-radius: 5px;
-  transition-delay: 5s;
+  background-color: white;
+  color: blue !important; 
   
 }
 .cltn-image{
-  width: 60%;
-  height: 50vh;
+  width: 60vw;
+  height: auto;
 }
 
 .form-control{
@@ -103,6 +114,9 @@ nav.navbar-expand-lg{
     object-fit: cover;
     
 }
+.caro-image{
+  height: auto;
+}
 .h2{
   font-size: 1.8vw;
 }
@@ -111,24 +125,23 @@ p{
     font-size: 1vw;
 }
 
-
 .li{
   font-weight: 700;
   font-size: 1vw;
 }
+
 a{
   text-decoration: none;
 }
+
 .alert-dismissible {
   position: absolute;
   right: 0%;
 }
 
-
 .hot{
-  background-color:purple;
+  background-color:orangered;
   border-top-right-radius: 4px;
-  box-shadow: 1px 1px 4px  black;
   color: white;
   display: inline;
   font-weight: 700;
@@ -137,12 +150,13 @@ a{
   text-align: center;
   width: 50px;
   z-index: 1;
+  text-shadow: 1px 1px 3px black;
 }
+
 img.card-img-top{ 
     object-position: center;
     object-fit: cover;
-    height: fit-content;
-  
+    height: fit-content; 
 }
 nav.navbar{
   top: 0%;
@@ -154,35 +168,38 @@ nav.navbar{
 .navigate{
     text-decoration: none;
 }
-h6{
-   
+
+h6{ 
     text-align: center;  
 }
+
 span{
     color: black;
     font-weight: 700;
 }
+
 .card-text {
     color: rgb(8, 198, 8);
-    font-size: 1vw;
-    
-}
+    font-size: 1vw;   
+ }
+
   .footer ul {
     list-style: none;
-    
-    
   }
+  
   h4{
     font-size: 18px;
   }
+
   ul li{
-    
     font-size: 15px;
   }
+
   .copy{
     font-size: 15px;
     margin-bottom: 0px;
   }
+
   .footer ul li a {
     color:white;
     text-decoration: none;
@@ -192,7 +209,6 @@ span{
     color: aqua;
   }
  
-  
   footer.footer ul.social-media li a {
     color: #fff;
     font-size: 1.2vw;
@@ -242,19 +258,22 @@ span{
     font-size: 1vw;
    }
    .fa-trash{
-    font-size: 1vw;
+    font-size: 1.5vw;
   }
    .fa-shopping-cart{
     font-size: 1vw;
    }
-
-
+   .collapse{
+    background-color:transparent;
+   
+  }
    .input-group{
     width:25vw;
    }
    .card{
     position: relative;
    }
+   
    .card-img-top{
     height: auto;
     width: 100%;
@@ -282,16 +301,18 @@ span{
     font-size: 1vw;
    }
    .sidetitle{
-    font-weight: 700;
-    font-size: 1.2vw;
+    font-weight: 500;
+    font-size: 1vw;
+    text-decoration: underline;
    }
    .side-icon{
     font-size: 1vw;
    }
    .sidebar{
+    font-family: serif;
     font-size: 1vw;
     color: black;
-    font-weight: 500;
+    
    }
    .sidebar:hover{
     color: blue;
@@ -301,26 +322,24 @@ span{
             
   @media screen and (max-width:1200px) {
     .nav-link{
-      font-size: 1.5vw;
+      font-size: 1vw;
       padding-bottom: 5px;
     }
     .cltn-image{
-      width: 80vw;
-      height: auto;
+      width: 80vw;   
     }
-
     .brandname{
       width: 10vw;
    }
+   .sidetitle{
+    font-size: 1.8vw;
+   }
   .sidebar{
-    font-size: 1vw;
-    
-
+    font-size: 1.4vw;
    }
    .cart-image{
      width: 100px;
    }
-   
     h1{
       font-family: serif;
       font-size: 24px;
@@ -328,9 +347,11 @@ span{
     h3{
       font-size: 19px;
     }
+
     .form-control{
       font-size: 13px;
     }
+
     .input-group{
       margin-left: 0%;
       width:25vw;
@@ -346,10 +367,12 @@ span{
       font-weight: 500;
       margin: 0%;
     }
+
     p.card-text{
       font-size: 9px;
       font-weight: 500;
     }
+
     i.fa-brands{
       font-size: 0.9rem;
     }
@@ -390,26 +413,50 @@ span{
      
   }
 
-
             /*media query @max-width:992px*/
 
   @media screen and (max-width:992px) {
 
+    .collapse{
+      background-color:rgb(4, 9, 90);
+      opacity: 0.9;
+      position: absolute;
+      right: 0%;
+      top: 54px;
+      transition: 0.1s ease;
+    }
+
+    .menu-list{
+      
+      position: sticky;
+      max-height: 90vh;
+      left: 0%;
+      top: 11px;
+      overflow-y: auto;
+    
+    }
+    .fa-trash{
+      font-size: 1.8vw;
+    }
+
     .nav-link{
-      font-size: 1.5vw;
+      font-size: 2.5vw;
       padding-bottom: 5px;
     }
      
     .cltn-image{
-      width: 100vw;
+      max-width: 90vw;
       height: auto;
     }
     .brandname{
       width: 15vw;
    }
+   .sidetitle{
+    font-size: 2.2vw;
+   }
 
     .sidebar{
-      font-size: 1.2vw;
+      font-size: 1.6vw;
      } 
     .cart-image{
       width: 80px;
@@ -456,7 +503,7 @@ span{
       text-align: center;
     }
     td{
-      font-size: 0.5rem;
+      font-size: 0.6rem;
       font-weight: 700;
        
     } 
@@ -482,6 +529,9 @@ span{
      .li{
       font-size: 1.6vw;
     }
+    .caro-image{
+      height: 200px;
+    }
   }
               /*media query @max-width:576px*/
   @media screen and (max-width:576px) {
@@ -490,7 +540,7 @@ span{
       font-size: 0px;
     }
     .fa-trash{
-      font-size: 0vw;
+      font-size: 3vw;
     }
 
     .side-icon{
@@ -526,15 +576,24 @@ span{
       width: 30px;
   
     }
+    .caro-image{
+      height: 100px;
+    }
 
     .sidetitle{
       
-      font-size: 2.5vw;
+      font-size: 2.6vw;
+      font-weight: 900 !important;
      }
 
     .sidebar{
-      font-size: 2vw;
+      
+      font-size: 2.7vw;
+     
      } 
+     .cltn-image{
+      max-width: 100vw;
+     }
     .cart-image{
       width: 50px;
       margin-left: 0%;
@@ -552,9 +611,9 @@ span{
    
     
     h6.card-title{
-      font-size: 2.5vw ;
+      font-size: 2.7vw ;
       letter-spacing: 0.5px;
-      font-weight: 700; 
+      font-weight: 500; 
       
     }
     p.card-text{
@@ -602,7 +661,7 @@ span{
      }
     
     .nav-link{
-      font-size: 3vw;
+      font-size: 4vw;
       margin-bottom: 5px;
       
       

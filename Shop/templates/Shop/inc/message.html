@@ -1,8 +1,26 @@
 {% for msg in messages %}
-<div class="alert alert-info alert-dismissible fade show" role="alert">
+<div class="alert alert-info alert-dismissible fade show auto-dismiss" role="alert">
 {{msg}}
 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
 
 </div>
 
 {% endfor %}
+
+<script>
+   
+    setTimeout(function() {
+       
+        let alerts = document.querySelectorAll('.auto-dismiss');
+        alerts.forEach(function(alert) {
+           
+            alert.classList.remove('show'); 
+            alert.classList.add('fade');
+
+            
+            setTimeout(function() {
+                alert.remove();
+            }, 500);
+        });
+    }, 2000); 
+</script>
