@@ -418,7 +418,7 @@ span{
   @media screen and (max-width:992px) {
 
     .collapse{
-      background-color:rgb(4, 9, 90);
+      background-color:rgb(36, 35, 35);
       opacity: 0.9;
       position: absolute;
       right: 0%;
