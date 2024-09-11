@@ -82,7 +82,7 @@ class addressForm(forms.ModelForm):
 class supportForm(forms.ModelForm):
     name=forms.CharField(widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':"Enter your name"}))
     email=forms.EmailField(widget=forms.EmailInput(attrs={'class':'form-control', 'placeholder':"Enter your Email ID"}))
-    feedback=forms.CharField(widget=forms.Textarea(attrs={'class':'form-control custom-height', 'style':'height:150px;','placeholder':"Please provide the Necessary details."}))
+    feedback=forms.CharField(widget=forms.Textarea(attrs={'class':'form-control custom-height', 'style':'height:150px;','placeholder':"Please provide the necessary details."}))
     
     class Meta:
         model = SupportIssue  
