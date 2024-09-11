@@ -1,0 +1,110 @@
+[33mcommit e25c1eb5a189e07379b003ffa289c4d1ba257bc0[m
+Author: kisho121 <kishorehitter1995@gmail.com>
+Date:   Wed Sep 11 00:30:08 2024 +0530
+
+    oauth update
+
+[1mdiff --git a/.env b/.env[m
+[1mindex e81d278..308c111 100644[m
+[1m--- a/.env[m
+[1m+++ b/.env[m
+[36m@@ -1,7 +1,10 @@[m
+ SECRET_KEY="django-insecure-k%)#g0($75tyqfk86@l6swzp=d))6+$mw3c8i1#kdbychav4+a"[m
+[31m-DEBUG=False[m
+[31m-ALLOWED_HOSTS=127.0.0.1,[m
+[32m+[m[32mDEBUG=True[m
+[32m+[m[32mALLOWED_HOSTS=127.0.0.1,localhost,dpg-craqv0jtq21c73cbt4ug-a.oregon-postgres.render.com[m
+[32m+[m[32mDATABASE_URL=postgresql://postgres:1234@localhost:5432/trump_db[m
+ DATABASE_URL=postgresql://kishore:kPjuLfFye0xiHSAsDCHYjUqU0Y2vy7cs@dpg-craqv0jtq21c73cbt4ug-a.oregon-postgres.render.com/trump_db[m
+[32m+[m[32mEMAIL_HOST_USER=trumpkartshoppy@gmail.com[m
+[32m+[m[32mEMAIL_HOST_PASSWORD="upve ptlq ejap ioqp"[m
+ RAZORPAY_KEY_ID=rzp_test_4Hjkyweq2IDJ6O[m
+ RAZORPAY_KEY_SECRET=f2Ng1IDjtHs6DyJkip2fRktY[m
+ [m
+[1mdiff --git a/Ecom/__pycache__/settings.cpython-312.pyc b/Ecom/__pycache__/settings.cpython-312.pyc[m
+[1mindex ba12f5c..a039553 100644[m
+Binary files a/Ecom/__pycache__/settings.cpython-312.pyc and b/Ecom/__pycache__/settings.cpython-312.pyc differ
+[1mdiff --git a/Ecom/__pycache__/urls.cpython-312.pyc b/Ecom/__pycache__/urls.cpython-312.pyc[m
+[1mindex 6074e5b..6d56480 100644[m
+Binary files a/Ecom/__pycache__/urls.cpython-312.pyc and b/Ecom/__pycache__/urls.cpython-312.pyc differ
+[1mdiff --git a/Ecom/settings.py b/Ecom/settings.py[m
+[1mindex 75ae0b3..c1ba92e 100644[m
+[1m--- a/Ecom/settings.py[m
+[1m+++ b/Ecom/settings.py[m
+[36m@@ -17,24 +17,21 @@[m [mfrom decouple import config,Csv[m
+ [m
+ from django.core.management import execute_from_command_line[m
+ [m
+[31m-[m
+ # Build paths inside the project like this: BASE_DIR / 'subdir'.[m
+ BASE_DIR = Path(__file__).resolve().parent.parent[m
+ [m
+[31m-[m
+ # Quick-start development settings - unsuitable for production[m
+ # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/[m
+ [m
+ # SECURITY WARNING: keep the secret key used in production secret![m
+ SECRET_KEY = config("SECRET_KEY")[m
+ [m
+[31m-[m
+ # SECURITY WARNING: don't run with debug turned on in production![m
+ [m
+ [m
+ DEBUG = config('DEBUG', cast=bool)[m
+ [m
+[31m-ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")[m
+[32m+[m[32mALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())[m
+ [m
+ [m
+ # Application definition[m
+[36m@@ -101,17 +98,7 @@[m [mWSGI_APPLICATION = 'Ecom.wsgi.application'[m
+ # https://docs.djangoproject.com/en/5.0/ref/settings/#databases[m
+ [m
+ DATABASES = {[m
+[31m-    [m
+[31m-    'default': dj_database_url.parse(config('DATABASE_URL')),[m
+[31m-    'default': {[m
+[31m-        [m
+[31m-        'ENGINE': 'django.db.backends.postgresql',[m
+[31m-        'NAME': 'trump_db',[m
+[31m-        'USER': 'postgres',[m
+[31m-        'PASSWORD': '1234',[m
+[31m-        'HOST': 'localhost',[m
+[31m-        'PORT': '5432',[m
+[31m-    }[m
+[32m+[m[32m   'default': dj_database_url.config(default='postgresql://postgres:1234@localhost:5432/trump_db')[m
+ }[m
+ [m
+ if __name__ == "__main__":[m
+[36m@@ -160,8 +147,7 @@[m [mSTATIC_ROOT = BASE_DIR / 'staticfiles'[m
+ MEDIA_URL = '/media/'[m
+ MEDIA_ROOT = BASE_DIR / 'media'[m
+ [m
+[31m-[m
+[31m-[m
+[32m+[m[32mSTATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'[m
+ [m
+ # Default primary key field type[m
+ # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field[m
+[36m@@ -171,8 +157,7 @@[m [mDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'[m
+ AUTHENTICATION_BACKENDS = [[m
+     [m
+     'django.contrib.auth.backends.ModelBackend',[m
+[31m-[m
+[31m-   [m
+[32m+[m[41m  [m
+     'allauth.account.auth_backends.AuthenticationBackend',[m
+     [m
+ ][m
+[36m@@ -181,10 +166,8 @@[m [mINTERNAL_IPS = [[m
+     '127.0.0.1',[m
+ ][m
+ [m
+[31m-[m
+ SITE_ID = 1[m
+ [m
+[31m-[m
+ SOCIALACCOUNT_PROVIDERS = {[m
+     'google': {[m
+         'SCOPE': [[m
+[36m@@ -230
