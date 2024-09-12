@@ -9,7 +9,7 @@ services:
       pip install -r requirements.txt
       python manage.py collectstatic --no-input
       python manage.py migrate
-    startCommand: 'gunicorn --bind 0.0.0.0:8000 your_project_name.wsgi:application'
+    startCommand: "gunicorn --bind 0.0.0.0:8000 your_project_name.wsgi:application"
     envVars:
       - key: DJANGO_SUPERUSER_EMAIL
         value: your_email@example.com
