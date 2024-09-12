@@ -417,14 +417,7 @@ span{
 
   @media screen and (max-width:992px) {
 
-    .collapse{
-      background-color:rgb(36, 35, 35);
-      opacity: 0.9;
-      position: absolute;
-      right: 0%;
-      top: 54px;
-      transition: 0.1s ease;
-    }
+    
 
     .menu-list{
       

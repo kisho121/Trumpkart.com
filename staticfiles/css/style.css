@@ -301,8 +301,8 @@ span{
     font-size: 1vw;
    }
    .sidetitle{
-    font-weight:700;
-    font-size: 1.1vw;
+    font-weight:800;
+    font-size: 1vw;
     text-decoration: underline;
    }
    .side-icon{
@@ -417,15 +417,7 @@ span{
 
   @media screen and (max-width:992px) {
 
-    .collapse{
-      background-color:rgb(36, 35, 35);
-      opacity: 0.9;
-      position: absolute;
-      right: 0%;
-      top: 54px;
-      transition: 0.1s ease;
-    }
-
+  
     .menu-list{
       
       position: sticky;
