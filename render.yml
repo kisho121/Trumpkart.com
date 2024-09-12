@@ -1,0 +1,16 @@
+version: 1
+
+services:
+  - type: web
+    name: trumpkart
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --no-input
+      python manage.py migrate
+    startCommand: gunicorn --bind 0.0.0.0:8000 Ecom.wsgi:application
+    envVars:
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: your_email@example.com
+    autoDeploy: true
