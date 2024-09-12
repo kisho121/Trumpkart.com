@@ -30,7 +30,7 @@ body.poppins-regular {
 }
 .login:hover{
   background-color: white ;
-  opacity: 0.8;
+  opacity: 0.9;
   border-radius: 1vw;
   transition-duration: 0.7s;
 }
