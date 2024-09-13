@@ -124,12 +124,6 @@ Products_detail|TrumpKart
     const tkn=document.querySelector('[name="csrfmiddlewaretoken"]');
     const btncart=document.getElementById('btncart');
     const favbtn=document.getElementById('favbtn');
-
-
-    function getCSRFToken() {
-      const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
-      return cookieValue ? cookieValue.split('=')[1] : null;
-    }
   
     plus.addEventListener("click",function(){
       let qty=parseInt(txtQty.value,10);
