@@ -29,7 +29,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = False
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
@@ -97,10 +97,20 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {'default': dj_database_url.config(default='postgresql://postgres:1234@localhost:5432/trump_db')}
+#DATABASES = {'default': dj_database_url.config(default='postgresql://postgres:1234@localhost:5432/trump_db')}
 
-database_url = config("DATABASE_URL")
-DATABASES["default"] = dj_database_url.parse(database_url)
+#database_url = config("DATABASE_URL")
+#DATABASES["default"] = dj_database_url.parse(database_url)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kd',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # or your MySQL server IP
+        'PORT': '3306',       # default MySQL port
+    }
+}
 
 
 # Password validation
