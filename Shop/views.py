@@ -98,6 +98,7 @@ def checkout_view(request):
             elif payment_mode == "Razorpay":
                  
                 amount_in_paise = int(total_cost * 100)
+                
                 razorpay_order = client.order.create({
                 'amount': amount_in_paise, 
                 'currency': 'INR',
@@ -197,7 +198,7 @@ def invoice_view(request,order_id):
     context={
         'order': order
     }
-    return render(request,'Shop/invoice.html',context)
+    return render(request,'Shop/Invoice.html',context)
 
 def pdf_view(request,order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -452,26 +453,17 @@ def registerpage(request):
 def otp_verification(request):
     email = request.GET.get('email')
     if request.method == 'POST':
-        if 'otp' in request.POST:
-            otp = request.POST.get('otp')
-            try:
-                user_otp = OTPVerification.objects.get(user__email=email, otp=otp)
-                user = user_otp.user
-                user.is_active = True
-                user.save()
-                user_otp.delete()  # OTP is used, so delete it
-                messages.success(request, "Registration successful. Login Now..")
-                return redirect('account_login')
-            except OTPVerification.DoesNotExist:
-                messages.error(request, 'Invalid OTP. Please try again.')
-                return redirect(f'{reverse("otp_verification")}?email={email}')
-        elif 'resend_otp' in request.POST:
-            user = User.objects.get(email=email)
-            otp = random.randint(100000, 999999)
-            OTPVerification.objects.create(user=user, otp=otp)
-            sent_otp(user.email, otp)
-            messages.success(request, "New OTP sent to your email.")
-            return redirect(f'{reverse("otp_verification")}?email={email}')
+        otp = request.POST.get('otp')
+        try:
+            user_otp = OTPVerification.objects.get(user__email=email, otp=otp)
+            user = user_otp.user
+            user.is_active = True
+            user.save()
+            user_otp.delete()  # OTP is used, so delete it
+            messages.success(request, "Registration successfull> Login Now..")
+            return redirect('account_login')
+        except OTPVerification.DoesNotExist:
+            return HttpResponse('Invalid OTP. Please try again.')
     return render(request, 'Shop/otp_verification.html', {'email': email})
 
 def collectionpage(request):
@@ -492,19 +484,12 @@ def collections(request, name):
     cart_count=Cart.objects.filter(user=request.user.id).count()
     wish_count=favourite.objects.filter(user=request.user.id).count()
     order_count=Order.objects.filter(user=request.user.id).count()
-   
     
     if category_obj is not None:
         products = product.objects.filter(category=category_obj)
-        return render(request, 'Shop/products/index.html',{
-        "products": products, 
-        "category_name": name, 
-        "category_description": category_obj.description,
-        "category_image":category_obj.image,
-        "cart_count":cart_count,
+        return render(request, 'Shop/products/index.html',{"products": products, "category_name": name, "category_description": category_obj.description,"category_image":category_obj.image,"cart_count":cart_count,
         "wish_count":wish_count,
-        "order_count":order_count,
-        })
+        "order_count":order_count,})
     else:
         messages.warning(request, "No such category found")
         return redirect('collection')

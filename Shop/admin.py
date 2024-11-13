@@ -15,4 +15,3 @@ admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(OTPVerification)
 admin.site.register(SupportIssue)
-

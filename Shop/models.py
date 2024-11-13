@@ -103,10 +103,7 @@ class Order(models.Model):
     status= models.IntegerField(choices=STATUS_CHOICES, default=PENDING)
     products = models.ForeignKey(product, on_delete=models.CASCADE)
     cod_order_id = models.UUIDField(default=uuid.uuid4, unique=True)
-
-
-
-    
+ 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
     

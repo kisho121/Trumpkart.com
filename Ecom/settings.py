@@ -12,10 +12,15 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import dj_database_url
-
 from decouple import config,Csv
 
 from django.core.management import execute_from_command_line
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Ecom.settings')
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +34,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
@@ -39,13 +44,13 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 INSTALLED_APPS = [
     'jazzmin',
     'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Shop',
-    #'debug_toolbar',
+    'debug_toolbar',
     'widget_tweaks',
     'razorpay',
     'django.contrib.sites',
@@ -54,6 +59,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
+ 
 ]
 
 LOCALE_PATHS = [
@@ -71,7 +77,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'Ecom.urls'
@@ -101,16 +107,24 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
 
 #database_url = config("DATABASE_URL")
 #DATABASES["default"] = dj_database_url.parse(database_url)
+#DATABASES = {
+ #   'default': {
+  #      'ENGINE': 'django.db.backends.mysql',
+   #     'NAME': 'kd',
+    #    'USER': 'root',
+     #   'PASSWORD': '1234',
+      #  'HOST': 'localhost',  # or your MySQL server IP
+       # 'PORT': '3306',       # default MySQL port
+    #}
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'kd',
-        'USER': 'root',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',  # or your MySQL server IP
-        'PORT': '3306',       # default MySQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation
