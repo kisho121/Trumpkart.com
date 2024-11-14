@@ -38,14 +38,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True  # Enforce HTTPS in production only
-    CSRF_COOKIE_SECURE = True  # Only secure CSRF cookies in production
-    CSRF_TRUSTED_ORIGINS = ['https://trumpkart-in-4hog.onrender.com']
-else:
-    SECURE_SSL_REDIRECT = False  # Disable SSL redirect in development
-    CSRF_COOKIE_SECURE = False  # Do not secure CSRF cookies in development
-    CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = ['https://trumpkart-in-4hog.onrender.com']
+CSRF_COOKIE_SECURE = True
+
+
 
 # Application definition
 
