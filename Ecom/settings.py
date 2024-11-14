@@ -38,6 +38,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
+CSRF_TRUSTED_ORIGINS = ['https://trumpkart-in-4hog.onrender.com']
+CSRF_COOKIE_SECURE = True
+
+
 
 # Application definition
 
