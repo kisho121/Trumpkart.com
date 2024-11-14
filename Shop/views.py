@@ -198,7 +198,7 @@ def invoice_view(request,order_id):
     context={
         'order': order
     }
-    return render(request,'Shop/Invoice.html',context)
+    return render(request,'Shop/invoice.html',context)
 
 def pdf_view(request,order_id):
     order = get_object_or_404(Order, id=order_id)
