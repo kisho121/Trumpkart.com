@@ -19,7 +19,7 @@
      href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">
      <img  class="rounded"
       src="
-     {% with 'images/'|add:provider.name|add:'.png' as image %}
+     {% with 'images/'|add:provider.id|add:'.png' as image %}
       {% static image %}
      {% endwith %}
      " alt="{{ provider.name }}" height="40" width="250"/>
