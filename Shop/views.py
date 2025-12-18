@@ -356,44 +356,81 @@ def removecartpage(request, cid):
     cartitem.delete()
     return redirect('/cart')  
 
-
 @login_required
 def favpage(request):
-   
-    if request.headers.get('X-requested-with')=='XMLHttpRequest':
-        if request.user.is_authenticated:
-            data=json.load(request)
-            Product_id = data['pid']
-            product_status=product.objects.get(id=Product_id)
-            if product_status:
-               if favourite.objects.filter(user=request.user.id,Product_id=Product_id):
-                   return JsonResponse({'status':'product already in favourites'} ,status=200)
-               else:
-                  favourite.objects.create(user=request.user,Product_id=Product_id)
-                  messages.success({'status':'Product Added to Favourites'},status=200)
+    if request.method == 'POST':
+        try:
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                if request.user.is_authenticated:
+                    # Fixed: json.loads() not json.load()
+                    data = json.loads(request.body)
+                    Product_id = data.get('pid')
                     
-        else:
-            messages.success({'status':"Login to add to favourites"}, status=200)
-    else:
-        return JsonResponse({'status':'Invalid Access'}, status=200)
+                    if not Product_id:
+                        return JsonResponse({
+                            'status': 'Product ID is required'
+                        }, status=400)
+                    
+                    # Check if product exists
+                    try:
+                        product_status = product.objects.get(id=Product_id)
+                    except product.DoesNotExist:
+                        return JsonResponse({
+                            'status': 'Product not found'
+                        }, status=404)
+                    
+                    # Check if already in favourites
+                    if favourite.objects.filter(user=request.user, Product_id=Product_id).exists():
+                        return JsonResponse({
+                            'status': 'Product already in wishlist'
+                        }, status=200)
+                    else:
+                        # Add to favourites
+                        favourite.objects.create(user=request.user, Product_id=Product_id)
+                        # Fixed: Return JsonResponse, not messages.success
+                        return JsonResponse({
+                            'status': 'Product added to wishlist successfully'
+                        }, status=200)
+                else:
+                    return JsonResponse({
+                        'status': 'Login to add to favourites'
+                    }, status=401)
+            else:
+                return JsonResponse({
+                    'status': 'Invalid Access'
+                }, status=400)
+                
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': 'Invalid JSON data'
+            }, status=400)
+        except Exception as e:
+            print(f"Error in favpage: {str(e)}")
+            return JsonResponse({
+                'status': f'Error: {str(e)}'
+            }, status=500)
     
-    
+    return JsonResponse({
+        'status': 'Invalid request method'
+    }, status=405)
+
 
 def favview(request):
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()
+    
     if request.user.is_authenticated:
-        fav=favourite.objects.filter(user=request.user)
+        fav = favourite.objects.filter(user=request.user)
         
-        
-        context={
-        "cart_count":cart_count,
-        "wish_count":wish_count,
-        "order_count":order_count,
-        "fav":fav
-       }
-        return render(request,'Shop/favourite.html', context)
+        context = {
+            "cart_count": cart_count,
+            "wish_count": wish_count,
+            "order_count": order_count,
+            "fav": fav
+        }
+        return render(request, 'Shop/favourite.html', context)
     else:
         return redirect("/")
    
@@ -494,21 +531,28 @@ def collections(request, name):
         messages.warning(request, "No such category found")
         return redirect('collection')
 
-def productsDetail(request,cname,pname):
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
+def productsDetail(request, cname, pname):
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()
     
-    hot_product=product.objects.filter(trending=1)
-    if(category.objects.filter(name=cname ,status=0)):
-        if(product.objects.filter(name=pname ,status=0)):
-             products=product.objects.filter(name=pname,status=0).first()
-             return render(request,'Shop/products/products_detail.html',{"products":products, "hot_product": hot_product,"cart_count":cart_count,"wish_count": wish_count,"order_count":order_count })
+    hot_product = product.objects.filter(trending=1)
+    
+    if(category.objects.filter(name=cname, status=0)):
+        if(product.objects.filter(name=pname, status=0)):
+            products = product.objects.filter(name=pname, status=0).first()
+            return render(request, 'Shop/products/products_detail.html', {
+                "products": products, 
+                "hot_product": hot_product,
+                "cart_count": cart_count,
+                "wish_count": wish_count,
+                "order_count": order_count
+            })
         else:
-            messages.warning(request,"no Such Category Found")
+            messages.warning(request, "No Such Product Found")
             return redirect('collectionpage') 
     else:
-        messages.warning(request,"no Such Category Found")
+        messages.warning(request, "No Such Category Found")
         return redirect('collectionpage')
             
    

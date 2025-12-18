@@ -1,4 +1,3 @@
-
 {% extends 'Shop/layouts/main.html' %}
 {% load static %}
 {% block title %}
@@ -7,74 +6,155 @@ Home|Trumpkart
 
 {% block content %}
 
-<div class="row m-0 p-0 " >
-  <div class="col-2 col-sm-2 col-md-2 col-lg-1 ps-1 border-end border-end-secondary menu-list ">
-    
-     <h4 class="sidetitle">{{category_title}}</h4>
-     
-      {% for item in categorys %}
-    <p style="list-style: none; " class="mb-4">
-      
-     <a href="{% url 'collection' item.name  %}"><i class="fa-solid fa-circle-chevron-right side-icon"></i> <span class="sidebar">{{item.name}}</span></a>
-    </p>
-    
-  
-     {% endfor %}
-     
-    
-  </div>
+<style>
+/* Modern Tab Menu Styles */
+.category-tabs {
+    background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);
+    padding: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
-<div class="col-10 col-sm-10 col-md-10 col-lg-11 m-0 ">
-<div id="demo" class="carousel slide"  >
-  <div class="carousel-indicators">
-    {% for slide in slides %}
-    <button type="button" data-bs-target="#demo" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %} active {% endif %}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="slide{{ forloop.counter}}"></button>
-    {% endfor %}
+.category-tabs-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.category-tabs-wrapper::-webkit-scrollbar {
+    height: 4px;
+}
+
+.category-tabs-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.category-tabs-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.category-tabs-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.category-tab-item {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+.category-tab-item a {
+    display: inline-block;
+    padding: 18px 28px;
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    border-bottom: 3px solid transparent;
+}
+
+.category-tab-item a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-bottom-color: white;
+}
+
+.category-tab-item a.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-bottom-color: white;
+    font-weight: 600;
+}
+
+.category-tab-item a:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: white;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.category-tab-item a:hover:before {
+    width: 80%;
+}
+
+@media (max-width: 768px) {
+    .category-tab-item a {
+        padding: 15px 20px;
+        font-size: 14px;
+    }
+}
+</style>
+<div class="container-fuild m-0 p-0">
+        <div id="demo" class="carousel slide">
+            <div class="carousel-indicators">
+                {% for slide in slides %}
+                <button type="button" data-bs-target="#demo" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %} active {% endif %}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="slide{{ forloop.counter}}"></button>
+                {% endfor %}
+            </div>
+            <div class="carousel-inner">
+                {% for slide in slides %}
+                <div class="carousel-item {% if forloop.first %} active {% endif %}">
+                    <img src="{{ slide.carousel_image.url}}" class="w-100 h-auto position-relative" alt="{{slide.alt_text}}">
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+
+        <!-- Category Tab Menu Below Carousel -->
+        <div class="category-tabs">
+            <div class="category-tabs-wrapper">
+                {% for item in categorys %}
+                <p class="category-tab-item ">
+                    <a href="{% url 'collection' item.name %}">
+                        <span>{{item.name}}</span>
+                    </a>
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+
+<!-- Main Content - Full Width -->
+<div class="row mx-auto">
+    
+
+        <h1 class="fw-bold text-center mt-4">{{title}}</h1>
+
+        <div class="row bg-light my-4 pb-4 m-0 p-0">
+            {% for item in products %}
+            <div class="col-6 col-sm-6 col-md-3 col-lg-2 my-4">
+                <div class="card w-100 h-100 mx-auto text-center">   
+                    <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
+                        <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}">  
+                    </a>
+                    <div class="hot">{{Hot}}</div>
+                    <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
+                        <div class="card-body">
+                            <h6 class="card-title mb-1">{{item.name}}</h6>
+                            <h6 class="text-dark fw-bold"><span class="text-danger">{{item.discount}} %</span> {{off}}</h6>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-  <div class="carousel-inner">
-    {% for slide in slides %}
-    <div class="carousel-item {% if forloop.first %} active {% endif %}">
-      <img src="{{ slide.carousel_image.url}}" class=" w-100 h-auto position-relative " alt="{{slide.alt_text}}">
-    </div>
-    {% endfor %}
-   
-  </div>
-  
-  <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-  </button>
-</div>
-
-<h1 class="fw-bold text-center" >{{title}}</h1>
-
-<div class="row bg-light my-4 pb-4 ">
-
-{% for item in products %}
-<div class="col-6 col-sm-6 col-md-3 col-lg-2 my-4">
- <div class="card w-100 h-100 mx-auto text-center">   
-  <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
-    <img src="{{item.product_image.url}}" class="card-img-top mx-auto " alt="{{item.name}}" >  
-  </a>
-    <div class="hot">{{Hot}}</div>
-    <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
-    <div class="card-body">
-      <h6 class="card-title mb-1 ">{{item.name}}</h6>
-    
-      <h6 class="text-dark fw-bold"><span class="text-danger ">{{item.discount}} %</span> {{off}}</h6>
-    </div>
-  </a>
- </div>
-</div>
-{% endfor %}
-
-</div>
-
-
-</div>
-
 </div>
 
 {% endblock content %}

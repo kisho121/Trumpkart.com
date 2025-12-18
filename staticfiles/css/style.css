@@ -152,6 +152,9 @@ a{
   z-index: 1;
   text-shadow: 1px 1px 3px black;
 }
+h2 #detText{
+  color: white !important;
+}
 
 img.card-img-top{ 
     object-position: center;
