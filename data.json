@@ -1,0 +1,668 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$R6U7q1lV0AFgbJ6r50yDtG$HXoeH0UtDNIXFkdiqsnhI+xbe6weM2STApKg0Q21kBo=",
+    "last_login": "2024-11-14T10:43:11.016Z",
+    "is_superuser": true,
+    "username": "kishore",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2024-11-09T01:47:42.059Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "!95Zhqmyf1Xt74aMVOki1jq2OJggI4SFh3nOV9MSe",
+    "last_login": "2024-11-14T04:46:54.764Z",
+    "is_superuser": false,
+    "username": "kishore0",
+    "first_name": "Kishore",
+    "last_name": "1405",
+    "email": "kishoor121@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-11-13T03:11:11.291Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$4jmNZnhVl9UONcRneMELkX$ciyJhatTACTbwrgXoIcKcpYGdJbTOZFWJq95+Copkx0=",
+    "last_login": "2025-12-19T04:37:42.507Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-12-17T15:13:14.603Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$A1PcimT3HKCtqwiwVaG74K$zaaLjoWPyh2wkWyngv1BbEWfO/sJlYVRsc+c23i02x0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "OGAdmin",
+    "first_name": "",
+    "last_name": "",
+    "email": "dabzomusic@gmail.com",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-12-18T06:52:39.845Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$5TwrnrRn9rhdLdPzV6B4AX$QhmtSPlu8uiJw1TJmIcBR4ib9JmZg5aAwpYxEE9rKxQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Boss",
+    "first_name": "",
+    "last_name": "",
+    "email": "kishorehitter1995@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-19T04:39:56.033Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "Shop.otpverification",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "OGAdmin"
+    ],
+    "otp": "752689"
+  }
+},
+{
+  "model": "Shop.carousel",
+  "pk": 1,
+  "fields": {
+    "carousel_image": "uploads/2411131018521.jpg",
+    "alt_text": "slide_image 1",
+    "created_at": "2024-11-09T01:58:53.916Z"
+  }
+},
+{
+  "model": "Shop.carousel",
+  "pk": 2,
+  "fields": {
+    "carousel_image": "uploads/2411131020072411090731062408091205232.jpg",
+    "alt_text": "slide_image2",
+    "created_at": "2024-11-09T02:01:06.864Z"
+  }
+},
+{
+  "model": "Shop.carousel",
+  "pk": 3,
+  "fields": {
+    "carousel_image": "uploads/2411131020292411090731462408091205514.jpg",
+    "alt_text": "slide_image3",
+    "created_at": "2024-11-09T02:01:28.904Z"
+  }
+},
+{
+  "model": "Shop.carousel",
+  "pk": 4,
+  "fields": {
+    "carousel_image": "uploads/2411131021401.jpg",
+    "alt_text": "slide_image4",
+    "created_at": "2024-11-09T02:01:46.138Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 1,
+  "fields": {
+    "name": "MOBILES",
+    "image": "uploads/241113102401241109073727240729215702MOBILE_4.jpg",
+    "description": "All Kinds of Branded Mobiles.",
+    "status": false,
+    "created_at": "2024-11-09T02:07:27.323Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 2,
+  "fields": {
+    "name": "FASHION",
+    "image": "uploads/241113102419241109074249240729221750dress_1.jpg",
+    "description": "All Kinds of Dressing Collections..",
+    "status": false,
+    "created_at": "2024-11-09T02:12:49.098Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 3,
+  "fields": {
+    "name": "HOME APPLIANCES",
+    "image": "uploads/241113102434241109074334240729222151home_and_kitchen_1.jpg",
+    "description": "All Kinds of Home and Kitchen Appliances..",
+    "status": false,
+    "created_at": "2024-11-09T02:13:34.116Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 4,
+  "fields": {
+    "name": "JEWELLERY",
+    "image": "uploads/241113102449241109074431240729222836jellwery_1.jpg",
+    "description": "All Kinds of Premium Jewels...",
+    "status": false,
+    "created_at": "2024-11-09T02:14:31.951Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 5,
+  "fields": {
+    "name": "ELECTRONICS",
+    "image": "uploads/241113102506241109074524240729223412gadgets_1.jpg",
+    "description": "All kinds of Electronics and Gadgets.",
+    "status": false,
+    "created_at": "2024-11-09T02:15:24.476Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 6,
+  "fields": {
+    "name": "BOOKS",
+    "image": "uploads/241113102520241109074613240729230120books_2.jpg",
+    "description": "All Kinds of Books Collections..",
+    "status": false,
+    "created_at": "2024-11-09T02:16:13.724Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 7,
+  "fields": {
+    "name": "SPORTS ACCESSORIES",
+    "image": "uploads/241113102536241109074812240729225943grocery_1.jpg",
+    "description": "All Kinds of sports Accessories.",
+    "status": false,
+    "created_at": "2024-11-09T02:16:58.018Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 8,
+  "fields": {
+    "name": "GROCERY",
+    "image": "uploads/241113102607241109075151240912153824240910103335240903090625240808115352gift_1.jpg",
+    "description": "All Kinds of Grocery and snacks.",
+    "status": false,
+    "created_at": "2024-11-09T02:18:12.175Z"
+  }
+},
+{
+  "model": "Shop.category",
+  "pk": 9,
+  "fields": {
+    "name": "GIFTS & TOYS",
+    "image": "uploads/241113102624241109122424240912153726240910103304240903090457240729224741sports_1.jpg",
+    "description": "All Kinds of Gifts and Toys .",
+    "status": false,
+    "created_at": "2024-11-09T02:21:51.442Z"
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "name": "Iphone 15pro max",
+    "vendor": "Appario Retail Private Ltd",
+    "product_image": "uploads/24111310284724110912293924091215454024091010364124090310334824072923514224072923_QvbgszS.jpg",
+    "quantity": 20,
+    "original_price": 159000,
+    "selling_price": 151700,
+    "description": "FORGED IN TITANIUM — iPhone 15 Pro Max has a strong and light aerospace-grade titanium design with a textured matte-glass back. It also features a Ceramic Shield front that’s tougher than any smartphone glass. And it’s splash, water, and dust resistant.",
+    "status": false,
+    "created_at": "2024-11-09T06:59:39.665Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 2,
+  "fields": {
+    "category": 1,
+    "name": "iPhone 15 Plus",
+    "vendor": "Appario Retail Private Ltd",
+    "product_image": "uploads/24111310290024110912312124091215465724091010373324090310370224072923495324072923_Pp2W0Ya.jpg",
+    "quantity": 15,
+    "original_price": 89999,
+    "selling_price": 81999,
+    "description": "DYNAMIC ISLAND COMES TO IPHONE 15 — Dynamic Island bubbles up alerts and Live Activities — so you don’t miss them while you’re doing something else. You can see who’s calling, track your next ride, check your flight status, and so much more.",
+    "status": false,
+    "created_at": "2024-11-09T07:01:21.303Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 3,
+  "fields": {
+    "category": 1,
+    "name": "iQOO Z7 Pro 5G",
+    "vendor": "Darshita Etel",
+    "product_image": "uploads/24111310291424110912322724091215481824091010374924090310390024072923465424072923_MU71u91.jpg",
+    "quantity": 25,
+    "original_price": 27999,
+    "selling_price": 21999,
+    "description": "Dimensity 7200 5g processor based on the latest 4nm energy-efficient process\r\n3D Curved Super-vision Display with 17.22 cm (6.78 inches) screen size, 93.3% Screen-to-body ratio, 120 Hz AMOLED FHD+, 1.07 Billion Colors, 1300 nits Peak Local Brightness.",
+    "status": false,
+    "created_at": "2024-11-09T07:02:27.665Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 4,
+  "fields": {
+    "category": 1,
+    "name": "Redmi 12 5G",
+    "vendor": "Darshita Etel",
+    "product_image": "uploads/24111310292924110912334724091215501924091010380424090310415324072923445724072923_qIC1ZeD.jpg",
+    "quantity": 10,
+    "original_price": 19999,
+    "selling_price": 13999,
+    "description": "Snapdragon 4 Gen 2 Mobile Platform : Power efficient 4nm architecture | 16GB of RAM including 8GB Virtual\r\nDisplay: Large 17.24cm FHD+ 90Hz AdaptiveSync display with Corning Gorilla Glass 3 Protection",
+    "status": false,
+    "created_at": "2024-11-09T07:03:47.281Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 5,
+  "fields": {
+    "category": 1,
+    "name": "OnePlus 11 5G",
+    "vendor": "Darshita Etel",
+    "product_image": "uploads/24111310294124110912350524091215514524091010382024090310451224072923411024072923_pb7Yg3K.jpg",
+    "quantity": 10,
+    "original_price": 56999,
+    "selling_price": 42999,
+    "description": "Camera: 50MP Main Camera with Sony IMX890 (OIS supported), 48MP Ultrawide Camera with Sony IMX581 (FOV: 115 degree) and 32MP Telephoto lens with Sony IMX709 (2X Optical Zoom); 16MP Front (Selfie) Camera with EIS support",
+    "status": false,
+    "created_at": "2024-11-09T07:05:05.224Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 6,
+  "fields": {
+    "category": 1,
+    "name": "Realme P1 Pro 5G",
+    "vendor": "One8 Connections",
+    "product_image": "uploads/24111310295824110912360624091215525924091010383624090310465024072923343624072923_ktwpmvJ.jpg",
+    "quantity": 20,
+    "original_price": 24999,
+    "selling_price": 17999,
+    "description": "Curved Display Enjoy brilliance on the realme P1 Pro 5G smartphone's curved 120 Hz AMOLED display, which is enhanced with Pro-XDR technology for striking HDR effects. Experience enhanced colour accuracy and less flicker in low light thanks to TUV Rheinland-certified 2160 Hz PWM dimming that protects your eyes.",
+    "status": false,
+    "created_at": "2024-11-09T07:06:06.948Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 7,
+  "fields": {
+    "category": 1,
+    "name": "Samsung Galaxy S24 Ultra 5G",
+    "vendor": "STPL Exclusive Online",
+    "product_image": "uploads/241113103013241109123926240912155405240910103906240903104856240730000952Y0522130_nHUhrqi.jpg",
+    "quantity": 10,
+    "original_price": 149999,
+    "selling_price": 139999,
+    "description": "Meet Galaxy S24 Ultra, the ultimate form of Galaxy Ultra with a new titanium exterior and a 17.25cm (6.8\") flat display. It's an absolute marvel of design.\r\nThe legacy of Galaxy Note is alive and well. Write, tap and navigate with precision your fingers wish they had on the new, flat display.\r\nWith the most megapixels on a smartphone and AI processing, Galaxy S24 Ultra sets the industry standard for image quality every time you hit the shutter. What's more, the new ProVisual engine recognizes objects — improving colour tone, reducing noise and bringing out detail.",
+    "status": false,
+    "created_at": "2024-11-09T07:09:26.327Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 8,
+  "fields": {
+    "category": 1,
+    "name": "OPPO A59 5G",
+    "vendor": "Appario Retail Private Ltd",
+    "product_image": "uploads/241113103028241109124055240912155527240910103935240903105016240730001241Y0522135_Xm3rd4d.jpg",
+    "quantity": 20,
+    "original_price": 19999,
+    "selling_price": 15999,
+    "description": "Big 5000 mAh Battery with smart power-saving modes to banish low battery fear + 33W SUPERVOOC super-fast flash charge paired with all round protection for safe power ups\r\nDive into rich, true to life colours of 6.56\" HD+ 90Hz Waterdrop Display with 1612x720 pixels\r\nMediaTek Dimensity 6020 : 2×A76 2.2GHz, 256KB L2; 6×A55 2.0GHz, 128KB L2; 1MB L3 cache\r\nMemory, Storage & SIM: 6 GB RAM (+ RAM expansion up to 6 GB) | 128 GB ROM | Dual 5G Sim Slot\r\n300% Ultra volume mode + 36-Month Fluency Protection with 13MP AI Rear Camera (13MP Main + 2MP Bokeh Portrait) | 8MP Front Camera.",
+    "status": false,
+    "created_at": "2024-11-09T07:10:55.098Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 9,
+  "fields": {
+    "category": 1,
+    "name": "Pixels 8a",
+    "vendor": "LAPPIPAD",
+    "product_image": "uploads/241113103045241109124207240912155625240910103949240903105135240730001636Y0524130_WxPbIme.jpg",
+    "quantity": 20,
+    "original_price": 79999,
+    "selling_price": 47999,
+    "description": "Meet Pixel 8a, the AI phone; with the incredible Pixel Camera and top-rated security features to help protect your data\r\nThe Pixel Camera gives you amazing photo and video quality; AI helps you create perfect group shots with Best Take and fix blurry images with Photo Unblur\r\nThe 6.1-inch Pixel 8a Actua display is even brighter and more vibrant; it’s fast and responsive for smoother scrolling, video streaming, and switching between apps on your phone",
+    "status": false,
+    "created_at": "2024-11-09T07:12:07.591Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 10,
+  "fields": {
+    "category": 1,
+    "name": "Samsung Galaxy S22 Ultra 5G",
+    "vendor": "Appario Retail Private Ltd",
+    "product_image": "uploads/241113103102241109124409240912155710240910104003240903105249240730002057Y0523194_Il4pheL.jpg",
+    "quantity": 10,
+    "original_price": 149999,
+    "selling_price": 79999,
+    "description": "More innovation, less footprint – Galaxy S22 Ultra's striking symmetrical design returns with one major difference: recycled and eco-conscious materials. From the metal frame to the glass finish, it's polished with fresh new colors inspired by nature.\r\nNote's signature tool comes built in - The built-in S Pen keeps the legacy of Note alive. Plus, it helps you ditch the dependency on notebooks, making sketches and jotting notes effortless and eco-friendly.",
+    "status": false,
+    "created_at": "2024-11-09T07:14:09.573Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 11,
+  "fields": {
+    "category": 2,
+    "name": "Lymio Casual Shirt for Men",
+    "vendor": "Cocoblu Retail",
+    "product_image": "uploads/241113103119241109124602240912155846240910104016240903105526240730071113Y0522160_xR3DYFK.jpg",
+    "quantity": 25,
+    "original_price": 3999,
+    "selling_price": 499,
+    "description": "Casual Shirt for Men|| Shirt for Men|| Men Stylish Shirt\r\nStyle: Casual\r\nNeckline : Collar\r\nSleeve Length: Long Sleeve\r\nRegular  Fit",
+    "status": false,
+    "created_at": "2024-11-09T07:16:02.160Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 12,
+  "fields": {
+    "category": 2,
+    "name": "JUGULAR  Polyester  Cargo track pants.",
+    "vendor": "DRESSDEN",
+    "product_image": "uploads/241113103134241109124704240912160003240910104259240903105630240730071441JUGULAR__yGhHaO3.jpg",
+    "quantity": 20,
+    "original_price": 999,
+    "selling_price": 479,
+    "description": "THE JUGULAR offers quality casual wear in the widest variety which makes it easy to choose, at prices that are easy-to-reach and excellent service support which makes shopping easy to enjoy. THE JUGULAR t- shirts are made of premium cotton bio-washed fabrics to ensure best quality and great comfort. Assorted prints are used to ensure that the printed t-shirts look new even after several washes. THE JUGULAR keeps inventing to help you keep inventing exciting new experiences in your life! .Our brand \"THE JUGULAR\" consist of men's apparels ,like casual t shirts ,polo's, sweatshirts, Waist coat style , etc. We offer variety of products at affordable pricing and best quality .As we are the manufacturer of the products we offer market's best pricing .We never compromise upon quality and so do you.",
+    "status": false,
+    "created_at": "2024-11-09T07:17:04.142Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 13,
+  "fields": {
+    "category": 2,
+    "name": "Miss Ethnik Traditional Faux Georgette Dress",
+    "vendor": "Miss Ethnik®",
+    "product_image": "uploads/241113103147241109124818240912160118240910104319240903105753240730071847Y0522161_es7Qw0u.jpg",
+    "quantity": 20,
+    "original_price": 5999,
+    "selling_price": 1499,
+    "description": "Color : Green\r\nTop Fabric : Faux Georgette\r\nSleeves Fabric : Faux Georgette\r\nTop Stitching Type : Semi Stitched\r\nTop Inner Fabric : Santoon\r\nTop Work : Solid\r\nTop Length : 59 Inch\r\nTop Bust Size : Free (Up to 48 Inch)\r\nTop Type : Flared Top (Semi Stitched)\r\nProduct Type : Gown",
+    "status": false,
+    "created_at": "2024-11-09T07:18:18.129Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 14,
+  "fields": {
+    "category": 2,
+    "name": "Hangout Hub HH81 Men & Women T Shirts",
+    "vendor": "Hangout-Hub",
+    "product_image": "uploads/241113103203241109124935240912160205240910104410240903105857240730072309Y0522161_oCkEEEY.jpg",
+    "quantity": 30,
+    "original_price": 1999,
+    "selling_price": 799,
+    "description": "Material composition : 100% super combed cotton, 180 GSM\r\nPattern: Printed\r\nFit type: Regular Fit\r\nSleeve type: Half Sleeve\r\nCollar style: Collarless\r\nLength: Standard Length\r\nCountry of Origin: India",
+    "status": false,
+    "created_at": "2024-11-09T07:19:35.911Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 15,
+  "fields": {
+    "category": 2,
+    "name": "GEERANG MART Golden silk Cotton Saree",
+    "vendor": "Geerang Mart",
+    "product_image": "uploads/241113103219241109125041240912160250240910104426240903110035240730072556Y0522162_3DBSTFX.jpg",
+    "quantity": 20,
+    "original_price": 2599,
+    "selling_price": 1699,
+    "description": "Geerang Mart Kota Silk Cotton Handloom Saree With All Over Self Design Patterned Golden Jari Enriched Tissue Golden Jari Bordered Cotton Silk Saree, Golden Jari Weaved Butta Saree Throughout Saree\r\n, Embedded With Grand Rich Handpicked Fine Quality Golden Jaried Saree.Grand Rich Pallu With Golden Jari, Contrast Colour Pallu\r\nKota Silk Cotton Saree With Double Sided Tissue Border Saree With Butta Embedded Saree, Enriched Golden Jari Rich Pallu\r\nGrand Rich Golden Jari Pallu ,",
+    "status": false,
+    "created_at": "2024-11-09T07:20:41.820Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 16,
+  "fields": {
+    "category": 2,
+    "name": "U.S. POLO ASSN. Mens Santos 2.0 Sneaker",
+    "vendor": "Cocoblu Retail",
+    "product_image": "uploads/241113103234241109125151240912160459240910104443240903_29EXDbJ.S._POLO_ASSN._Men_Tnr6aZK.jpg",
+    "quantity": 50,
+    "original_price": 3599,
+    "selling_price": 1999,
+    "description": "Closure type: Lace-Up\r\nHeel type: Flat\r\nWater resistance level: Not Water Resistant\r\nSole material: Rubber\r\nStyle: Sneaker\r\nOuter material: Polyurethane (PU)\r\nCountry of Origin: China",
+    "status": false,
+    "created_at": "2024-11-09T07:21:51.115Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 17,
+  "fields": {
+    "category": 2,
+    "name": "Lymio Dresses for Women",
+    "vendor": "Cocoblu Retail",
+    "product_image": "uploads/241113103248241109125300240912160629240910104508240903110235240730073527Y0522160_0XiRK3i.jpg",
+    "quantity": 20,
+    "original_price": 3999,
+    "selling_price": 499,
+    "description": "Dresses for Women || Western Dresses for Women || Dress for Women || Dresses\r\nType : A Line, Smock\r\nPattern Type:  All Over Print\r\nSleeve Length: Long Sleeve\r\nLength: Knee Length",
+    "status": false,
+    "created_at": "2024-11-09T07:23:00.063Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 18,
+  "fields": {
+    "category": 2,
+    "name": "Lavie Ava Foldover Clutch 3",
+    "vendor": "Cocoblu Retail",
+    "product_image": "uploads/241113103305241109125413240912160721240910104527240903110329240730073806Y0522162_biWXI5d.jpg",
+    "quantity": 20,
+    "original_price": 1999,
+    "selling_price": 599,
+    "description": "The Lavie Curve Ava stylish fold-over clutch is a versatile and functional accessory that effortlessly enhances your evening look with its elegant design and convenient features.\r\n\r\nThe flap closure of this clutch is equipped with a durable magnet, ensuring the security of your belongings throughout the night. The built-in pockets offer ample space to accommodate all your essentials in an organized manner",
+    "status": false,
+    "created_at": "2024-11-09T07:24:13.466Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 19,
+  "fields": {
+    "category": 2,
+    "name": "Hair Flare Floral Design Bridal Hair Clip Set",
+    "vendor": "ANSH  Beauty and Healthcare",
+    "product_image": "uploads/241113103325241109125518240912160849240910104552240903110438240730074306Y0522155_2UzgGpf.jpg",
+    "quantity": 20,
+    "original_price": 1299,
+    "selling_price": 199,
+    "description": "These 2640 hair clips/pins can be used with short as well as long hair.\r\nLOOKS: Its floral design is sure to makes you look more elegant, charming and is sure to win you many compliments.\r\nUSES: It is suitable for all occassions & parties such as Weddings, Birthdays, Engagements, Proms, Christmas, Diwali, Holi, EID and other events.\r\nHAIR TYPE: Suitable for all Hair Types. Perfect for various occasions, decoration bride, dance competition, party.",
+    "status": false,
+    "created_at": "2024-11-09T07:25:18.206Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 20,
+  "fields": {
+    "category": 2,
+    "name": "TRASE Women's Fashion Sandals",
+    "vendor": "TRASE",
+    "product_image": "uploads/241113103341241109130236240912160933240910104615240903110553240730074530Y0522161_4e2puiq.jpg",
+    "quantity": 20,
+    "original_price": 1399,
+    "selling_price": 499,
+    "description": "Stylish Design: The TRASE Women's Fashion Sandal features a sleek, contemporary design with elegant straps and a refined finish, perfect for adding a touch of sophistication to any outfit, from casual dresses to formal attire.\r\nUnmatched Comfort: These sandals come with a cushioned footbed that provides excellent support and comfort, allowing you to stay on your feet for extended periods without experiencing discomfort or fatigue.",
+    "status": false,
+    "created_at": "2024-11-09T07:32:36.677Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 21,
+  "fields": {
+    "category": 3,
+    "name": "Whirlpool 192 L 4 Star Refrigerator",
+    "vendor": "264",
+    "product_image": "uploads/24111310335524110913044224091216112024091010463324090311081924073007485124071622_wcdbDzZ.jpg",
+    "quantity": 25,
+    "original_price": 22000,
+    "selling_price": 17000,
+    "description": "Single door refrigerator with Insulated Capillary Technology.\r\nCapacity: 192 liters for families with 2-3 members.\r\nEnergy Rating - 5 Star energy efficiency.\r\nInsulated Capillary Technology-In Insulated Capillary Technology, the capillary which carries the refrigerant from the compressor to the freezer is surrounded by super cold gas leading to benefits such better compressor efficiency, faster cooling and 9 Hours* cooling retention in the refrigerator",
+    "status": false,
+    "created_at": "2024-11-09T07:34:42.156Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 22,
+  "fields": {
+    "category": 3,
+    "name": "LG 108 cm 4K Ultra HD Smart LED TV",
+    "vendor": "DAWNTECH ELECTRONICS PRIVATE LIMITED",
+    "product_image": "uploads/241113103409241109130540240912161207240910104650240903111044240730075147240716221734lg_1.jpg",
+    "quantity": 10,
+    "original_price": 49999,
+    "selling_price": 32999,
+    "description": "Resolution: 4K Ultra HD (3840x2160) | Refresh Rate: 60 hertz.\r\nConnectivity: Wi-Fi (Built-in) | 3 HDMI ports to connect set top box, Blu Ray players, gaming console | 2 USB ports to connect hard drives and other USB devices | ALLM | eARC | Bluetooth 5.0 | Optical | Ethernet.\r\nSound: 20 Watts Output | 2.0 Ch Speaker | AI Sound (Virtual Surround 5.1) for an Immersive Experience | AI Acoustic Tuning | Bluetooth Surround Ready",
+    "status": false,
+    "created_at": "2024-11-09T07:35:40.231Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 23,
+  "fields": {
+    "category": 3,
+    "name": "TANWAR HANDICRAFT  6 Seater Dining Table",
+    "vendor": "TANWAR HANDICRAFT",
+    "product_image": "uploads/241113103424241109130645240912161322240910104757240903111149240730075627Y0522144_qG45uOF.jpg",
+    "quantity": 30,
+    "original_price": 49999,
+    "selling_price": 25999,
+    "description": "Assembly Required By Customer :- Chair - Already Assemble ,| Table - Assembly Required (Need to Fix Only 4 Leg ) , Screw Driver & all Assembly Tools included in the packet. Minor assembly - No Carpenter Required. This splendid style of wooden dining table set create a beautiful impression with perception of modernization. This piece is made of natural wood crafted by traditional expertise hand. These skills are combination of traditional with contemporary craftsmanship and procedure.",
+    "status": false,
+    "created_at": "2024-11-09T07:36:45.728Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 24,
+  "fields": {
+    "category": 3,
+    "name": "Lloyd 1.5 Ton 3 Star Inverter Split AC",
+    "vendor": "DAWNTECH ELECTRONICS PRIVATE LIMITED",
+    "product_image": "uploads/2411131034412411091307522409121615032409101048202409031113552_LU19KIP.5_Ton_3_St_YXloBmM.jpg",
+    "quantity": 20,
+    "original_price": 58999,
+    "selling_price": 33999,
+    "description": "Lloyd Split AC with Inverter Compressor: AC with variable speed compressor which automatically adjusts power depending on room temperature & heat load. Convertible / adjustable with 5 cooling modes through remote control to operate in different tonnages for different cooling needs (40% to 100% capacity);Capacity: 1.5 ton suitable for medium size rooms up to 160 square feet.",
+    "status": false,
+    "created_at": "2024-11-09T07:37:52.482Z",
+    "trending": true
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 25,
+  "fields": {
+    "category": 3,
+    "name": "Samsung  Digital Inverter  Washing Machine",
+    "vendor": "DAWNTECH ELECTRONICS PRIVATE LIMITED",
+    "product_image": "uploads/241113103500241109131234240912161642240910105247240903111825240730080301_C6K9Aay._SX679_.jpg",
+    "quantity": 10,
+    "original_price": 39999,
+    "selling_price": 29999,
+    "description": "Fully-automatic front load washing machine with AI Eco Bubble Technology: Best Wash Quality, Energy and Water efficient.\r\n\r\nCapacity 11 kg: Suitable for large families | Water Pressure: (50-800 KPa) | Water Consumption : Refer to BEE label",
+    "status": false,
+    "created_at": "2024-11-09T07:42:34.585Z",
+    "trending": false
+  }
+},
+{
+  "model": "Shop.product",
+  "pk": 26,
+  "fields": {
+    "category": 3,
+    "name": "CURATED CART Premium Cake Making Set",
+    "vendor": "Ithiel Enterprises",
+    "product_image": "uploads/241113103526241109131400240912161730240910105304240903112021240730080604Y0522142_OSEbIH8.jpg",
+    "quantity": 20,
+    "original_price": 1099,
+    "selling_price": 649,
+    "description": 

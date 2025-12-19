@@ -33,10 +33,15 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-DEBUG = True
-
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
+if DEBUG:
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS_LOCAL', cast=Csv())
+else:
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS_PROD', cast=Csv())
+    # Also allow localhost for testing in production (optional)
+    ALLOWED_HOSTS.append('127.0.0.1')
+    ALLOWED_HOSTS.append('localhost')
 
 CSRF_TRUSTED_ORIGINS = ['https://trumpkart-in-4hog.onrender.com']
 CSRF_COOKIE_SECURE = True
@@ -62,7 +67,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
  
 ]
 
@@ -122,12 +126,37 @@ WSGI_APPLICATION = 'Ecom.wsgi.application'
     #}
 #}
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+if DEBUG:
+    # SQLite for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # PostgreSQL for production
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
+    }
+
 
 
 
@@ -204,29 +233,6 @@ SOCIALACCOUNT_PROVIDERS = {
         'OAUTH_PKCE_ENABLED': True,
     },
     
-    
-    'facebook': {
-        'METHOD': 'oauth2', 
-        'SCOPE': ['email', 'public_profile'],
-        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-        'INIT_PARAMS': {'cookie': True},
-        'FIELDS': [
-            'id',
-            'first_name',
-            'last_name',
-            'middle_name',
-            'name',
-            'name_format',
-            'picture',
-            'short_name'
-        ],
-        'EXCHANGE_TOKEN': True,
-       
-        'VERIFIED_EMAIL': False,
-        'VERSION': 'v13.0',
-        'GRAPH_API_URL': 'https://graph.facebook.com/v13.0',
-    
-}
 }
 
 LOGIN_REDIRECT_URL ="home"

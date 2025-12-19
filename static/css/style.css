@@ -24,23 +24,23 @@ body.poppins-regular {
   font-size: 2vw;
   font-weight: 700;
 }
-
+.btn-outline-secondary:hover i {
+    color: black !important;
+}
 .login{
-  background-color: transparent;
+  background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);
 }
 .login:hover{
-  background-color: white ;
+  background: linear-gradient(135deg, white 0%, white 100%);
   opacity: 0.9;
-  border-radius: 1vw;
   transition-duration: 0.7s;
 }
 .register{
-  background-color: transparent;
+  background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);
 }
 .register:hover{
   opacity: 0.9;
-  border-radius: 1vw;
-  background-color: white ;
+  background: linear-gradient(135deg, white 0%, white 100%);
   transition-duration: 0.7s;
 }
 
@@ -267,7 +267,7 @@ span{
     background-color:transparent;
    
   }
-   .input-group{
+   .inputGroup{
     width:25vw;
    }
    .card{
@@ -286,7 +286,7 @@ span{
     padding: 0px;
 
    }
-   .input-group{
+   .inputGroup{
     margin-left: 50px;
     width: 25vw;
    }
@@ -352,7 +352,7 @@ span{
       font-size: 13px;
     }
 
-    .input-group{
+    .inputGroup{
       margin-left: 0%;
       width:25vw;
     }
@@ -434,7 +434,7 @@ span{
 
     .nav-link{
       font-size: 2.5vw;
-      padding-bottom: 5px;
+      padding:5px 0px;
     }
      
     .cltn-image{
@@ -465,7 +465,7 @@ span{
     .form-control{
       font-size: 14px;
     }
-    .input-group{
+    .inputGroup{
       margin-left: 0%;
       width: 50vw;
     }
@@ -630,7 +630,7 @@ span{
     button.delete{
       font-size: 2vw;
      }
-     .input-group{
+     .inputGroup{
       margin-left: 0px;
       width: 50vw;
      }

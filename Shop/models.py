@@ -11,36 +11,48 @@ def getFileName(request,filename):
     return os.path.join('uploads/',new_filename)
 
 class OTPVerification(models.Model):
-    user =models.OneToOneField(User, on_delete=models.CASCADE)
-    otp =models.CharField(max_length=6)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    otp = models.CharField(max_length=6)
+    
+    class Meta:
+        db_table = 'shop_otpverification'
     
 class carousel(models.Model):
-    carousel_image= models.ImageField(upload_to=getFileName)
-    alt_text=models.CharField(max_length=150, null=False,blank=False,default="slide_image")
-    created_at=models.DateTimeField(auto_now_add=True)
+    carousel_image = models.ImageField(upload_to=getFileName)
+    alt_text = models.CharField(max_length=150, null=False, blank=False, default="slide_image")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'shop_carousel'
 
 class category(models.Model):
-    name=models.CharField(max_length=150,null=False,blank=False)
-    image=models.ImageField(upload_to=getFileName,null=True,blank=True)
-    description=models.TextField(max_length=500,null=False,blank=False)
-    status=models.BooleanField(default=False,help_text="0-show,1-Hidden")
-    created_at=models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=150, null=False, blank=False)
+    image = models.ImageField(upload_to=getFileName, null=True, blank=True)
+    description = models.TextField(max_length=500, null=False, blank=False)
+    status = models.BooleanField(default=False, help_text="0-show,1-Hidden")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'shop_category'
     
     def __str__(self):
         return f"{self.name},{self.description}"
     
 class product(models.Model):
-    category=models.ForeignKey(category,on_delete=models.CASCADE)
-    name=models.CharField(max_length=150,null=False,blank=False)
-    vendor=models.CharField(max_length=150,null=False,blank=False)
-    product_image=models.ImageField(upload_to=getFileName,null=True,blank=True)
-    quantity=models.IntegerField(null=False,blank=False)
-    original_price=models.IntegerField(null=False,blank=False)
-    selling_price=models.IntegerField(null=False,blank=False)
-    description=models.TextField(max_length=1500,null=False,blank=False)
-    status=models.BooleanField(default=False,help_text="0-show,1-Hidden")
-    created_at=models.DateTimeField(auto_now_add=True)
-    trending=models.BooleanField(default=False,help_text="0-default,1-Trending")
+    category = models.ForeignKey(category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, null=False, blank=False)
+    vendor = models.CharField(max_length=150, null=False, blank=False)
+    product_image = models.ImageField(upload_to=getFileName, null=True, blank=True)
+    quantity = models.IntegerField(null=False, blank=False)
+    original_price = models.IntegerField(null=False, blank=False)
+    selling_price = models.IntegerField(null=False, blank=False)
+    description = models.TextField(max_length=1500, null=False, blank=False)
+    status = models.BooleanField(default=False, help_text="0-show,1-Hidden")
+    created_at = models.DateTimeField(auto_now_add=True)
+    trending = models.BooleanField(default=False, help_text="0-default,1-Trending")
+    
+    class Meta:
+        db_table = 'shop_product'
        
     def __str__(self):
         return self.name
@@ -50,39 +62,46 @@ class product(models.Model):
         return round(((self.original_price - self.selling_price) / self.original_price) * 100)
 
 class Cart(models.Model):
-    user =models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     Product = models.ForeignKey(product, on_delete=models.CASCADE)
-    product_qty = models.IntegerField(null=False,blank=False)
+    product_qty = models.IntegerField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'shop_cart'
      
     @property
     def total_cost(self):
-        return self.product_qty*self.Product.selling_price
+        return self.product_qty * self.Product.selling_price
     
 class favourite(models.Model):
-    user =models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     Product = models.ForeignKey(product, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'shop_favourite'
         
 class addressModel(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True) 
-    name=models.CharField(max_length=150)
-    house=models.CharField(max_length=150)
-    area =models.CharField(max_length=150)
-    address=models.TextField(max_length=1500)
-    city=models.CharField(max_length=150)
-    state=models.CharField(max_length=150)
-    country=models.CharField(max_length=150)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
+    name = models.CharField(max_length=150)
+    house = models.CharField(max_length=150)
+    area = models.CharField(max_length=150)
+    address = models.TextField(max_length=1500)
+    city = models.CharField(max_length=150)
+    state = models.CharField(max_length=150)
+    country = models.CharField(max_length=150)
     zipcode = models.CharField(max_length=10)
-    phone=models.CharField( max_length=20)
-    email=models.EmailField()
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
     
-    
+    class Meta:
+        db_table = 'shop_addressmodel'
     
 class Order(models.Model):
     PENDING = 0
     DELIVERED = 1
-    CANCELED =2
+    CANCELED = 2
     RETURN = 3
 
     STATUS_CHOICES = [
@@ -99,10 +118,13 @@ class Order(models.Model):
     final_order_id = models.CharField(max_length=255, null=True, blank=True)
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    delivered_at =models.DateTimeField(null=True, blank=True)
-    status= models.IntegerField(choices=STATUS_CHOICES, default=PENDING)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=PENDING)
     products = models.ForeignKey(product, on_delete=models.CASCADE)
     cod_order_id = models.UUIDField(default=uuid.uuid4, unique=True)
+    
+    class Meta:
+        db_table = 'shop_order'
  
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
@@ -110,24 +132,28 @@ class Order(models.Model):
     @property
     def is_old_order(self):
         if self.delivered_at:
-            return timezone.now() - self.delivered_at > timezone.timedelta(days = 10)
+            return timezone.now() - self.delivered_at > timezone.timedelta(days=10)
         return False
     
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order,related_name='order_items', on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
     Product = models.ForeignKey(product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    class Meta:
+        db_table = 'shop_orderitem'
 
     def __str__(self):
         return f"OrderItem: {self.quantity} of {self.Product.name}" 
     
-from django.db import models
-
 class SupportIssue(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
     feedback = models.TextField()
+    
+    class Meta:
+        db_table = 'shop_supportissue'
 
     def __str__(self):
         return self.name

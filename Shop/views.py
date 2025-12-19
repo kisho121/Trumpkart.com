@@ -474,6 +474,13 @@ def sent_otp(email, otp):
 def registerpage(request):
     if request.method == 'POST':
         form = customuserform(request.POST)
+
+        email = request.POST.get('email')
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'This email is already registered. Please use a different email or login.')
+            return render(request, 'shop/account/signup.html', {'form': form})
+
+        
         if form.is_valid():
             user=form.save(commit =False)
             user.is_active = False
@@ -497,7 +504,7 @@ def otp_verification(request):
             user.is_active = True
             user.save()
             user_otp.delete()  # OTP is used, so delete it
-            messages.success(request, "Registration successfull> Login Now..")
+            messages.success(request, "Registration successfull")
             return redirect('account_login')
         except OTPVerification.DoesNotExist:
             return HttpResponse('Invalid OTP. Please try again.')
@@ -607,7 +614,7 @@ def supportView(request):
         },
         'shipping': {
             'heading': 'Shipping & Cancellation',
-            'paragraph': 'Get details on our shipping process and cancellation policies. We aim to make your shopping experience seamless and worry-free. Please the Order_id and and other details if you want to cancel the order or to know the shipping related information. '
+            'paragraph': 'Get details on ofur shipping process and cancellation policies. We aim to make your shopping experience seamless and worry-free. Please the Order_id and and other details if you want to cancel the order or to know the shipping related information. '
         },
         'return': {
             'heading': 'Return',

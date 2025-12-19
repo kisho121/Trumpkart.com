@@ -13,8 +13,8 @@ Register|TrumpKart
     {% include 'Shop/inc/message.html' %}
 <h1 class="text-center text-light fw-bold p-0">REGISTER</h1>
 
-    <div class="container col-10 col-sm-10 col-md-6 col-lg-4 px-5 pb-3 register" >
-        <section class="pt-2 mb-2 ">
+    <div class="container col-10 col-sm-10 col-md-6 col-lg-4 px-5 py-3 mx-auto rounded-2 register" >
+        <section class="mx-auto w-75 mb-2 ">
            
                 <form method="POST" action="">
                    {% csrf_token %}
@@ -29,29 +29,55 @@ Register|TrumpKart
                     {{form.email}}
                    
                 </div>
-
-                   <div class="">
+                  <div>
                     <label for="" class="form-label fw-bold">Password</label>
-                    {{form.password1}}
-                    <input type="checkbox" id="showpwd1">
-                    
-                </div>
+                    <div class="input-group">
+                        <!-- {{form.password1}} -->
+                            <input type="password" name="password1" id="showpwd1" placeholder="Enter the Password" class="form-control mx-0 w-75">
+                            <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword1" style="border-left: none;">
+                                <i class="bi bi-eye-slash text-black" id="eyeIcon1"></i>
+                            </button>
+                            
+                        </div>
 
-                   <div class="mb-2">
+                    </div>
+
+                    <div>
+                        <label for="" class="form-label fw-bold">Password</label>
+                        <div class="input-group">
+                            <!-- {{form.password1}} -->
+                                <input type="password" name="password2" id="showpwd2" placeholder="Enter the Password" class="form-control mx-0 w-75">
+                                <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword2" style="border-left: none;">
+                                    <i class="bi bi-eye-slash text-black" id="eyeIcon2"></i>
+                                </button>
+                                
+                        </div>
+
+                    </div>
+
+                   <!-- <div class="mb-2">
                     <label for="" class="form-label fw-bold">Confirm Password</label>
                     {{form.password2}}
                     <input type="checkbox" id="showpwd2">
                    
-                </div>
+                </div> -->
 
-                   <button class="btn btn-success" type="submit">Submit</button>
+                   <button class="btn btn-success mt-2" type="submit">Submit</button>
 
                 </form>
-                <p class="my-2 fw-bold">Already an user?? <a class="fs-4 fw-bold ms-2" href="{% url 'account_login' %}"> <button class="btn btn-primary  fw-bold">Login</button></a></p>
+                <div class="my-2 rounded-2 px-2 py-2" style="border: 1px solid black; background-color: rgba(255,255,255,0.1);">
+                    <h6 class="fw-bolder text-dark mb-2"><i class="bi bi-info-circle-fill fs-5 me-2"></i>Password Requirements</h6>
+                    <ul class="mb-0 list-unstyled">
+                        <li class="small text-dark">Minimum 8 characters</li>
+                        <li class="small text-dark">Use a combination of uppercase (A–Z), lowercase (a–z), digits (0–9), and special characters (! @ # $ %)</li>
+                        <li class="small text-dark">Password should not be same as Username or Email</li>
+                    </ul>
+                </div>
+                <p class="my-2 fw-bold">Already an user?? <a class=" fw-bold ms-2" href="{% url 'account_login' %}"> <span class="text-primary text-decoration-underline fw-bold">LOGIN</span></a></p>
                
             
 
-            <div class="col-6">
+            <div class="">
               
                 <div class="mb-2">
                     
@@ -82,7 +108,7 @@ Register|TrumpKart
                 </div>
         </section>
     
-    <div class="login-or  my-3 text-dark text-center">{% trans 'OR' %}</div>
+    <div class="login-or my-3 text-dark text-center">{% trans 'OR' %}</div>
 
     <div class="text-center container ">
       <div class="socialaccount_providers">
@@ -118,14 +144,35 @@ Register|TrumpKart
 {% endblock %}
 {% block scripts %}
 <script>
-    document.getElementById('showpwd1').addEventListener('change', function(){
-        var passwordfield = document.querySelector('input[name="password1"]');
-        passwordfield.type = this.checked ? 'text': 'password';
+       document.getElementById('togglePassword1').addEventListener('click', function() {
+        const passwordField = document.querySelector('input[name="password1"]');
+        const eyeIcon = document.getElementById('eyeIcon1');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            eyeIcon.classList.remove('bi-eye');
+            eyeIcon.classList.add('bi-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            eyeIcon.classList.remove('bi-eye-slash');
+            eyeIcon.classList.add('bi-eye');
+        }
     });
 
-    document.getElementById('showpwd2').addEventListener('change', function(){
-        var passwordfield = document.querySelector('input[name="password2"]');
-        passwordfield.type = this.checked ? 'text': 'password';
+    // Password visibility toggle for password2
+    document.getElementById('togglePassword2').addEventListener('click', function() {
+        const passwordField = document.querySelector('input[name="password2"]');
+        const eyeIcon = document.getElementById('eyeIcon2');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            eyeIcon.classList.remove('bi-eye');
+            eyeIcon.classList.add('bi-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            eyeIcon.classList.remove('bi-eye-slash');
+            eyeIcon.classList.add('bi-eye');
+        }
     });
 </script>
 {% endblock scripts %}

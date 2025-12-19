@@ -1,2 +1,43 @@
 # Ignore .env file
+.env# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Django
+*.log
+local_settings.py
+
+# Sensitive Files
 .env
+secretkey.py
+*.key
+*.crt
+*.pem
+
+# Node
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+db.sqlite3
+# Build
+dist/
+build/
+*.egg-info/
