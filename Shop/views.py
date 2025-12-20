@@ -467,9 +467,17 @@ def login_page(request):
 def sent_otp(email, otp):
     subject = 'Your OTP for Registration'
     message = f'Your OTP for Registration is {otp}'
-    email_from = settings.EMAIL_HOST_USER
+    # FIX: Use DEFAULT_FROM_EMAIL instead of EMAIL_HOST_USER
+    email_from = settings.DEFAULT_FROM_EMAIL
     recipient_list = [email]
-    send_mail(subject, message, email_from, recipient_list)    
+    
+    try:
+        send_mail(subject, message, email_from, recipient_list)
+        return True
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error sending email: {e}")
+        return False
 
 def registerpage(request):
     if request.method == 'POST':
@@ -480,18 +488,26 @@ def registerpage(request):
             messages.error(request, 'This email is already registered. Please use a different email or login.')
             return render(request, 'shop/account/signup.html', {'form': form})
 
-        
         if form.is_valid():
-            user=form.save(commit =False)
+            user = form.save(commit=False)
             user.is_active = False
             user.save()
-            otp =random.randint(100000,999999)
-            OTPVerification.objects.create(user=user, otp =otp)
-            sent_otp(user.email, otp)
+            otp = random.randint(100000, 999999)
+            OTPVerification.objects.create(user=user, otp=otp)
+            
+            # Send OTP and handle errors
+            email_sent = sent_otp(user.email, otp)
+            
+            if not email_sent:
+                messages.warning(request, 'Registration successful but email could not be sent. Please contact support.')
+            
             return redirect(reverse('otp_verification') + f'?email={user.email}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
-        form = customuserform 
-    return render(request,'Shop/account/signup.html',{'form':form})
+        form = customuserform()
+    
+    return render(request, 'Shop/account/signup.html', {'form': form})
 
 
 def otp_verification(request):
