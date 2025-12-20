@@ -14,14 +14,6 @@ from pathlib import Path
 import dj_database_url
 from decouple import config,Csv
 
-from django.core.management import execute_from_command_line
-
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Ecom.settings')
-
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -42,10 +34,6 @@ else:
     # Also allow localhost for testing in production (optional)
     ALLOWED_HOSTS.append('127.0.0.1')
     ALLOWED_HOSTS.append('localhost')
-
-CSRF_TRUSTED_ORIGINS = ['https://trumpkart-in-4hog.onrender.com']
-CSRF_COOKIE_SECURE = True
-
 
 
 # Application definition
@@ -198,7 +186,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
