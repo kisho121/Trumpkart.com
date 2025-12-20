@@ -28,12 +28,15 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 if DEBUG:
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS_LOCAL', cast=Csv())
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 else:
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS_PROD', cast=Csv())
-    # Also allow localhost for testing in production (optional)
-    ALLOWED_HOSTS.append('127.0.0.1')
-    ALLOWED_HOSTS.append('localhost')
+    ALLOWED_HOSTS = [
+        'trumpkart-in-4hog.onrender.com',
+        '127.0.0.1',
+        'localhost',
+        '.onrender.com',
+    ]
+
 
 
 # Application definition
