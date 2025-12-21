@@ -1,13 +1,14 @@
 {% extends 'Shop/layouts/main.html' %}
+{% load static %}
 
 {% block title %}
    Register|Ecom
 {% endblock title %}
 
 {% block content %}
-
-<h1 class="bg-secondary text-center text-light fw-bold">Check your Products..</h1>
-<h2 class="text-secondary text-center fw-bold ">Related category</h2>
+<div class="container-fluid my-3">
+<h1 class="text-center fw-bolder" style="color: rgb(4, 9, 90);">SEARCH RESULTS</h1>
+<!-- <h2 class="text-primary text-center fw-bold ">Related category</h2>
 <div class="container bg-light">
     {% if categories %}
   
@@ -20,7 +21,7 @@
                             <a href="{% url 'collection' item.name %}" class="link">
                                 <img src="{{item.image.url}}" class="card-img-top mx-auto" style="margin:auto" alt="..." >
                                 <div class="card-body" style="text-decoration: none;">
-                                    <h6 class="card-title">{{item.name}}</h6> 
+                                     <h6 class="card-title">{{item.name}}</h6> 
                                 </div>
                             </a>
                         </div>
@@ -32,23 +33,23 @@
        <p class="text-secondary">No such category</p>
   
     {% endif %}
-</div>
+</div> -->
 
-<h2 class="text-secondary text-center fw-bold ">Related Products</h2>
+<!-- <h2 class="text-secondary text-center fw-bold ">Related Products</h2> -->
   
-<div class="container bg-light my-2">
+<div class="bg-light mx-auto text-center my-4">
     {% if products %}
     
-        <div class="container my-2">
-            <div class="row my-2">
+        <div class=" my-2">
+            <div class="row my-2 mx-2">
                 {% for item in products %}
                     <div class=" col-6 col-sm-6 col-md-3 col-lg-3 my-3">
-                        <div class="card w-75 mx-auto">
+                        <div class="card h-100 mx-auto">
                             <a href="{% url 'collectiondetails' item.category.name item.name %}" class="link">
                                 <img src="{{item.product_image.url}}" class="card-img-top w-100" style="margin:auto" alt="..." >
                                     <div class="card-body" style="text-decoration: none;">
                                          <h6 class="card-title">{{item.name}}</h6> 
-                                         <p class="card-text text-center"><span>RS. </span><s style="color: red;">{{item.original_price}}</s>  | {{item.selling_price}} </p> 
+                                         <p class="card-text fs-6 text-center"><span>RS. </span><s style="color: red;">{{item.original_price}}</s>  | {{item.selling_price}} </p> 
                                     </div>
                             </a>
                         </div>
@@ -59,8 +60,10 @@
 
 
     {% else %}
-        <p class="text-dark">No such products</p>
+        
+        <img src="{% static 'images/no-product.png' %}"  alt="thumb-image" width="200" height="200">
     {% endif %}
+</div>
 </div>
 {% endblock content %}
 

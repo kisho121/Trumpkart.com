@@ -117,6 +117,8 @@ class Order(models.Model):
     total_cost = models.DecimalField(max_digits=10, decimal_places=2)
     final_order_id = models.CharField(max_length=255, null=True, blank=True)
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True) 
+    payment_status = models.CharField(max_length=50, default='Pending') 
     created_at = models.DateTimeField(auto_now_add=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=PENDING)

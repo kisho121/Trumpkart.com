@@ -1,58 +1,139 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order_confirmation_mail</title>
-    <style>
-        h1 {
-            background-color: rgb(5, 97, 244);
-            text-align: center;
-            color: white;
-        }
-        h2{
-            color: blue;
-            display: inline;
-            text-align: center;
-        }
-        h3{
-            color: black;
-            text-align: center;
-        }
-        b{
-            color: red;
-        }
-        span{
-            
-            color: black;
-        }
-        ul{
-            list-style-type: none;
-        }
-    </style>
-  
+  <meta charset="UTF-8">
+  <title>Order Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .header {
+      background-color: #0d6efd;
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .content {
+      padding: 20px;
+      color: #333333;
+    }
+    .content h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .order-box {
+      background-color: #f9fafb;
+      border: 1px solid #e0e0e0;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .order-box p {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+    .product-list {
+      padding-left: 0;
+      list-style: none;
+    }
+    .product-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #e6e6e6;
+      font-size: 14px;
+    }
+    .product-list li:last-child {
+      border-bottom: none;
+    }
+    .total {
+      font-size: 16px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 10px;
+    }
+    .footer {
+      background-color: #f1f3f5;
+      padding: 15px;
+      text-align: center;
+      font-size: 12px;
+      color: #555555;
+    }
+    .highlight {
+      color: #0d6efd;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
 
-    <h1 class="bg-primary">Thank you for your order ❤️, <span>{{user.username}}</span></h1>
-   
-     <h3>Order Successfully placed! 🎉</h3>
-    <p>Your order ID :  <b>{{razorpay_order_id}}.</b></p><br>
-    
-    <ul>
-        {% for item in order_items %}
-            
-            <li>
-                <h2>{{ item.Product.name }}</h2>
-            </li><br>
-        {% endfor %}
-           <li>Total cost: <b>₹ {{order.total_cost}}</b>   </li>
-    </ul>
-    
-    <p>Your order will be Delivered within 3 - 5 working days.</p>
-    
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Order Confirmed 🎉</h1>
+    </div>
 
-    
+    <!-- Content -->
+    <div class="content">
+      <p>Hello <strong>{{ user.username }}</strong>,</p>
+
+      <p>
+        Thank you for shopping with <strong>TrumpKart</strong>.
+        Your order has been successfully placed and is now being processed.
+      </p>
+
+      <!-- Order Info -->
+      <div class="order-box">
+        <p><strong>Order ID:</strong> <span class="highlight">{{ final_order_id }}</span></p>
+        <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+        <p><strong>Order Status:</strong> Confirmed</p>
+      </div>
+
+      <!-- Products -->
+      <h2>Order Summary</h2>
+      <ul class="product-list">
+        {% for item in order_items %}
+          <li>
+            {{ item.Product.name }} × {{ item.quantity }}
+            <span style="float:right;">₹ {{ item.price }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <p class="total">Total Amount: ₹ {{ order.total_cost }}</p>
+
+      <p>
+        📦 Your order will be delivered within
+        <strong>3–5 business days</strong>.
+      </p>
+
+      <p>
+        If you have any questions, feel free to contact our support team.
+      </p>
+
+      <p>Happy Shopping! 😊<br>
+      <strong>– Team TrumpKart</strong></p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>This is an automated email. Please do not reply.</p>
+      <p>© {{ year }} TrumpKart. All rights reserved.</p>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -5,14 +5,14 @@ Pay with Razorpay | Ecom
 {% endblock title %}
 
 {% block content %}
-<div class="container-fluid my-2 bg-light">
+<div class="container-fluid my-2 bg-light px-md-2 px-0">
     <h2 class="text-secondary text-center fw-bold py-2">Order Summary</h2>
     <div class="row mx-auto justify-content-center py-2">
         {% if orders %}
         {% for item in orders %}
-        <div class="col-12 col-sm-12 col-md-6 col-lg-6 mx-0">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 px-0">
 
-            <table class="table table-stripped mt-3  ">
+            <table class=" table table-stripped mt-3  ">
                 <thead class="bg-secondary text-light">
                      <th>Order ID</th>
                      <th>Order placed on</th>

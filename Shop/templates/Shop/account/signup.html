@@ -9,12 +9,12 @@ Register|TrumpKart
 {% endblock title %}
 
 {% block content %}
-<div class="bg-register pb-4" style="background-image: url('/static/images/register.jpg'); background-repeat: no-repeat; background-size: cover; background-position:center;">
+<div class="bg-register">
     {% include 'Shop/inc/message.html' %}
-<h1 class="text-center text-light fw-bold p-0">REGISTER</h1>
+<h1 class="text-center fw-bolder" style="color: rgb(4,9,90); font-family: serif;">REGISTER</h1>
 
     <div class="container col-10 col-sm-10 col-md-6 col-lg-4 px-5 py-3 mx-auto rounded-2 register" >
-        <section class="mx-auto w-75 mb-2 ">
+        <section class="mx-auto my-2 ">
            
                 <form method="POST" action="">
                    {% csrf_token %}
@@ -73,7 +73,7 @@ Register|TrumpKart
                         <li class="small text-dark">Password should not be same as Username or Email</li>
                     </ul>
                 </div>
-                <p class="my-2 fw-bold">Already an user?? <a class=" fw-bold ms-2" href="{% url 'account_login' %}"> <span class="text-primary text-decoration-underline fw-bold">LOGIN</span></a></p>
+                <p class="my-2 fw-bold">Already an user?? <a class=" fw-bold ms-2" href="{% url 'account_login' %}"> <span class="text-primary text-decoration-underline fw-bolder fs-6">LOGIN</span></a></p>
                
             
 
@@ -132,12 +132,8 @@ Register|TrumpKart
       <a href="{% url 'account_signup' %}">sign up</a> first.</p>
       {% endif %}
     </div>
-  
     
-  
-  
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    </div>
+      </div>
 
 </div>
 </div>

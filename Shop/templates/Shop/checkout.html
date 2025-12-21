@@ -1,8 +1,7 @@
-
 {% extends 'Shop/layouts/main.html' %}
 
 {% block title %}
-Register|Ecom
+Checkout|Ecom
 {% endblock title %}
 
 {% block content %}
@@ -10,97 +9,113 @@ Register|Ecom
 <div class="container my-2">
     <div class="row">
         <div class="col-12 col-sm-12 col-md-6 col-lg-6">
-            <h2 class="  text-dark text-center bg-warning fw-bold " style="font-family: serif;"> Address Form</h2>
+            <h2 class="text-dark text-center bg-warning fw-bold" style="font-family: serif;"> Address Form</h2>
             
-                <form id="checkout-form" method="POST" action="{% url 'checkout' %}">
-                    {% csrf_token %}
-                    
-                   <div class="my-1">
+            <form id="checkout-form" method="POST" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">Full Name:</label>
                     {{form.name}}
                     {% if form.name.errors %}
                     <div class="text-danger">{{ form.name.errors }}</div>
                     {% endif %}
-                   </div>
+                </div>
 
-                   <div class="my-1">
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">House,flat:</label>
                     {{form.house}}
                     {% if form.house.errors %}
                     <div class="text-danger">{{ form.house.errors }}</div>
                     {% endif %}
-                   </div>
+                </div>
 
-                   <div class="my-1">
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">Street,Area:</label>
                     {{form.area}}
                     {% if form.area.errors %}
                     <div class="text-danger">{{ form.area.errors }}</div>
                     {% endif %}
-                   </div>
+                </div>
 
-                   <div class="my-1">
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">Address:</label>
                     {{form.address}}
                     {% if form.address.errors %}
                     <div class="text-danger">{{ form.address.errors }}</div>
                     {% endif %}
-                   </div>
+                </div>
 
-                   <div class="my-1">
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">City:</label>
                     {{form.city}}
                     {% if form.city.errors %}
                     <div class="text-danger">{{ form.city.errors }}</div>
-                   {% endif %}
-                   </div>
-                   <div class="my-1">
+                    {% endif %}
+                </div>
+
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">State:</label>
                     {{form.state}}
                     {% if form.state.errors %}
                     <div class="text-danger">{{ form.state.errors }}</div>
                     {% endif %}
-                   </div>
-                   <div class="my-1">
+                </div>
+
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">Country:</label>
                     {{form.country}}
                     {% if form.country.errors %}
                     <div class="text-danger">{{ form.country.errors }}</div>
                     {% endif %}
-                   </div>
-                   <div class="my-1">
+                </div>
+
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">Zipcode:</label>
                     {{form.zipcode}}
                     {% if form.zipcode.errors %}
                     <div class="text-danger">{{ form.zipcode.errors }}</div>
                     {% endif %}
-                   </div>
-                   <div class="my-1">
+                </div>
+
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">Mobile NO:</label>
                     {{form.phone}}
                     {% if form.phone.errors %}
                     <div class="text-danger">{{ form.phone.errors }}</div>
                     {% endif %}
-                   </div>
-                   <div class="my-1">
+                </div>
+
+                <div class="my-1">
                     <label for="" class="form-label fw-bold">Email:</label>
                     {{form.email}}
                     {% if form.email.errors %}
                     <div class="text-danger">{{ form.email.errors }}</div>
                     {% endif %}
-                   </div>
-                   <label for="" class="form-label">
+                </div>
+
+                <label for="" class="form-label">
                     <input type="checkbox" class="from-check"> Default address
-                   </label>
-          </div> 
-          <div class="col-12 col-sm-12 col-md-6 col-lg-6">
-            <h2 class="fw-bold text-light text-center bg-primary" style="font-family: serif;"><i class="fa-solid fa-cart-shopping fs-4" ></i> Cart Item</h2>
+                </label>
+
+                <!-- Hidden fields for payment data -->
+                <input type="hidden" id="payment_mode" name="payment_mode" value=""> 
+                <input type="hidden" id="razorpay_payment_id" name="razorpay_payment_id" value="">
+                <input type="hidden" id="razorpay_order_id" name="razorpay_order_id" value="">
+                <input type="hidden" id="razorpay_signature" name="razorpay_signature" value="">
+            </form>
+        </div> 
+
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+            <h2 class="fw-bold text-light text-center bg-primary" style="font-family: serif;">
+                <i class="fa-solid fa-cart-shopping fs-4"></i> Cart Items
+            </h2>
             <table class="table table-stripped">
                 <thead>
                     <th>Product</th>
                     <th>Name</th>
                     <th>Quantity</th>
-                    <th>Total_cost</th>
+                    <th>Total</th>
                 </thead>
                 <tbody>
                     {% for item in cart_items %}
@@ -108,81 +123,228 @@ Register|Ecom
                         <td><img class="cart-image" src="{{ item.Product.product_image.url }}" alt="" width="80" height="80"></td>
                         <td><p>{{ item.Product.name }}</p></td>
                         <td>{{item.product_qty}}</td>
-                        <td>{{item.total}}</td>
+                        <td>₹{{item.total}}</td>
                     </tr>
                     {% endfor %}
                     <tr>
                         <td></td>
-                        <td>Total Amount</td>
+                        <td><strong>Total Amount</strong></td>
                         <td>:</td>
-                        <td class="text-success fw-bold text-decoration-underline">{{total_cost}} /-</td>
+                        <td class="text-success fw-bold text-decoration-underline fs-6">₹{{total_cost}} /-</td>
                     </tr>
                 </tbody>
             </table>
             
             <div class="container">
-                <p class="display-6 fw-bold text-center">PAYMENT MODE</p>
-                    <input type="hidden" id="payment_mode" name="payment_mode" value=""> 
-                 
-                   <input type="hidden" id="razorpay_payment_id" name="razorpay_payment_id" value="">
-                   <input type="hidden" id="razorpay_order_id" name="razorpay_order_id" value="">
-                   <input type="hidden" id="razorpay_signature" name="razorpay_signature" value="">
-                   <div class=" float-end">
-                <button id="rzp-button1" type="submit" class="btn btn-success fw-bold ">Pay with Razorpay</button>
-                <br>
-                <p class="text-center">OR</p>
-                <button id="cod_button" class="btn btn-warning fw-bold text-center">Cash on delivery</button>
+                <p class="display-6 fw-bold text-end">PAYMENT MODE</p>
+                <div class="float-end">
+                    <button id="rzp-button1" type="button" class="btn btn-success fw-bold" style="width: 200px;">
+                        Pay with Razorpay
+                    </button>
+                    <br>
+                    <p class="text-center">OR</p>
+                    <button id="cod_button" type="button" class="btn btn-warning fw-bold text-center" style="width: 200px;">
+                        Cash on Delivery
+                    </button>
+                </div>
             </div>
-            </form>
-            </div>
-          </div>
+        </div>
     </div>
 </div>
 
 {% endblock content %}
+
 {% block scripts %}
-
-
-
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    
-var options = {
-    "key": "rzp_test_4Hjkyweq2IDJ6O",
-    "amount": "{{total_cost}}",
-    "currency": "INR",
-    "name": "TrumpKart",
-    "description": "Test Transaction",
-    "image": "https://example.com/your_logo",
-    "order_id": "", 
-    "handler": function (response){
-        document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-        document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
-        document.getElementById('razorpay_signature').value = response.razorpay_signature;
-        document.getElementById('payment_mode').value = "Razorpay"
-        document.getElementById('checkout-form').submit();
-    },
-    "prefill": {
-        "name": "Kishore",
-        "email": "kishoor121@gmail.com",
-        "contact": "8220557366"
-    },
-    "notes": {
-        "address": "Razorpay Corporate Office"
-    },
-    "theme": {
-        "color": "#3399cc"
-    }
-};
-var rzp1 = new Razorpay(options);
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('checkout-form');
+    const rzpButton = document.getElementById('rzp-button1');
+    const codButton = document.getElementById('cod_button');
 
-document.getElementById('rzp-button1').onclick = function(e){
-    rzp1.open();
-    e.preventDefault();
-}
-document.getElementById('cod_button').onclick = function(e){
-    document.getElementById('payment_mode').value = "COD";
-    document.getElementById('checkout-form').submit()
-}
+    // Function to validate form
+    function validateForm() {
+        // Get all required fields
+        const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+        let isValid = true;
+        let firstInvalidField = null;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        // If form is invalid, show alert and focus first invalid field
+        if (!isValid) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Form',
+                text: 'Please fill all required fields before proceeding.',
+            });
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+            }
+        }
+
+        return isValid;
+    }
+
+    // Razorpay options
+    const options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}", // Amount in paise from backend
+        "currency": "INR",
+        "name": "TrumpKart",
+        "description": "Order Payment",
+        "image": "https://example.com/your_logo",
+        "order_id": "{{ razorpay_order_id }}", // This will be set when needed
+        "handler": function (response) {
+            // Payment successful - update hidden fields
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('payment_mode').value = "Razorpay";
+            
+            // Submit the form
+            form.submit();
+        },
+        "prefill": {
+            "name": "{{ user.get_full_name|default:user.username }}",
+            "email": "{{ user.email }}",
+            "contact": ""
+        },
+        "notes": {
+            "address": "Order from TrumpKart"
+        },
+        "theme": {
+            "color": "#3399cc"
+        },
+        "modal": {
+            "ondismiss": function() {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Payment Cancelled',
+                    text: 'You cancelled the payment process.',
+                    timer: 2000
+                });
+            }
+        }
+    };
+
+    // Razorpay button click handler
+    rzpButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Validate form first
+        if (!validateForm()) {
+            return;
+        }
+
+        // Show loading
+        Swal.fire({
+            title: 'Processing...',
+            text: 'Creating payment order...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Create Razorpay order via backend
+        const formData = new FormData(form);
+        formData.set('payment_mode', 'Razorpay');
+
+        fetch('{% url "checkout" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.close();
+            
+            if (data.success) {
+                // Update Razorpay options with order details
+                options.order_id = data.razorpay_order_id;
+                options.amount = data.amount;
+                
+                // Open Razorpay payment modal
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Failed to create payment order',
+                });
+            }
+        })
+        .catch(error => {
+            Swal.close();
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong. Please try again.',
+            });
+        });
+    });
+
+    // COD button click handler
+    codButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Validate form first
+        if (!validateForm()) {
+            return;
+        }
+
+        // Confirm COD order
+        Swal.fire({
+            title: 'Confirm Order',
+            text: 'Place order with Cash on Delivery?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#ffc107',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, place order!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Set payment mode and submit
+                document.getElementById('payment_mode').value = "COD";
+                form.submit();
+            }
+        });
+    });
+
+    // Add visual feedback for required fields
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.hasAttribute('required') && !this.value.trim()) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+});
 </script>
+
+<style>
+.is-invalid {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5;
+}
+</style>
 {% endblock scripts %}

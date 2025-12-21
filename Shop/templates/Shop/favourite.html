@@ -1,68 +1,211 @@
-
 {% extends 'Shop/layouts/main.html' %}
 
 {% block title %}
-Register|Ecom
+Wishlist|Ecom
 {% endblock title %}
 
 {% block content %}
 {% include 'Shop/inc/message.html' %}
 
-<h2 class="text-secondary text-center fw-bold py-2">My Wishlist <i class="fa fa-heart "></i> </h2>
+<h2 class="text-secondary text-center fw-bold py-2">My Wishlist <i class="fa fa-heart"></i></h2>
 <div class="container bg-light">
 
-
-
 {% if fav %}
-
-  
-  
-      {% for item in fav %}
-       <div class="row justify-content-around mb-5">
-        
-         <div class="card col-12 col-sm-12 col-md-4 col-lg-3  ">
-            <div class="text-center">
-            
-              <img class="card-img-top " src="{{ item.Product.product_image.url }}" alt="" style="max-width: 200px;">
-              <p class="card-body text-primary text-center fw-bold">{{ item.Product.name }}</p>
-            
-         </div>
-         </div>
-         
-         <div class="col-6 col-sm-6 col-md-4 col-lg-3 mx-auto" >
-            <p class="text-dark">{{ item.Product.description }}</p>
-
-         </div>
-         <div class="col-6 col-sm-6 col-md-4 col-lg-3  ">
-            <h5 class="text-dark text-center ">Amount: &#8377<b class="text-success">{{item.Product.selling_price}}</b></h5>
-            <div class="justify-content-center d-flex">
-            <a class=" mx-auto" href="{% url 'removefavrt' item.id %}" onclick="return confirm('Are you Sure to Remove')"><button class="btn btn-danger"><i class="fa fa-trash"></i> Remove</button></a>
-            <a href="{% url 'collectiondetails' item.Product.category.name item.Product.name %}"><button class="btn btn-primary fw-bold"><i class="fa fa-shopping-cart"></i> Details </button></a>
-         </div>
-         </div>
-         
-       </div>
+  {% for item in fav %}
+    <div class="row justify-content-around mb-5 wishlist-item" data-item-id="{{ item.id }}">
       
-     
-     
-      {% endfor %}
-     
- 
-   
-
+      <div class="card col-12 col-sm-12 col-md-4 col-lg-3">
+        <div class="text-center">
+          <img class="card-img-top" src="{{ item.Product.product_image.url }}" alt="" style="max-width: 200px;">
+          <h5 class="card-body text-primary text-center fw-bold">{{ item.Product.name }}</h5>
+        </div>
+      </div>
+      
+      <div class="d-flex col-12 col-sm-12 col-md-4 col-lg-6 mx-auto">
+        <p class="text-dark small align-content-center">{{ item.Product.description }}</p>
+      </div>
+      
+      <div class="col-12 col-sm-12 col-md-4 col-lg-3 mx-auto text-center align-content-center">
+        <h5 class="text-dark text-center">Amount: &#8377;<b class="text-success">{{ item.Product.selling_price }}</b></h5>
+        
+        <div class="justify-content-center d-flex flex-column gap-2">
+          <!-- Quantity Selector -->
+          <div class="input-group mx-auto" style="width: 150px;">
+            <button class="input-group-text bg-success text-light btn-minus" data-product-id="{{ item.Product.id }}">
+              <i class="fa fa-minus"></i>
+            </button>
+            <input type="text" class="form-control text-center qty-input" data-product-id="{{ item.Product.id }}" value="1" readonly>
+            <button class="input-group-text bg-success text-light btn-plus" data-product-id="{{ item.Product.id }}">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2 justify-content-center">
+            <!-- <a href="{% url 'collectiondetails' item.Product.category.name item.Product.name %}">
+              <button class="btn btn-primary btn-sm">
+                <i class="fa fa-eye"></i> View
+              </button>
+            </a> -->
+            
+            {% if item.Product.quantity > 0 %}
+              <button class="btn btn-warning btn-sm btn-add-cart" data-product-id="{{ item.Product.id }}" data-item-id="{{ item.id }}">
+                <i class="fa fa-shopping-cart"></i> Add to Cart
+              </button>
+            {% else %}
+              <button class="btn btn-secondary btn-sm" disabled>
+                <i class="fa fa-times"></i> Out of Stock
+              </button>
+            {% endif %}
+            
+            <button class="btn btn-outline-danger btn-sm btn-remove" data-item-id="{{ item.id }}">
+              <i class="bi bi-trash"></i> Remove
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  {% endfor %}
 
 {% else %}
-
-<h2 class="text-center my-5 py-5">There is No item in the Wishist..</h2>
+  <h2 class="text-center my-5 py-5">There are no items in the Wishlist.</h2>
 {% endif %}
 
-
-
-
 </div>
-  
 
 {% endblock content %}
-{% block scripts %}
 
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  
+  // Quantity Plus Button
+  document.querySelectorAll('.btn-plus').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.getAttribute('data-product-id');
+      const input = document.querySelector(`.qty-input[data-product-id="${productId}"]`);
+      let qty = parseInt(input.value) || 1;
+      if (qty < 10) {
+        qty++;
+        input.value = qty;
+      }
+    });
+  });
+  
+  // Quantity Minus Button
+  document.querySelectorAll('.btn-minus').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.getAttribute('data-product-id');
+      const input = document.querySelector(`.qty-input[data-product-id="${productId}"]`);
+      let qty = parseInt(input.value) || 1;
+      if (qty > 1) {
+        qty--;
+        input.value = qty;
+      }
+    });
+  });
+  
+  // Add to Cart Button
+  document.querySelectorAll('.btn-add-cart').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.getAttribute('data-product-id');
+      const itemId = this.getAttribute('data-item-id');
+      const qtyInput = document.querySelector(`.qty-input[data-product-id="${productId}"]`);
+      const qty = parseInt(qtyInput.value) || 1;
+      
+      // Disable button to prevent multiple clicks
+      this.disabled = true;
+      const originalText = this.innerHTML;
+      this.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Adding...';
+      
+      const postData = {
+        'product_qty': qty,
+        'pid': productId
+      };
+      
+      fetch('/addtocart', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(postData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Update cart count in navbar
+        const cartCountElement = document.getElementById('cartCount');
+        if (cartCountElement && data.cart_count !== undefined) {
+          cartCountElement.textContent = data.cart_count;
+        }
+        
+        // Determine icon based on whether it's new or updated
+        let icon = data.is_new ? 'success' : 'info';
+        let title = data.is_new ? 'Added to Cart!' : 'Cart Updated!';
+        
+        Swal.fire({
+          icon: icon,
+          title: title,
+          text: data.status,
+          timer: 2000,
+          showConfirmButton: false
+        });
+        
+        // Reset quantity to 1 after adding
+        qtyInput.value = 1;
+      })
+      .catch(error => {
+        console.error('Add to cart error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong! Please try again.',
+        });
+      })
+      .finally(() => {
+        // Re-enable button
+        this.disabled = false;
+        this.innerHTML = originalText;
+      });
+    });
+  });
+  
+  // Remove from Wishlist Button
+  document.querySelectorAll('.btn-remove').forEach(button => {
+    button.addEventListener('click', function() {
+      const itemId = this.getAttribute('data-item-id');
+      
+      Swal.fire({
+        title: 'Remove from Wishlist?',
+        text: "Are you sure you want to remove this item from your wishlist?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Show loading
+          Swal.fire({
+            title: 'Removing...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+          
+          // Redirect to remove URL
+          window.location.href = `/removefavrt/${itemId}`;
+        }
+      });
+    });
+  });
+  
+});
+</script>
 {% endblock scripts %}

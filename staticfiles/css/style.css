@@ -31,7 +31,6 @@ body.poppins-regular {
   background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);
 }
 .login:hover{
-  background: linear-gradient(135deg, white 0%, white 100%);
   opacity: 0.9;
   transition-duration: 0.7s;
 }
@@ -40,10 +39,16 @@ body.poppins-regular {
 }
 .register:hover{
   opacity: 0.9;
-  background: linear-gradient(135deg, white 0%, white 100%);
   transition-duration: 0.7s;
 }
+.is-invalid {
+    border: 2px solid #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
 
+.is-invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
 .d-button{
   font-size: 1vw;
 }
@@ -604,9 +609,9 @@ span{
    
     
     h6.card-title{
-      font-size: 2.7vw ;
-      letter-spacing: 0.5px;
-      font-weight: 500; 
+      font-size: 3.5vw ;
+      /* letter-spacing: 0.2px; */
+      font-weight: 400; 
       
     }
     p.card-text{

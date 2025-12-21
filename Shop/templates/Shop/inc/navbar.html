@@ -42,10 +42,10 @@
           {% if request.user.is_authenticated %}
           <li class="nav-item ">
           
-            <a class="nav-link text-light" href="{% url 'cart' %}"> <i class="fa-solid fa-cart-shopping "></i> <span class="text-light badge bg-success">{{cart_count}}</span> Cart</a>
+            <a class="nav-link text-light" href="{% url 'cart' %}"> <i class="fa-solid fa-cart-shopping "></i> <span class="text-light badge bg-success" id="cartCount">{{cart_count}}</span> Cart</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'favrt' %}"> <i class="fa-solid fa-heart "></i> <span class=" badge bg-danger text-light badge ">{{wish_count}}</span> Wishlist</a>
+            <a class="nav-link text-light" href="{% url 'favrt' %}"> <i class="fa-solid fa-heart "></i> <span class=" badge bg-danger text-light badge " id="wishCount">{{wish_count}}</span> Wishlist</a>
           </li>
           <li class="nav-item">
             <a class="nav-link text-light" href="{% url 'order' %}"> <i class="fa-solid fa-bag-shopping "></i> <span class="badge bg-primary text-light">{{order_count}}</span> My Orders</a>

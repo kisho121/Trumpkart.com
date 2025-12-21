@@ -1,39 +1,182 @@
 {% extends 'Shop/layouts/main.html' %}
 {% load static %}
+{% load custom_filters %}
+
 {% block title %}
-Order Success Page
+Order Success | TrumpKart
 {% endblock title %}
 
 {% block content %} 
 
-<div class="container my-5 mx-auto text-center " >
+<div class="container-fluid my-2 mx-auto text-center">
+    <img src="{% static 'images/placed.png' %}" alt="Order Placed" width="180px" height="200px">
+    <h5 class=" text-info fw-bold">Thank You!</h5>
+    <h2 class="text-success fw-bold py-1">Your order placed Successfully</h2>
+    
+    <!-- Order Information Card -->
+    <div class="card mx-auto shadow" style="max-width: 700px;">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fa fa-check-circle me-2"></i>Order Confirmation</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-6 text-start">
+                    <strong>Order ID:</strong>
+                </div>
+                <div class="col-6 text-end">
+                    <span class="badge bg-primary fs-6">{{ final_order_id }}</span>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-6 text-start">
+                    <strong>Order Date:</strong>
+                </div>
+                <div class="col-6 text-end">
+                    {{ order.created_at|date:"F d, Y - h:i A" }}
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-6 text-start">
+                    <strong>Payment Method:</strong>
+                </div>
+                <div class="col-6 text-end">
+                    {% if payment_method == 'COD' %}
+                        <span class="badge bg-warning text-dark">Cash on Delivery</span>
+                    {% else %}
+                        <span class="badge bg-success">Razorpay</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if razorpay_payment_id %}
+            <div class="row mb-3">
+                <div class="col-6 text-start">
+                    <strong>Payment ID:</strong>
+                </div>
+                <div class="col-6 text-end">
+                    <small class="text-muted">{{ razorpay_payment_id }}</small>
+                </div>
+            </div>
+            {% endif %}
+            
+            <hr>
+            
+            <div class="row">
+                <div class="col-6 text-start">
+                    <strong>Total Amount:</strong>
+                </div>
+                <div class="col-6 text-end">
+                    <h4 class="text-success mb-0">₹{{ order.total_cost }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Items -->
+    <div class="card mx-auto my-4 shadow" style="max-width: 700px;">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fa fa-shopping-bag me-2"></i>Order Items</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order_items %}
+                        <tr>
+                            <td class="text-start">{{ item.Product.name }}</td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">₹{{ item.price }}</td>
+                            <td class="text-end"><strong>₹{{ item.quantity|mul:item.price }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delivery Address -->
+    <div class="card mx-auto my-4 shadow" style="max-width: 700px;">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0"><i class="fa fa-map-marker me-2"></i>Delivery Address</h5>
+        </div>
+        <div class="card-body text-start">
+            <p class="mb-1"><strong>{{ order.address.name }}</strong></p>
+            <p class="mb-1">{{ order.address.house }}, {{ order.address.area }}</p>
+            <p class="mb-1">{{ order.address.address }}</p>
+            <p class="mb-1">{{ order.address.city }}, {{ order.address.state }} - {{ order.address.zipcode }}</p>
+            <p class="mb-1">{{ order.address.country }}</p>
+            <p class="mb-1"><strong>Phone:</strong> {{ order.address.phone }}</p>
+            <p class="mb-0"><strong>Email:</strong> {{ order.address.email }}</p>
+        </div>
+    </div>
+    
+    <!-- Delivery Info Alert -->
+    <div class="alert alert-info mx-auto my-4" style="max-width: 700px;">
+        <i class="fa fa-truck me-2"></i>
+        <strong>Estimated Delivery:</strong> 3-5 working days
+    </div>
+    
+    <div class="alert alert-light border mx-auto" style="max-width: 700px;">
+        <i class="fa fa-envelope me-2"></i>
+        An order confirmation email has been sent to <strong>{{ order.address.email }}</strong>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="container text-center d-flex justify-content-around my-5">
+        <div class="">
+            <img src="{% static 'images/secure-payment.png' %}" alt="Secure Payment" width="50px" height="50px">
+            <p class="card-body">Secured Payment</p>
+        </div>
+        <div class="">
+            <img src="{% static 'images/fast-delivery.png' %}" alt="Fast Delivery" width="50px" height="50px">
+            <p class="card-body">Free Delivery</p>
+        </div>
+        <div class="">
+            <img src="{% static 'images/product-return.png' %}" alt="Return Policy" width="50px" height="50px">
+            <p class="card-body">10 Days Return Policy</p>
+        </div>
+    </div>
+</div>
 
-     <img src="{% static 'images/placed.png' %}" alt="" width="200px" height="200px">
-     <h5 class="display-3 text-info fw-bold">Thank You</h5>
-     <h2 class="display-4 text-success fw-bold py-5">Your order placed Successfully..</h2>
-     <div class="container text-center d-flex justify-content-around">
-   
-         <div class="">
-           <img src="{% static 'images/secure-payment.png' %}" alt="" width="50px" height="50px" >
-           <p class="card-body">Secured-payment</p>
-         </div>
-         <div class="">
-           <img src="{% static 'images/fast-delivery.png' %}" alt="" width="50px" height="50px" >
-           <p class="card-body">Free Delivery</p>
-         </div>
-         <div class="">
-           <img src="{% static 'images/product-return.png' %}" alt="" width="50px" height="50px" >
-           <p class="card-body">10 Days Return Policy</p>
-         </div>
-        
-       </div>
- </div>
- <div class=" container-fluid mx-auto text-center my-3">
- <a class="text-decoration-none" href="{% url 'order' %}"><button class="btn btn-outline-primary text-center mx-auto">My orders</button></a>
- </div>
+<!-- Action Buttons -->
+<div class="container-fluid mx-auto text-center my-4">
+    <a class="text-decoration-none" href="{% url 'order' %}">
+        <button class="btn btn-primary btn-lg px-5 me-3">
+            <i class="fa fa-list me-2"></i>View My Orders
+        </button>
+    </a>
+    <a class="text-decoration-none" href="{% url 'home' %}">
+        <button class="btn btn-outline-secondary btn-lg px-5">
+            <i class="fa fa-home me-2"></i>Continue Shopping
+        </button>
+    </a>
+</div>
 
 {% endblock content %}
 
 {% block scripts %}
-
+<script>
+    // Confetti animation on page load (optional)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show a sweet alert on page load
+        Swal.fire({
+            icon: 'success',
+            title: 'Order Placed!',
+            text: '{{ message }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    });
+</script>
 {% endblock scripts %}

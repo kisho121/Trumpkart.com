@@ -19,12 +19,19 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import uuid
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+from django.db.models import Q
+import re
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+from datetime import datetime
 
 
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -32,150 +39,277 @@ client.set_app_details({"title": "Shop", "version": "1.0"})
 
 @login_required 
 def checkout_view(request):
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
     user = request.user
     cart_items = Cart.objects.filter(user=user)
-    total_cost = sum(item.total_cost for item in cart_items)
     
     if not cart_items.exists():
-      
+        messages.warning(request, 'Your cart is empty')
         return redirect('cart')
     
+    # Calculate totals
+    total_cost = sum(item.product_qty * item.Product.selling_price for item in cart_items)
+    
+    # Add total to each item for display
     for item in cart_items:
         item.total = item.product_qty * item.Product.selling_price
-        
+    
+    # Get counts for navbar
+    cart_count = cart_items.count()
+    wish_count = favourite.objects.filter(user=user).count()
+    order_count = Order.objects.filter(user=user).count()
+    
     if request.method == 'POST':
+        # Check if it's an AJAX request for creating Razorpay order
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            payment_mode = request.POST.get('payment_mode')
+            
+            if payment_mode == 'Razorpay':
+                # Validate form
+                form = addressForm(request.POST)
+                if not form.is_valid():
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Please fill all required fields correctly.'
+                    }, status=400)
+                
+                try:
+                    # Create Razorpay order
+                    amount_in_paise = int(total_cost * 100)
+                    
+                    razorpay_order = client.order.create({
+                        'amount': amount_in_paise,
+                        'currency': 'INR',
+                        'payment_capture': '1'
+                    })
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'razorpay_order_id': razorpay_order['id'],
+                        'amount': amount_in_paise,
+                        'currency': 'INR'
+                    })
+                    
+                except Exception as e:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Failed to create payment order: {str(e)}'
+                    }, status=500)
+        
+        # Regular form submission (after payment)
         form = addressForm(request.POST)
         if form.is_valid():
             address = form.save(commit=False)
-            address.user = request.user
+            address.user = user
             address.save()
             
             payment_mode = request.POST.get('payment_mode')
-            order_id = (uuid.uuid4()).hex[:10]
-            final_order_id = F"Order-{order_id}"
+            
+            if not payment_mode:
+                messages.error(request, 'Please select a payment method')
+                return redirect('checkout')
+            
+            # Generate order ID
+            order_uuid = uuid.uuid4().hex[:10]
+            final_order_id = f"ORD-{order_uuid}"
             
             if payment_mode == "COD":
-              order = Order.objects.create(
-                user=user,
-                address=address,
-                payment_method='COD',
-                total_cost = total_cost,
-                final_order_id=final_order_id,
-                products=cart_items.first().Product,
+                # Create order for COD
+                order = Order.objects.create(
+                    user=user,
+                    address=address,
+                    payment_method='COD',
+                    total_cost=total_cost,
+                    final_order_id=final_order_id,
+                    products=cart_items.first().Product,
+                    payment_status='Pending',
+                    status=Order.PENDING
+                )
                 
-              )
-              order_items=[]
-              for item in cart_items:
+                # Create order items
+                order_items = []
+                for item in cart_items:
+                    order_item = OrderItem.objects.create(
+                        order=order,
+                        Product=item.Product,
+                        quantity=item.product_qty,
+                        price=item.Product.selling_price
+                    )
+                    order_items.append(order_item)
+                    
+                    # Reduce product stock
+                    product_obj = item.Product
+                    if product_obj.quantity >= item.product_qty:
+                        product_obj.quantity -= item.product_qty
+                        product_obj.save()
+                    else:
+                        messages.error(request, f'{product_obj.name} is out of stock')
+                        order.delete()
+                        return redirect('cart')
                 
-                  order_item =OrderItem.objects.create(
-                    order=order,
-                    Product=item.Product,
-                    quantity=item.product_qty,
-                    price=item.Product.selling_price
-                  )
-                  order_items.append(order_item)
-              cart_items.delete()
-            
-              order_items = OrderItem.objects.filter(order=order)
-              sent_order_confirmation_mail(user, order,order_items,final_order_id, request)
-              
-              context = {
-                    'message': 'Order placed successfully with COD.',
+                # Clear cart
+                cart_items.delete()
+                
+                # Send confirmation email
+                try:
+                    sent_order_confirmation_mail(user, order, order_items, final_order_id, request)
+                except Exception as e:
+                    print(f"Email sending failed: {e}")
+                
+                # Redirect to success page with order details
+                return render(request, 'Shop/success.html', {
+                    'order': order,
+                    'order_items': order_items,
                     'final_order_id': final_order_id,
-                    'payment_method': 'COD',
-                    'cart_count': cart_count,
-                    'wish_count': wish_count,
-                    'order_count': order_count,
-                }
-            
-           
-              return render(request, 'Shop/success.html')
-            
+                    'message': 'Order placed successfully with Cash on Delivery!',
+                    'payment_method': 'COD'
+                })
             
             elif payment_mode == "Razorpay":
-                 
-                amount_in_paise = int(total_cost * 100)
+                # Verify payment signature
+                razorpay_payment_id = request.POST.get('razorpay_payment_id')
+                razorpay_order_id = request.POST.get('razorpay_order_id')
+                razorpay_signature = request.POST.get('razorpay_signature')
                 
-                razorpay_order = client.order.create({
-                'amount': amount_in_paise, 
-                'currency': 'INR',
-                'payment_capture': '1'
-            })
-            order = Order.objects.create(
-                user=user,
-                address=address,
-                payment_method='Razorpay',
-                total_cost = total_cost,
-                razorpay_order_id=razorpay_order['id'],
-                products=cart_items.first().Product,
-            )
-            order_items=[]
-            for item in cart_items:
+                if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature]):
+                    messages.error(request, 'Payment verification failed. Missing payment details.')
+                    return redirect('checkout')
                 
-                 order_item =OrderItem.objects.create(
-                    order=order,
-                    Product=item.Product,
-                    quantity=item.product_qty,
-                    price=item.Product.selling_price
+                try:
+                    # Verify signature
+                    params_dict = {
+                        'razorpay_order_id': razorpay_order_id,
+                        'razorpay_payment_id': razorpay_payment_id,
+                        'razorpay_signature': razorpay_signature
+                    }
                     
-                )
-                 order_items.append(order_item)
-            cart_items.delete()
-
-           
-            
-            order_items = OrderItem.objects.filter(order=order)
-            sent_order_confirmation_mail(user, order,order_items, razorpay_order['id'], request)
-            
-            context = {
-                'form': form,
-                'cart_items': cart_items,
-                'total_cost': total_cost,
-                'final_order_id':final_order_id,
-                'razorpay_order_id': razorpay_order['id'],
-                'razorpay_key': settings.RAZORPAY_KEY_ID,
-                'amount': amount_in_paise,
-                 'payment_method': 'Razorpay',
-                'currency': 'INR',
-                "cart_count":cart_count,
-                "wish_count":wish_count,
-                "order_count":order_count,
-            }
-            return render(request, 'Shop/success.html', context)
+                    # This will raise an error if verification fails
+                    client.utility.verify_payment_signature(params_dict)
+                    
+                    # Payment verified - create order
+                    order = Order.objects.create(
+                        user=user,
+                        address=address,
+                        payment_method='Razorpay',
+                        total_cost=total_cost,
+                        razorpay_order_id=razorpay_order_id,
+                        razorpay_payment_id=razorpay_payment_id,
+                        final_order_id=final_order_id,
+                        products=cart_items.first().Product,
+                        payment_status='Completed',
+                        status=Order.PENDING
+                    )
+                    
+                    # Create order items
+                    order_items = []
+                    for item in cart_items:
+                        order_item = OrderItem.objects.create(
+                            order=order,
+                            Product=item.Product,
+                            quantity=item.product_qty,
+                            price=item.Product.selling_price
+                        )
+                        order_items.append(order_item)
+                        
+                        # Reduce product stock
+                        product_obj = item.Product
+                        if product_obj.quantity >= item.product_qty:
+                            product_obj.quantity -= item.product_qty
+                            product_obj.save()
+                        else:
+                            messages.error(request, f'{product_obj.name} is out of stock')
+                            order.delete()
+                            return redirect('cart')
+                    
+                    # Clear cart
+                    cart_items.delete()
+                    
+                    # Send confirmation email
+                    try:
+                        sent_order_confirmation_mail(user, order, order_items, final_order_id, request)
+                    except Exception as e:
+                        print(f"Email sending failed: {e}")
+                    
+                    # Redirect to success page with order details
+                    return render(request, 'Shop/success.html', {
+                        'order': order,
+                        'order_items': order_items,
+                        'final_order_id': final_order_id,
+                        'razorpay_order_id': razorpay_order_id,
+                        'razorpay_payment_id': razorpay_payment_id,
+                        'message': 'Payment successful! Your order has been placed.',
+                        'payment_method': 'Razorpay'
+                    })
+                    
+                except razorpay.errors.SignatureVerificationError:
+                    messages.error(request, 'Payment verification failed. Please contact support with your payment ID.')
+                    return redirect('checkout')
+                except Exception as e:
+                    messages.error(request, f'Order creation failed: {str(e)}')
+                    return redirect('checkout')
+        else:
+            # Form has errors
+            messages.error(request, 'Please fill all required fields correctly.')
     else:
         form = addressForm()
-
+    
     context = {
         'form': form,
         'cart_items': cart_items,
         'total_cost': total_cost,
-        "cart_count":cart_count,
-        "wish_count":wish_count,
-        "order_count":order_count,
-        
+        'amount': int(total_cost * 100),  # Amount in paise
+        'razorpay_key': settings.RAZORPAY_KEY_ID,
+        'cart_count': cart_count,
+        'wish_count': wish_count,
+        'order_count': order_count,
     }
     return render(request, 'Shop/checkout.html', context)
 
 
+def sent_order_confirmation_mail(user, order, order_items, order_id, request):
+    """Send order confirmation email"""
+    subject = "Order Confirmation - TrumpKart"
+    
+    html_message = render_to_string('Shop/order_mail.html', {
+        'user': user,
+        'order': order,
+        'order_items': order_items,
+        'order_id': order_id
+    })
+    plain_message = strip_tags(html_message)
+    
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [user.email]
+    
+    try:
+        send_mail(
+            subject,
+            plain_message,
+            from_email,
+            recipient_list,
+            html_message=html_message,
+            fail_silently=False
+        )
+        return True
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        return False
 
-def sent_order_confirmation_mail(user, order,order_items, razorpay_order_id, request):
+def sent_order_confirmation_mail(user, order, order_items, razorpay_order_id, request):
     subject = "Order Confirmation"
 
-    html_message = render_to_string('Shop/order_mail.html',{
-        'user':user,
-        'order':order,
-        'order_items':order_items,
-        'razorpay_order_id':razorpay_order_id
-        
-        })
+    html_message = render_to_string('Shop/order_mail.html', {
+        'user': user,
+        'order': order,
+        'order_items': order_items,
+        'razorpay_order_id': razorpay_order_id
+    })
     plain_message = strip_tags(html_message)
-    from_mail = 'trumpkartshoppy@gmail.com'
+    
+    # Use your verified SendGrid sender email or settings.DEFAULT_FROM_EMAIL
+    from_mail = settings.DEFAULT_FROM_EMAIL  # Make sure this is verified in SendGrid
     to = user.email
     
-    send_mail(subject,plain_message,from_mail,[to],html_message = html_message)
+    send_mail(subject, plain_message, from_mail, [to], html_message=html_message)
     
 @login_required
 def order_view(request):
@@ -200,62 +334,305 @@ def invoice_view(request,order_id):
     }
     return render(request,'Shop/invoice.html',context)
 
-def pdf_view(request,order_id):
-    order = get_object_or_404(Order, id=order_id)
+
+def pdf_view(request, order_id):
+    """Generate professional invoice PDF"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
     
+    # Create HTTP response with PDF
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="TrumpKart_Invoice_{order.final_order_id}.pdf"'
     
+    # Create PDF buffer
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
     
+    # Create PDF document
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
+    
+    # Container for PDF elements
     elements = []
-
-    pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
+    
+    # Styles
     styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name='Rupees', fontName='Vera', fontSize=12))
     
-    elements.append(Paragraph("<b>TrumpKart</b>", styles['Title']))
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor('#667eea'),
+        spaceAfter=5,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
     
-    elements.append(Paragraph("<b>Invoice</b>", styles['Heading2']))
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.grey,
+        alignment=TA_CENTER,
+        spaceAfter=20
+    )
     
-    elements.append(Paragraph(f"Order ID: {order.id}", styles['Normal']))
-    elements.append(Paragraph(f"Date: {order.created_at.strftime('%Y-%m-%d')}", styles['Normal']))
-    elements.append(Paragraph(f"Total Amount: {order.total_cost}", styles['Rupees']))
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor=colors.HexColor('#1f2937'),
+        spaceAfter=12,
+        spaceBefore=12,
+        fontName='Helvetica-Bold'
+    )
     
-    elements.append(Spacer(1, 12))
-
-    for item in order.order_items.all():
-        elements.append(Paragraph(f"Product: {item.Product.name}", styles['Normal']))
-        elements.append(Paragraph(f"Sold By: {item.Product.vendor}", styles['Normal']))
-        elements.append(Paragraph(f"Price: {item.price}", styles['Rupees']))
-        elements.append(Paragraph(f"Quantity: {item.quantity}", styles['Normal']))
-        elements.append(Spacer(1, 12))  
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#4b5563'),
+        spaceAfter=6
+    )
     
-    address = order.address 
-    elements.append(Spacer(1, 24))
-    elements.append(Paragraph("Shipping Address:", styles['Heading3']))
-    elements.append(Paragraph(f"{address.name}", styles['Normal']))
-    elements.append(Paragraph(f"{address.house}, {address.area}", styles['Normal']))
-    elements.append(Paragraph(f"{address.city}, {address.state}", styles['Normal']))
-    elements.append(Paragraph(f"{address.country}, {address.zipcode}", styles['Normal']))
-    elements.append(Paragraph(f"{address.phone}", styles['Normal']))
-    elements.append(Paragraph(f"{address.email}", styles['Normal']))
+    # Header Section
+    elements.append(Paragraph("TRUMPKART", title_style))
+    elements.append(Paragraph("Your Trusted Shopping Partner", subtitle_style))
+    elements.append(Spacer(1, 0.2 * inch))
     
+    # Invoice title with background
+    invoice_title_data = [['TAX INVOICE']]
+    invoice_title_table = Table(invoice_title_data, colWidths=[7 * inch])
+    invoice_title_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#667eea')),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 16),
+        ('TOPPADDING', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+    ]))
+    elements.append(invoice_title_table)
+    elements.append(Spacer(1, 0.3 * inch))
     
-    note = """
-    <b>Note:</b> Thank you for your purchase! If you have any questions about your order or need assistance,
-    please contact our customer support team. We appreciate your business and hope to serve you again in the future.
+    # Invoice Details and Company Info
+    invoice_info_data = [
+        [
+            Paragraph("<b>Invoice Details</b><br/><br/>"
+                     f"Invoice No: <b>{order.final_order_id}</b><br/>"
+                     f"Order ID: <b>{order.id}</b><br/>"
+                     f"Invoice Date: <b>{order.created_at.strftime('%d %B %Y')}</b><br/>"
+                     f"Payment Method: <b>{order.payment_method}</b><br/>"
+                     f"Payment Status: <b>{order.payment_status}</b>", 
+                     normal_style),
+            
+            Paragraph("<b>TrumpKart Store</b><br/><br/>"
+                     "123 Shopping Street<br/>"
+                     "Tamil Nadu, India - 620001<br/>"
+                     "Phone: +91 1234567890<br/>"
+                     "Email: support@trumpkart.com<br/>"
+                     "GSTIN: 22AAAAA0000A1Z5", 
+                     normal_style)
+        ]
+    ]
+    
+    invoice_info_table = Table(invoice_info_data, colWidths=[3.5 * inch, 3.5 * inch])
+    invoice_info_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    elements.append(invoice_info_table)
+    elements.append(Spacer(1, 0.3 * inch))
+    
+    # Billing & Shipping Address
+    address = order.address
+    address_data = [
+        [
+            Paragraph("<b>BILL TO:</b>", heading_style),
+            Paragraph("<b>SHIP TO:</b>", heading_style)
+        ],
+        [
+            Paragraph(f"<b>{address.name}</b><br/>"
+                     f"{address.house}, {address.area}<br/>"
+                     f"{address.address}<br/>"
+                     f"{address.city}, {address.state}<br/>"
+                     f"{address.country} - {address.zipcode}<br/>"
+                     f"Phone: {address.phone}<br/>"
+                     f"Email: {address.email}", 
+                     normal_style),
+            
+            Paragraph(f"<b>{address.name}</b><br/>"
+                     f"{address.house}, {address.area}<br/>"
+                     f"{address.address}<br/>"
+                     f"{address.city}, {address.state}<br/>"
+                     f"{address.country} - {address.zipcode}<br/>"
+                     f"Phone: {address.phone}", 
+                     normal_style)
+        ]
+    ]
+    
+    address_table = Table(address_data, colWidths=[3.5 * inch, 3.5 * inch])
+    address_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f3f4f6')),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+    ]))
+    elements.append(address_table)
+    elements.append(Spacer(1, 0.3 * inch))
+    
+    # Order Items Table
+    elements.append(Paragraph("ORDER DETAILS", heading_style))
+    
+    # Table header
+    items_data = [['#', 'Product Name', 'Vendor', 'Qty', 'Unit Price', 'Amount']]
+    
+    # Calculate items
+    order_items = OrderItem.objects.filter(order=order)
+    subtotal = 0
+    
+    for idx, item in enumerate(order_items, 1):
+        item_total = float(item.quantity) * float(item.price)
+        subtotal += item_total
+        
+        items_data.append([
+            str(idx),
+            item.Product.name,
+            str(item.Product.vendor) if hasattr(item.Product, 'vendor') else 'TrumpKart',
+            str(item.quantity),
+            f"₹{item.price:,.2f}",
+            f"₹{item_total:,.2f}"
+        ])
+    
+    # Add spacing row
+    items_data.append(['', '', '', '', '', ''])
+    
+    # Calculate taxes (example: 18% GST)
+    tax_rate = 0.18
+    tax_amount = subtotal * tax_rate
+    total = subtotal + tax_amount
+    
+    # Add summary rows
+    items_data.extend([
+        ['', '', '', '', 'Subtotal:', f"₹{subtotal:,.2f}"],
+        ['', '', '', '', 'GST (18%):', f"₹{tax_amount:,.2f}"],
+        ['', '', '', '', 'Shipping:', '₹0.00'],
+        ['', '', '', '', 'Discount:', '₹0.00'],
+    ])
+    
+    # Create table
+    items_table = Table(items_data, colWidths=[0.5*inch, 2.5*inch, 1.2*inch, 0.6*inch, 1.1*inch, 1.1*inch])
+    
+    # Style the table
+    items_table.setStyle(TableStyle([
+        # Header style
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('TOPPADDING', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        
+        # Body style
+        ('ALIGN', (0, 1), (0, -1), 'CENTER'),
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'),
+        ('ALIGN', (4, 1), (-1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 1), (-1, -5), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        
+        # Grid
+        ('GRID', (0, 0), (-1, -5), 1, colors.HexColor('#e5e7eb')),
+        ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#667eea')),
+        
+        # Alternating row colors
+        ('ROWBACKGROUNDS', (0, 1), (-1, -5), [colors.white, colors.HexColor('#f9fafb')]),
+        
+        # Summary section styling
+        ('FONTNAME', (4, -4), (-1, -1), 'Helvetica-Bold'),
+        ('LINEABOVE', (4, -4), (-1, -4), 1, colors.HexColor('#e5e7eb')),
+    ]))
+    
+    elements.append(items_table)
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Grand Total
+    total_data = [['TOTAL AMOUNT', f"₹{order.total_cost:,.2f}"]]
+    total_table = Table(total_data, colWidths=[5.9 * inch, 1.1 * inch])
+    total_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#10b981')),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 14),
+        ('TOPPADDING', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+    ]))
+    elements.append(total_table)
+    elements.append(Spacer(1, 0.3 * inch))
+    
+    # Terms and Conditions
+    elements.append(Paragraph("<b>Terms & Conditions:</b>", heading_style))
+    terms = """
+    • Payment is due within 15 days of invoice date.<br/>
+    • Please include invoice number on your check.<br/>
+    • Products can be returned within 10 days of delivery.<br/>
+    • For any queries, contact our customer support.<br/>
     """
-    elements.append(Spacer(1, 48))  
-    elements.append(Paragraph(note, styles['Normal']))
-
-
+    elements.append(Paragraph(terms, normal_style))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Thank you note
+    thank_you_style = ParagraphStyle(
+        'ThankYou',
+        parent=styles['Normal'],
+        fontSize=12,
+        textColor=colors.HexColor('#667eea'),
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold',
+        spaceAfter=6
+    )
+    
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Paragraph("Thank you for shopping with TrumpKart!", thank_you_style))
+    elements.append(Paragraph("We appreciate your business and look forward to serving you again.", subtitle_style))
+    
+    # Footer
+    footer_style = ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.grey,
+        alignment=TA_CENTER,
+        spaceAfter=6
+    )
+    
+    elements.append(Spacer(1, 0.3 * inch))
+    elements.append(Paragraph("This is a computer-generated invoice and does not require a signature.", footer_style))
+    elements.append(Paragraph("For any queries, email us at support@trumpkart.com or call +91 1234567890", footer_style))
+    
+    # Build PDF
     doc.build(elements)
+    
+    # Get PDF value
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
-
+    
     return response
 
 @login_required
@@ -309,27 +686,69 @@ def homepage(request):
 
 
 def add_to_cart(request):
-    if request.headers.get('X-requested-with')=='XMLHttpRequest':
+    if request.headers.get('X-requested-with') == 'XMLHttpRequest':
         if request.user.is_authenticated:
-            data=json.load(request)
-            product_qty=data['product_qty']
-            Product_id=data['pid']
-            print(request.user.id)
-            product_status=product.objects.get(id=Product_id)
+            data = json.loads(request.body)  # Fixed: json.loads() not json.load()
+            product_qty = int(data['product_qty'])
+            Product_id = data['pid']
+            
+            try:
+                product_status = product.objects.get(id=Product_id)
+            except product.DoesNotExist:
+                return JsonResponse({'status': 'Product not found'}, status=404)
                
             if product_status:
-                if Cart.objects.filter(user=request.user.id,Product_id=Product_id):
-                   return JsonResponse({'status':'product already in cart'} ,status=200)
-                else:
-                    if product_status.quantity >=product_qty:
-                        Cart.objects.create(user=request.user,Product_id=Product_id,product_qty=product_qty)
-                        return JsonResponse({'status':'Products added to cart'}, status =200)
+                # Check if product already exists in cart
+                existing_cart = Cart.objects.filter(user=request.user, Product_id=Product_id).first()
+                
+                if existing_cart:
+                    # Product already in cart - update quantity
+                    new_quantity = existing_cart.product_qty + product_qty
+                    
+                    # Check if enough stock available for the new quantity
+                    if product_status.quantity >= new_quantity:
+                        existing_cart.product_qty = new_quantity
+                        existing_cart.save()
+                        
+                        # Get updated cart count
+                        cart_count = Cart.objects.filter(user=request.user).count()
+                        
+                        return JsonResponse({
+                            'status': 'Product quantity updated in cart',
+                            'cart_count': cart_count,
+                            'is_new': False
+                        }, status=200)
                     else:
-                            return JsonResponse({'status':"product Stock Not Available"}, status=200)
+                        return JsonResponse({
+                            'status': 'Not enough stock available',
+                            'cart_count': Cart.objects.filter(user=request.user).count()
+                        }, status=200)
+                else:
+                    # New product - add to cart
+                    if product_status.quantity >= product_qty:
+                        Cart.objects.create(
+                            user=request.user,
+                            Product_id=Product_id,
+                            product_qty=product_qty
+                        )
+                        
+                        # Get updated cart count
+                        cart_count = Cart.objects.filter(user=request.user).count()
+                        
+                        return JsonResponse({
+                            'status': 'Product added to cart successfully',
+                            'cart_count': cart_count,
+                            'is_new': True
+                        }, status=200)
+                    else:
+                        return JsonResponse({
+                            'status': 'Product stock not available',
+                            'cart_count': Cart.objects.filter(user=request.user).count()
+                        }, status=200)
         else:
-            return JsonResponse({'status':"Login to add to cart"}, status=200)
+            return JsonResponse({'status': 'Login to add to cart'}, status=401)
     else:
-        return JsonResponse({'status':'Invalid Access'}, status=200)
+        return JsonResponse({'status': 'Invalid Access'}, status=400)
     
     return redirect('/cart')
 
@@ -363,7 +782,6 @@ def favpage(request):
             # Check if it's an AJAX request
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 if request.user.is_authenticated:
-                    # Fixed: json.loads() not json.load()
                     data = json.loads(request.body)
                     Product_id = data.get('pid')
                     
@@ -382,15 +800,23 @@ def favpage(request):
                     
                     # Check if already in favourites
                     if favourite.objects.filter(user=request.user, Product_id=Product_id).exists():
+                        # Get current wishlist count
+                        wish_count = favourite.objects.filter(user=request.user).count()
+                        
                         return JsonResponse({
-                            'status': 'Product already in wishlist'
+                            'status': 'Product already in your wishlist',
+                            'wish_count': wish_count
                         }, status=200)
                     else:
                         # Add to favourites
                         favourite.objects.create(user=request.user, Product_id=Product_id)
-                        # Fixed: Return JsonResponse, not messages.success
+                        
+                        # Get updated wishlist count
+                        wish_count = favourite.objects.filter(user=request.user).count()
+                        
                         return JsonResponse({
-                            'status': 'Product added to wishlist successfully'
+                            'status': 'Product added to wishlist successfully',
+                            'wish_count': wish_count
                         }, status=200)
                 else:
                     return JsonResponse({
@@ -434,10 +860,29 @@ def favview(request):
     else:
         return redirect("/")
    
-def removefavrt(request,fid):
-    favrtitem=favourite.objects.get(id=fid)
-    favrtitem.delete()
-    return redirect('/favrt')   
+def removefavrt(request, fid):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # AJAX request
+        try:
+            favrtitem = favourite.objects.get(id=fid, user=request.user)
+            favrtitem.delete()
+            
+            # Get updated wishlist count
+            wish_count = favourite.objects.filter(user=request.user).count()
+            
+            return JsonResponse({
+                'status': 'Item removed from wishlist successfully',
+                'wish_count': wish_count
+            }, status=200)
+        except favourite.DoesNotExist:
+            return JsonResponse({
+                'status': 'Item not found'
+            }, status=404)
+    else:
+        # Regular request (keep existing functionality)
+        favrtitem = favourite.objects.get(id=fid)
+        favrtitem.delete()
+        return redirect('/favrt')
 
 def logout_page(request):
     if request.user.is_authenticated:
@@ -555,9 +1000,14 @@ def collections(request, name):
         return redirect('collection')
 
 def productsDetail(request, cname, pname):
-    cart_count = Cart.objects.filter(user=request.user.id).count()
-    wish_count = favourite.objects.filter(user=request.user.id).count()
-    order_count = Order.objects.filter(user=request.user.id).count()
+    if request.user.is_authenticated:
+        cart_count = Cart.objects.filter(user=request.user.id).count()
+        wish_count = favourite.objects.filter(user=request.user.id).count()
+        order_count = Order.objects.filter(user=request.user.id).count()
+    else:
+        cart_count = 0
+        wish_count = 0
+        order_count = 0
     
     hot_product = product.objects.filter(trending=1)
     
@@ -569,7 +1019,8 @@ def productsDetail(request, cname, pname):
                 "hot_product": hot_product,
                 "cart_count": cart_count,
                 "wish_count": wish_count,
-                "order_count": order_count
+                "order_count": order_count,
+                "is_authenticated": request.user.is_authenticated 
             })
         else:
             messages.warning(request, "No Such Product Found")
@@ -578,29 +1029,44 @@ def productsDetail(request, cname, pname):
         messages.warning(request, "No Such Category Found")
         return redirect('collectionpage')
             
-   
+
 def searchview(request):
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
-    
-    query=request.GET.get('q')
-    categories=[]
-    products=[]
-    
+    user = request.user if request.user.is_authenticated else None
+
+    cart_count = Cart.objects.filter(user=user).count() if user else 0
+    wish_count = favourite.objects.filter(user=user).count() if user else 0
+    order_count = Order.objects.filter(user=user).count() if user else 0
+
+    query = request.GET.get('q', '').strip().lower()
+
+    categories = category.objects.none()
+    products = product.objects.none()
+
     if query:
-        categories=category.objects.filter(name__icontains=query)
-        products=product.objects.filter(name__icontains=query)
-        
-    context={
-        'categories':categories,
-        'products':products,
-        "cart_count":cart_count,
-        "wish_count":wish_count,
-        "order_count":order_count
+        words = query.split()
+
+        cat_q = Q()
+        prod_q = Q()
+
+        for word in words:
+            # Match word start anywhere in name
+            regex = rf'(^|\s){re.escape(word)}'
+            cat_q &= Q(name__iregex=regex) if cat_q else Q(name__iregex=regex)
+            prod_q &= Q(name__iregex=regex) if prod_q else Q(name__iregex=regex)
+
+        categories = category.objects.filter(cat_q).distinct()
+        products = product.objects.filter(prod_q).distinct()
+
+    context = {
+        'categories': categories,
+        'products': products,
+        'cart_count': cart_count,
+        'wish_count': wish_count,
+        'order_count': order_count
     }
-    
-    return render(request,'Shop/search.html', context)
+
+    return render(request, 'Shop/search.html', context)
+
 
 
 def aboutview(request):
