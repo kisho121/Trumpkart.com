@@ -5,46 +5,48 @@
      
         <div class="row d-flex">
 
-        <div class="col-6 col-sm-6 col-md-3 col-md-3 d-flex justify-content-center ">
-          <ul class="quick-links text-light mx-auto">
-            <h4 class="text-light text-decoration-underline py-2">About & Policy</h4>
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'collection' %}">Shop</a></li>
-            <li><a href="{% url 'about' %}">About Us</a></li>
-            <li><a href="{% url 'privacy' %}">Privacy Policy</a></li>
-            <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <div class="col-6 col-sm-6 col-md-3 col-md-3 d-flex justify-content-md-center justify-content-sm-start">
+          <ul class="quick-links text-light mx-sm-0">
+            <h4 class="text-light text-decoration-underline py-1">About & Policy</h4>
+            <li class="small mb-2"><a href="{% url 'home' %}">Home</a></li>
+            <!-- <li><a href="{% url 'collection' %}">Shop</a></li> -->
+            <li class="small mb-2"><a href="{% url 'about' %}">About Us</a></li>
+            <li class="small mb-2"><a href="{% url 'privacy' %}">Privacy Policy</a></li>
+            <li class="small "><a href="{% url 'faq' %}">FAQ</a></li>
           </ul>
         </div>
 
-        <div class="col-6 col-sm-6 col-md-3 col-md-3 d-flex justify-content-center ">
-          <ul class="quick-links text-light mx-auto">
-            <h4 class="text-light text-decoration-underline py-2">Address</h4>
-            <li class="text-light">Vijaya Nagar,<br> Velacherry, <br>Chennai-600042. <br> Tamil Nadu, India.</li>
-            <li class="text-light"> trumpkartshoppy@gmail.com</li>
-            <li class="text-light" > +91 8220557366</li>
+        <div class="col-6 col-sm-6 col-md-3 col-md-3 d-flex justify-content-md-center justify-content-sm-around ">
+          <ul class="quick-links text-light mx-auto ">
+            <h4 class="text-light text-decoration-underline py-1">Address</h4>
+            <li class="text-light mb-2 small">Salem,</li>
+            <li class="text-light mb-2 small"> Salem-636010.</li>
+            <li class="text-light mb-2 small"> Tamil Nadu, India.</li>
+            <li class="text-light  fs-6 small "><a class="changeOver small text-info" href="https://kishore-portfolio-121.onrender.com/">Visit us <i class="bi bi-globe text-info fs-6"></i> </a></li>
+
         </div>
 
-        <div class="col-6 col-sm-6 col-md-3 col-md-3 d-flex ">
-          <ul class="quick-links text-light mx-auto">
-            <h4 class="text-light text-decoration-underline py-2">Help</h4>
-            <li><a href="{% url 'support_team' %}?section=feeback">Feedback</a></li>
-            <li><a href="{% url 'support_team' %}?section=payments">payments & Refund</a></li>
-            <li><a href="{% url 'support_team' %}?section=shipping">Shipping & Cancellation</a></li>
-            <li><a href="{% url 'support_team' %}?section=return">Return</a></li>
+        <div class="col-6 col-sm-6 col-md-3 col-md-3 d-flex justify-content-md-center justify-content-sm-start">
+          <ul class="quick-links text-light  ">
+            <h4 class="text-light text-decoration-underline py-1">Help</h4>
+            <li class="small mb-2"><a href="{% url 'support_team' %}?section=feeback">Feedback</a></li>
+            <li class="small mb-2"><a href="{% url 'support_team' %}?section=payments">payments & Refund</a></li>
+            <li class="small mb-2"><a href="{% url 'support_team' %}?section=shipping">Shipping & Cancellation</a></li>
+            <li class="small "><a href="{% url 'support_team' %}?section=return">Return</a></li>
           </ul>
         </div>
         
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3 float-end ">
-          <div class="d-flex justify-content-start">
-          <ul class="social-media text-light text-center mx-auto">
-            <h4 class="text-light text-decoration-underline float-start">Social Links</h4>
-            <li><a href="https://www.facebook.com/profile.php?id=61564594587887"><i class="fa-brands fa-facebook" style="color: blue;"></i></a></li>
-            <li><a href="https://x.com/KartTrump75841"><i class="fa-brands fa-twitter"></i></a></li>
-            <li><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram" style="color: rgb(250, 7, 177);"></i></a></li>
-            <li><a href="https://www.linkedin.com/"><i class="fa-brands fa-linkedin" style="color: rgb(50, 50, 224);"></i></a></li>
-          </ul>
-        </div>
-        </div>
+     
+          <div class="col-6 col-sm-6 col-md-3 col-lg-3 d-flex mx-auto text-center" >
+            <ul class="social-media text-light w-100 px-0" >
+              <h4 class="text-light text-decoration-underline ">Social Links</h4>
+              <li class="fs-6 mb-1"><a href="https://www.facebook.com/profile.php?id=61564594587887"><i class="fa-brands fa-facebook fs-5" style="color: blue;"></i></a></li>
+              <li class="fs-6 mb-1"><a href="https://x.com/KartTrump75841"><i class="fa-brands fa-twitter fs-5"></i></a></li>
+              <li class="fs-6 mb-1"><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram fs-5" style="color: rgb(250, 7, 177);"></i></a></li>
+              <li class="fs-6"><a href="https://www.linkedin.com/"><i class="fa-brands fa-linkedin fs-5" style="color: rgb(50, 50, 224);"></i></a></li>
+            </ul>
+          </div>
+        
       </div>
       
       <hr class="container bg-white">

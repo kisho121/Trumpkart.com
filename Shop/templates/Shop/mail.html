@@ -6,13 +6,15 @@ Register|Ecom
 {% endblock title %}
 
 {% block content %}
-<h2 class="fw-bold text-dark text-center"> Help Center | 24x7 Customer Care Support</h2>
-<p style="text-indent: 4vw;">The TrumpKart Help Centre page lists out various types of issues that you may have encountered so that there can be quick resolution and you can go back to shopping online. For example, you can get more information regarding order tracking, delivery date changes, help with returns (and refunds), and much more. </p>
+<div class="container-fluid">
+    <div class="container">
+<h1 class="fw-bold text-dark text-center"> Help Center</h1>
+<p  class="small" style="text-indent: 20px">The TrumpKart Help Centre page lists out various types of issues that you may have encountered so that there can be quick resolution and you can go back to shopping online. For example, you can get more information regarding order tracking, delivery date changes, help with returns (and refunds), and much more. </p>
 
-
+</div>
 <div class="container bg-white ">
-    <h1 class="text-info fw-bold text-center">{{selected_content.heading}}</h1>
-    <p style="text-indent: 3vw;">&#9733 {{selected_content.paragraph}}</p>
+    <h1 class="text-primary fw-bold">{{selected_content.heading}}</h1>
+    <p class="small" style="text-indent: 3vw;">&#9733 {{selected_content.paragraph}}</p>
    
  <div class="col-8 col-sm-8 col md-6 col-lg-6 my-3">
  <form id="supportteam" method="POST" action="{% url 'support_team' %}">
@@ -37,7 +39,7 @@ Register|Ecom
 </div>
 
 
-
+</div>
 
 {% endblock content %}
 

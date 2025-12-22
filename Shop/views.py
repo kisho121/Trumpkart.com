@@ -154,6 +154,10 @@ def checkout_view(request):
                     sent_order_confirmation_mail(user, order, order_items, final_order_id, request)
                 except Exception as e:
                     print(f"Email sending failed: {e}")
+
+                cart_count = 0  # Cart is now empty
+                wish_count = favourite.objects.filter(user=user).count()
+                order_count = Order.objects.filter(user=user).count()
                 
                 # Redirect to success page with order details
                 return render(request, 'Shop/success.html', {
@@ -161,7 +165,10 @@ def checkout_view(request):
                     'order_items': order_items,
                     'final_order_id': final_order_id,
                     'message': 'Order placed successfully with Cash on Delivery!',
-                    'payment_method': 'COD'
+                    'payment_method': 'COD',
+                    'cart_count': cart_count,
+                    'wish_count': wish_count,
+                    'order_count': order_count
                 })
             
             elif payment_mode == "Razorpay":
@@ -228,7 +235,11 @@ def checkout_view(request):
                         sent_order_confirmation_mail(user, order, order_items, final_order_id, request)
                     except Exception as e:
                         print(f"Email sending failed: {e}")
-                    
+
+                    cart_count = 0  # Cart is now empty
+                    wish_count = favourite.objects.filter(user=user).count()
+                    order_count = Order.objects.filter(user=user).count()
+                        
                     # Redirect to success page with order details
                     return render(request, 'Shop/success.html', {
                         'order': order,
@@ -237,7 +248,10 @@ def checkout_view(request):
                         'razorpay_order_id': razorpay_order_id,
                         'razorpay_payment_id': razorpay_payment_id,
                         'message': 'Payment successful! Your order has been placed.',
-                        'payment_method': 'Razorpay'
+                        'payment_method': 'Razorpay',
+                        'cart_count': cart_count,
+                        'wish_count': wish_count,
+                        'order_count': order_count
                     })
                     
                 except razorpay.errors.SignatureVerificationError:
@@ -1070,19 +1084,64 @@ def searchview(request):
 
 
 def aboutview(request):
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()
     
-    return render(request,'Shop/about.html')
+    if request.user.is_authenticated:
+        fav = favourite.objects.filter(user=request.user)
+        
+        context = {
+            "cart_count": cart_count,
+            "wish_count": wish_count,
+            "order_count": order_count,
+        }
+    
+    
+    return render(request,'Shop/about.html', context)
 
 
 def privacyview(request):
-    return render(request,'Shop/privacy.html')
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()
+    
+    if request.user.is_authenticated:
+        fav = favourite.objects.filter(user=request.user)
+        
+        context = {
+            "cart_count": cart_count,
+            "wish_count": wish_count,
+            "order_count": order_count,
+        }
+    return render(request,'Shop/privacy.html', context)
 
 
 def faqview (request):
-    return render(request, 'Shop/FAQ.html')
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()
+    
+    if request.user.is_authenticated:
+        fav = favourite.objects.filter(user=request.user)
+        
+        context = {
+            "cart_count": cart_count,
+            "wish_count": wish_count,
+            "order_count": order_count,
+        }
+    return render(request, 'Shop/FAQ.html', context)
  
  
 def supportView(request):
+    if request.user.is_authenticated:
+        cart_count = Cart.objects.filter(user=request.user).count()
+        wish_count = favourite.objects.filter(user=request.user).count()
+        order_count = Order.objects.filter(user=request.user).count()
+    else:
+        cart_count = 0
+        wish_count = 0
+        order_count = 0
     
     section =request.GET.get('section','feedback')
     content={
@@ -1123,7 +1182,7 @@ def supportView(request):
                 f"mail from {name}",
                 feedback,
                 email,
-                ['trumpkartshoppy@gmail.com'],
+                ['kishorehitter1995@gmail.com'],
                 fail_silently=False,
             )
             form= supportForm()
@@ -1132,4 +1191,11 @@ def supportView(request):
             return JsonResponse({'status':'error', 'message':'Error in Reporting the Issue Please try again'})
     else:
         form =supportForm()
-    return render(request,'Shop/mail.html', {'form': form, 'selected_content': selected_content})
+        context = {
+        'form': form,
+        'selected_content': selected_content,
+        'cart_count': cart_count,
+        'wish_count': wish_count,
+        'order_count': order_count
+    }
+    return render(request,'Shop/mail.html', context)

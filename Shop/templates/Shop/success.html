@@ -8,7 +8,7 @@ Order Success | TrumpKart
 
 {% block content %} 
 
-<div class="container-fluid my-2 mx-auto text-center">
+<div class="container-fluid my-1 mx-auto text-center">
     <img src="{% static 'images/placed.png' %}" alt="Order Placed" width="180px" height="200px">
     <h5 class=" text-info fw-bold">Thank You!</h5>
     <h2 class="text-success fw-bold py-1">Your order placed Successfully</h2>
@@ -19,7 +19,7 @@ Order Success | TrumpKart
             <h4 class="mb-0"><i class="fa fa-check-circle me-2"></i>Order Confirmation</h4>
         </div>
         <div class="card-body">
-            <div class="row mb-3">
+            <div class="row my-3">
                 <div class="col-6 text-start">
                     <strong>Order ID:</strong>
                 </div>
@@ -111,13 +111,13 @@ Order Success | TrumpKart
             <h5 class="mb-0"><i class="fa fa-map-marker me-2"></i>Delivery Address</h5>
         </div>
         <div class="card-body text-start">
-            <p class="mb-1"><strong>{{ order.address.name }}</strong></p>
-            <p class="mb-1">{{ order.address.house }}, {{ order.address.area }}</p>
-            <p class="mb-1">{{ order.address.address }}</p>
-            <p class="mb-1">{{ order.address.city }}, {{ order.address.state }} - {{ order.address.zipcode }}</p>
-            <p class="mb-1">{{ order.address.country }}</p>
-            <p class="mb-1"><strong>Phone:</strong> {{ order.address.phone }}</p>
-            <p class="mb-0"><strong>Email:</strong> {{ order.address.email }}</p>
+            <p class="mb-1 small"><strong>{{ order.address.name }}</strong></p>
+            <p class="mb-1 small">{{ order.address.house }}, {{ order.address.area }}</p>
+            <p class="mb-1 small">{{ order.address.address }}</p>
+            <p class="mb-1 small">{{ order.address.city }}, {{ order.address.state }} - {{ order.address.zipcode }}</p>
+            <p class="mb-1 small">{{ order.address.country }}</p>
+            <p class="mb-1 small"><strong>Phone:</strong> {{ order.address.phone }}</p>
+            <p class="mb-0 small"><strong>Email:</strong> {{ order.address.email }}</p>
         </div>
     </div>
     
@@ -133,7 +133,7 @@ Order Success | TrumpKart
     </div>
     
     <!-- Features Section -->
-    <div class="container text-center d-flex justify-content-around my-5">
+    <div class="container text-center d-flex justify-content-around my-3">
         <div class="">
             <img src="{% static 'images/secure-payment.png' %}" alt="Secure Payment" width="50px" height="50px">
             <p class="card-body">Secured Payment</p>
@@ -152,12 +152,12 @@ Order Success | TrumpKart
 <!-- Action Buttons -->
 <div class="container-fluid mx-auto text-center my-4">
     <a class="text-decoration-none" href="{% url 'order' %}">
-        <button class="btn btn-primary btn-lg px-5 me-3">
+        <button class="btn btn-primary btn-lg mt-2 px-5">
             <i class="fa fa-list me-2"></i>View My Orders
         </button>
     </a>
     <a class="text-decoration-none" href="{% url 'home' %}">
-        <button class="btn btn-outline-secondary btn-lg px-5">
+        <button class="btn btn-outline-secondary mt-2 btn-lg px-5">
             <i class="fa fa-home me-2"></i>Continue Shopping
         </button>
     </a>
