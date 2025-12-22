@@ -342,15 +342,25 @@ def order_view(request):
 
 
 def invoice_view(request,order_id):
+    cart_count=Cart.objects.filter(user=request.user.id).count()
+    wish_count=favourite.objects.filter(user=request.user.id).count()
+    order_count=Order.objects.filter(user=request.user.id).count()
+    user=request.user
+    orders= Order.objects.filter(user=user).order_by('id')
+    
     order =get_object_or_404(Order,id=order_id, user=request.user)
     context={
-        'order': order
+        'order': order,
+        "cart_count":cart_count,
+        "wish_count":wish_count,
+        "order_count":order_count,
+        "orders":orders
     }
     return render(request,'Shop/invoice.html',context)
 
 
 def pdf_view(request, order_id):
-    """Generate professional invoice PDF"""
+    """Generate professional invoice PDF - Enhanced Single Page"""
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
     # Create HTTP response with PDF
@@ -360,14 +370,14 @@ def pdf_view(request, order_id):
     # Create PDF buffer
     buffer = io.BytesIO()
     
-    # Create PDF document
+    # Create PDF document - optimized margins
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=40,
         leftMargin=40,
-        topMargin=40,
-        bottomMargin=40
+        topMargin=30,
+        bottomMargin=30
     )
     
     # Container for PDF elements
@@ -376,13 +386,13 @@ def pdf_view(request, order_id):
     # Styles
     styles = getSampleStyleSheet()
     
-    # Custom styles
+    # Custom styles with better sizing
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
         fontSize=24,
         textColor=colors.HexColor('#667eea'),
-        spaceAfter=5,
+        spaceAfter=4,
         alignment=TA_CENTER,
         fontName='Helvetica-Bold'
     )
@@ -393,16 +403,16 @@ def pdf_view(request, order_id):
         fontSize=10,
         textColor=colors.grey,
         alignment=TA_CENTER,
-        spaceAfter=20
+        spaceAfter=12
     )
     
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
-        fontSize=14,
+        fontSize=12,
         textColor=colors.HexColor('#1f2937'),
-        spaceAfter=12,
-        spaceBefore=12,
+        spaceAfter=6,
+        spaceBefore=8,
         fontName='Helvetica-Bold'
     )
     
@@ -411,15 +421,16 @@ def pdf_view(request, order_id):
         parent=styles['Normal'],
         fontSize=10,
         textColor=colors.HexColor('#4b5563'),
-        spaceAfter=6
+        spaceAfter=3,
+        leading=14
     )
     
     # Header Section
     elements.append(Paragraph("TRUMPKART", title_style))
     elements.append(Paragraph("Your Trusted Shopping Partner", subtitle_style))
-    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Spacer(1, 0.15 * inch))
     
-    # Invoice title with background
+    # Invoice title
     invoice_title_data = [['TAX INVOICE']]
     invoice_title_table = Table(invoice_title_data, colWidths=[7 * inch])
     invoice_title_table.setStyle(TableStyle([
@@ -428,21 +439,27 @@ def pdf_view(request, order_id):
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 16),
-        ('TOPPADDING', (0, 0), (-1, -1), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
     ]))
     elements.append(invoice_title_table)
-    elements.append(Spacer(1, 0.3 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
+    
+    # Determine payment status - FIXED
+    if order.payment_method == 'COD':
+        payment_status = 'Paid'  # Changed from 'Pending (COD)' to 'Paid'
+    else:
+        payment_status = order.payment_status
     
     # Invoice Details and Company Info
     invoice_info_data = [
         [
-            Paragraph("<b>Invoice Details</b><br/><br/>"
+            Paragraph(f"<b>Invoice Details</b><br/><br/>"
                      f"Invoice No: <b>{order.final_order_id}</b><br/>"
                      f"Order ID: <b>{order.id}</b><br/>"
-                     f"Invoice Date: <b>{order.created_at.strftime('%d %B %Y')}</b><br/>"
-                     f"Payment Method: <b>{order.payment_method}</b><br/>"
-                     f"Payment Status: <b>{order.payment_status}</b>", 
+                     f"Date: <b>{order.created_at.strftime('%d %B %Y')}</b><br/>"
+                     f"Payment: <b>{order.payment_method}</b><br/>"
+                     f"Status: <b>{payment_status}</b>", 
                      normal_style),
             
             Paragraph("<b>TrumpKart Store</b><br/><br/>"
@@ -458,11 +475,11 @@ def pdf_view(request, order_id):
     invoice_info_table = Table(invoice_info_data, colWidths=[3.5 * inch, 3.5 * inch])
     invoice_info_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ]))
     elements.append(invoice_info_table)
-    elements.append(Spacer(1, 0.3 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Billing & Shipping Address
     address = order.address
@@ -474,18 +491,13 @@ def pdf_view(request, order_id):
         [
             Paragraph(f"<b>{address.name}</b><br/>"
                      f"{address.house}, {address.area}<br/>"
-                     f"{address.address}<br/>"
-                     f"{address.city}, {address.state}<br/>"
-                     f"{address.country} - {address.zipcode}<br/>"
-                     f"Phone: {address.phone}<br/>"
-                     f"Email: {address.email}", 
+                     f"{address.city}, {address.state} - {address.zipcode}<br/>"
+                     f"Phone: {address.phone}", 
                      normal_style),
             
             Paragraph(f"<b>{address.name}</b><br/>"
                      f"{address.house}, {address.area}<br/>"
-                     f"{address.address}<br/>"
-                     f"{address.city}, {address.state}<br/>"
-                     f"{address.country} - {address.zipcode}<br/>"
+                     f"{address.city}, {address.state} - {address.zipcode}<br/>"
                      f"Phone: {address.phone}", 
                      normal_style)
         ]
@@ -495,15 +507,16 @@ def pdf_view(request, order_id):
     address_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f3f4f6')),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('LEFTPADDING', (0, 0), (-1, -1), 10),
     ]))
     elements.append(address_table)
-    elements.append(Spacer(1, 0.3 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Order Items Table
     elements.append(Paragraph("ORDER DETAILS", heading_style))
+    elements.append(Spacer(1, 0.1 * inch))
     
     # Table header
     items_data = [['#', 'Product Name', 'Vendor', 'Qty', 'Unit Price', 'Amount']]
@@ -516,33 +529,25 @@ def pdf_view(request, order_id):
         item_total = float(item.quantity) * float(item.price)
         subtotal += item_total
         
+        vendor_name = str(item.Product.vendor) if hasattr(item.Product, 'vendor') else 'TrumpKart'
+        
         items_data.append([
             str(idx),
-            item.Product.name,
-            str(item.Product.vendor) if hasattr(item.Product, 'vendor') else 'TrumpKart',
+            item.Product.name[:35],  # Slightly longer product names
+            vendor_name[:18],
             str(item.quantity),
-            f"₹{item.price:,.2f}",
-            f"₹{item_total:,.2f}"
+            f"Rs.{item.price:,.2f}",
+            f"Rs.{item_total:,.2f}"
         ])
-    
-    # Add spacing row
-    items_data.append(['', '', '', '', '', ''])
-    
-    # Calculate taxes (example: 18% GST)
-    tax_rate = 0.18
-    tax_amount = subtotal * tax_rate
-    total = subtotal + tax_amount
     
     # Add summary rows
     items_data.extend([
-        ['', '', '', '', 'Subtotal:', f"₹{subtotal:,.2f}"],
-        ['', '', '', '', 'GST (18%):', f"₹{tax_amount:,.2f}"],
-        ['', '', '', '', 'Shipping:', '₹0.00'],
-        ['', '', '', '', 'Discount:', '₹0.00'],
+        ['', '', '', '', 'Subtotal:', f"Rs.{subtotal:,.2f}"],
+        ['', '', '', '', 'Shipping:', 'Rs.0.00'],
     ])
     
-    # Create table
-    items_table = Table(items_data, colWidths=[0.5*inch, 2.5*inch, 1.2*inch, 0.6*inch, 1.1*inch, 1.1*inch])
+    # Create table with better sizing
+    items_table = Table(items_data, colWidths=[0.4*inch, 2.6*inch, 1.3*inch, 0.6*inch, 1.1*inch, 1*inch])
     
     # Style the table
     items_table.setStyle(TableStyle([
@@ -552,37 +557,37 @@ def pdf_view(request, order_id):
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('TOPPADDING', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
         
         # Body style
         ('ALIGN', (0, 1), (0, -1), 'CENTER'),
         ('ALIGN', (3, 1), (3, -1), 'CENTER'),
         ('ALIGN', (4, 1), (-1, -1), 'RIGHT'),
-        ('FONTNAME', (0, 1), (-1, -5), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('TOPPADDING', (0, 1), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
-        ('LEFTPADDING', (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('FONTNAME', (0, 1), (-1, -3), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
         
         # Grid
-        ('GRID', (0, 0), (-1, -5), 1, colors.HexColor('#e5e7eb')),
+        ('GRID', (0, 0), (-1, -3), 0.5, colors.HexColor('#e5e7eb')),
         ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#667eea')),
         
         # Alternating row colors
-        ('ROWBACKGROUNDS', (0, 1), (-1, -5), [colors.white, colors.HexColor('#f9fafb')]),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -3), [colors.white, colors.HexColor('#f9fafb')]),
         
         # Summary section styling
-        ('FONTNAME', (4, -4), (-1, -1), 'Helvetica-Bold'),
-        ('LINEABOVE', (4, -4), (-1, -4), 1, colors.HexColor('#e5e7eb')),
+        ('FONTNAME', (4, -2), (-1, -1), 'Helvetica-Bold'),
+        ('LINEABOVE', (4, -2), (-1, -2), 1, colors.HexColor('#e5e7eb')),
     ]))
     
     elements.append(items_table)
-    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Spacer(1, 0.15 * inch))
     
     # Grand Total
-    total_data = [['TOTAL AMOUNT', f"₹{order.total_cost:,.2f}"]]
+    total_data = [['TOTAL AMOUNT', f"Rs.{order.total_cost:,.2f}"]]
     total_table = Table(total_data, colWidths=[5.9 * inch, 1.1 * inch])
     total_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#10b981')),
@@ -591,53 +596,44 @@ def pdf_view(request, order_id):
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 14),
-        ('TOPPADDING', (0, 0), (-1, -1), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
         ('LEFTPADDING', (0, 0), (-1, -1), 10),
         ('RIGHTPADDING', (0, 0), (-1, -1), 10),
     ]))
     elements.append(total_table)
-    elements.append(Spacer(1, 0.3 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
     
     # Terms and Conditions
     elements.append(Paragraph("<b>Terms & Conditions:</b>", heading_style))
     terms = """
-    • Payment is due within 15 days of invoice date.<br/>
-    • Please include invoice number on your check.<br/>
-    • Products can be returned within 10 days of delivery.<br/>
-    • For any queries, contact our customer support.<br/>
+    • Products can be returned within 10 days of delivery<br/>
+    • For any queries, contact our customer support
     """
     elements.append(Paragraph(terms, normal_style))
-    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Spacer(1, 0.15 * inch))
     
     # Thank you note
     thank_you_style = ParagraphStyle(
         'ThankYou',
         parent=styles['Normal'],
-        fontSize=12,
+        fontSize=13,
         textColor=colors.HexColor('#667eea'),
         alignment=TA_CENTER,
         fontName='Helvetica-Bold',
-        spaceAfter=6
+        spaceAfter=4
     )
     
-    elements.append(Spacer(1, 0.2 * inch))
-    elements.append(Paragraph("Thank you for shopping with TrumpKart!", thank_you_style))
-    elements.append(Paragraph("We appreciate your business and look forward to serving you again.", subtitle_style))
-    
-    # Footer
-    footer_style = ParagraphStyle(
-        'Footer',
+    thank_you_subtitle = ParagraphStyle(
+        'ThankYouSubtitle',
         parent=styles['Normal'],
-        fontSize=8,
+        fontSize=10,
         textColor=colors.grey,
         alignment=TA_CENTER,
-        spaceAfter=6
     )
     
-    elements.append(Spacer(1, 0.3 * inch))
-    elements.append(Paragraph("This is a computer-generated invoice and does not require a signature.", footer_style))
-    elements.append(Paragraph("For any queries, email us at support@trumpkart.com or call +91 1234567890", footer_style))
+    elements.append(Paragraph("Thank you for shopping with TrumpKart!", thank_you_style))
+    elements.append(Paragraph("We appreciate your business and look forward to serving you again.", thank_you_subtitle))
     
     # Build PDF
     doc.build(elements)

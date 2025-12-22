@@ -5,92 +5,175 @@ Invoice | Ecom
 {% endblock title %}
 
 {% block content %}
-<div class="container">
-    <h2 class="text-center text-secondary fw-bold">Invoice</h2>
+<div class="container py-4">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="text-primary fw-bold mb-2">Invoice</h1>
+        <p class="text-muted">Thank you for your purchase!</p>
+    </div>
 
-    <div class="row justify-content-center mt-4">
+    <div class="row justify-content-center g-4">
         
-        <div class=" col-10 col-sm-10 col-md-6 col-lg-6">
-            <h4 class="text-secondary text">Order Details</h4>
-            <table class="table table-bordered">
-                <tr>
-                    <th>Order ID</th>
-                    <td>{{ order.razorpay_order_id }}</td>
-                </tr>
-                <tr>
-                    <th>Order Date</th>
-                    <td>{{ order.created_at }}</td>
-                </tr>
-                <tr>
-                    <th>Customer Name</th>
-                    <td>{{ order.address.name }}</td>
-                </tr>
-                <tr>
-                    <th>Total Amount</th>
-                    <td>₹{{ order.total_cost }}</td>
-                </tr>
-                <tr>
-                    <th>Sold By</th>
-                    <td>
-                        {% for item in order.order_items.all %}
-                        {{item.Product.vendor }}
-                        {% endfor %}
-                    
-                    </td>
-
-
-
-                </tr>
-                <tr>
-                    <th>Products</th>
-                    <td>
-                        {% for item in order.order_items.all %}
-                            {{ item.Product.name }}<br>
-                        {% endfor %}
-                    </td>
-                </tr>
-            </table>
+        <!-- Order Details -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-receipt"></i> Order Details</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="text-secondary" width="40%">Order ID</th>
+                                <td class="fw-semibold">{{ order.final_order_id }}</td>
+                            </tr>
+                            {% if order.razorpay_order_id %}
+                            <tr>
+                                <th class="text-secondary">Payment ID</th>
+                                <td><small class="text-muted">{{ order.razorpay_order_id }}</small></td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th class="text-secondary">Order Date</th>
+                                <td>{{ order.created_at|date:"d M, Y - h:i A" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Payment Method</th>
+                                <td>
+                                    {% if order.payment_method == 'Razorpay' %}
+                                        <span class="badge bg-primary">Razorpay</span>
+                                    {% elif order.payment_method == 'COD' %}
+                                        <span class="badge bg-warning text-dark">Cash on Delivery</span>
+                                    {% else %}
+                                        {{ order.payment_method }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Payment Status</th>
+                                <td>
+                                    {% if order.payment_status == 'Completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif order.payment_status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ order.payment_status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Customer Name</th>
+                                <td>{{ order.address.name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary align-top">Sold By</th>
+                                <td>
+                                    {% for item in order.order_items.all %}
+                                        <span class="badge bg-info text-dark me-1 mb-1">{{ item.Product.vendor }}</span>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary align-top">Products</th>
+                                <td>
+                                    <ul class="list-unstyled mb-0">
+                                        {% for item in order.order_items.all %}
+                                            <li class="mb-1">
+                                                <i class="bi bi-box-seam text-primary"></i> {{ item.Product.name }}
+                                                <span class="text-muted">(Qty: {{ item.quantity }})</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Total Amount</th>
+                                <td class="text-success fw-bold fs-5">₹{{ order.total_cost }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        
-        <div class=" col-10 col-sm-10 col-md-6 col-lg-6">
-            <h4 class="text-secondary text-center">Shipping Address</h4>
-            <table class="table table-bordered">
-                <tr>
-                    <th>Name</th>
-                    <td>{{ order.address.name }}</td>
-                </tr>
-                <tr>
-                    <th>House/Area</th>
-                    <td>{{ order.address.house }}, {{ order.address.area }}</td>
-                </tr>
-                <tr>
-                    <th>City/State</th>
-                    <td>{{ order.address.city }}, {{ order.address.state }}</td>
-                </tr>
-                <tr>
-                    <th>Country/Zipcode</th>
-                    <td>{{ order.address.country }}, {{ order.address.zipcode }}</td>
-                </tr>
-                <tr>
-                    <th>Phone</th>
-                    <td>{{ order.address.phone }}</td>
-                </tr>
-                <tr>
-                    <th>Email</th>
-                    <td>{{ order.address.email }}</td>
-                </tr>
-            </table>
+        <!-- Shipping Address -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="text-secondary" width="40%">Name</th>
+                                <td>{{ order.address.name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">House/Area</th>
+                                <td>{{ order.address.house }}, {{ order.address.area }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">City/State</th>
+                                <td>{{ order.address.city }}, {{ order.address.state }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Country/Zipcode</th>
+                                <td>{{ order.address.country }}, {{ order.address.zipcode }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Phone</th>
+                                <td>
+                                    <i class="bi bi-telephone"></i> {{ order.address.phone }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Email</th>
+                                <td>
+                                    <i class="bi bi-envelope"></i> {{ order.address.email }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
     
-    
-    <div class="row justify-content-center mt-4 mb-4">
-        <div class="col-md-8 text-center">
-            <a href="{% url 'pdf' order.id %}" class="btn btn-primary">Download Invoice as PDF</a>
+    <!-- Download Button -->
+    <div class="row justify-content-center mt-5 mb-4">
+        <div class="col-12 col-md-6 text-center">
+            <a href="{% url 'pdf' order.id %}" class="btn btn-primary btn-lg w-100 shadow">
+                <i class="bi bi-file-earmark-pdf"></i> Download Invoice as PDF
+            </a>
         </div>
     </div>
 </div>
+
+<style>
+    .card {
+        border: none;
+        transition: transform 0.2s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .table th {
+        font-weight: 600;
+        border-top: none;
+    }
+    
+    .table td {
+        vertical-align: middle;
+    }
+    
+    .btn-lg {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+    }
+</style>
 {% endblock content %}
 
 {% block scripts %}
