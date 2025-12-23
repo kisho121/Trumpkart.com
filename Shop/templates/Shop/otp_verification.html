@@ -15,14 +15,14 @@ Otp Verification
             {% csrf_token %}
            
             <input class="form-control" placeholder=" Enter your OTP" type="text" id="otp" name="otp"><br>
-            <button class="btn btn-primary mb-2" type="submit">Verify OTP</button>
+            <button class="btn btn-primary mb-2" style="width: 200px;" type="submit">Verify OTP</button>
         </form>
          
         <form method="POST" >
             {% csrf_token %}
            
             <input class="form-control" type="hidden"  value="{{form.email}}" ><br>
-            <button class="btn btn-danger mb-2" type="submit">Resent OTP</button>
+            <button class="btn btn-danger mb-2" style="width: 200px;" type="submit">Resent OTP</button>
         </form>
     </div>
 </div>

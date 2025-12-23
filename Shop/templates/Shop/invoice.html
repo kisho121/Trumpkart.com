@@ -5,11 +5,11 @@ Invoice | Ecom
 {% endblock title %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-3">
     <!-- Header -->
-    <div class="text-center mb-5">
+    <div class="text-center mb-4">
         <h1 class="text-primary fw-bold mb-2">Invoice</h1>
-        <p class="text-muted">Thank you for your purchase!</p>
+        <p class="text-muted small">Thank you for your purchase!</p>
     </div>
 
     <div class="row justify-content-center g-4">
@@ -52,12 +52,20 @@ Invoice | Ecom
                             <tr>
                                 <th class="text-secondary">Payment Status</th>
                                 <td>
-                                    {% if order.payment_status == 'Completed' %}
-                                        <span class="badge bg-success">Completed</span>
-                                    {% elif order.payment_status == 'Pending' %}
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% if order.payment_method == 'COD' %}
+                                        {% if order.status == 1 %}
+                                            <span class="badge bg-success">Paid</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% endif %}
                                     {% else %}
-                                        <span class="badge bg-secondary">{{ order.payment_status }}</span>
+                                        {% if order.payment_status == 'Completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif order.payment_status == 'Pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ order.payment_status }}</span>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>
@@ -142,7 +150,7 @@ Invoice | Ecom
     
     <!-- Download Button -->
     <div class="row justify-content-center mt-5 mb-4">
-        <div class="col-12 col-md-6 text-center">
+        <div class="col-12 col-md-4 text-center">
             <a href="{% url 'pdf' order.id %}" class="btn btn-primary btn-lg w-100 shadow">
                 <i class="bi bi-file-earmark-pdf"></i> Download Invoice as PDF
             </a>

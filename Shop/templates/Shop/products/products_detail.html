@@ -6,9 +6,9 @@ Products_detail|TrumpKart
 
 {% block content %}
 {% include 'Shop/inc/message.html' %}
-<h2 class="text-center mb-2 fw-bolder text-wrap" id="detText" style="font-family: sans-serif; background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);font-size: 2rem;">{{products}}</h2>
+<!-- <h2 class="text-center mb-2 fw-bolder text-wrap" id="detText" style="font-family: sans-serif; background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);font-size: 2rem;">{{products}}</h2> -->
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
+    <ol class="breadcrumb pt-3">
       <li class="breadcrumb-item fw-bold text-dark"><a href="{% url 'home' %}">Home</a></li>
       <li class="breadcrumb-item fw-bold"><a href="{% url 'collection' products.category.name %}">Collections</a></li>
       <li class="breadcrumb-item active fw-bold" aria-current="page">{{products}}</li>
@@ -55,7 +55,7 @@ Products_detail|TrumpKart
 
      <div class="col-12 col-sm-12 col-md-6 col-lg-6 align-content-center">
       <h3 class="text-decoration-underline text-bold text-center text-primary text-uppercase">About this Item:</h3>
-      <p class="details">{{products.description }}</p>
+      <p class="details" style="text-indent: 10px;">{{products.description }}</p>
     </div>
     
   
