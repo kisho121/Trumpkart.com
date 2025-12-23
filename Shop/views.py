@@ -1212,3 +1212,9 @@ def supportView(request):
         'order_count': order_count
     }
     return render(request,'Shop/mail.html', context)
+
+def robots_txt(request):
+    return HttpResponse(
+        "User-agent: *\nDisallow:",
+        content_type="text/plain"
+    )
