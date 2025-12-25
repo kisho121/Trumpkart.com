@@ -158,29 +158,14 @@ cloudinary.config(
     api_secret=config('CLOUDINARY_API_SECRET')
 )
 
-# STORAGES configuration - conditional based on environment
-if DEBUG:
-    # Local development - use default file system storage
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
-    # Set MEDIA_ROOT for local file storage
-    MEDIA_ROOT = BASE_DIR / 'media'
-else:
-    # Production - use Cloudinary for media files
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Database Configuration
 # Use SQLite locally (with runserver), PostgreSQL in production
