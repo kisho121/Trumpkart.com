@@ -4,6 +4,7 @@ import datetime
 import os 
 from django.utils import timezone
 import uuid
+from cloudinary.models import CloudinaryField
 
 def getFileName(request,filename):
     now_time=datetime.datetime.now().strftime("%y%m%d%H:%M:%S")
@@ -18,7 +19,7 @@ class OTPVerification(models.Model):
         db_table = 'shop_otpverification'
     
 class carousel(models.Model):
-    carousel_image = models.ImageField(upload_to=getFileName)
+    carousel_image = CloudinaryField('image')
     alt_text = models.CharField(max_length=150, null=False, blank=False, default="slide_image")
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -27,7 +28,7 @@ class carousel(models.Model):
 
 class category(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
-    image = models.ImageField(upload_to=getFileName, null=True, blank=True)
+    image = CloudinaryField('image', null=True, blank=True)
     description = models.TextField(max_length=500, null=False, blank=False)
     status = models.BooleanField(default=False, help_text="0-show,1-Hidden")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -42,7 +43,7 @@ class product(models.Model):
     category = models.ForeignKey(category, on_delete=models.CASCADE)
     name = models.CharField(max_length=150, null=False, blank=False)
     vendor = models.CharField(max_length=150, null=False, blank=False)
-    product_image = models.ImageField(upload_to=getFileName, null=True, blank=True)
+    product_image = CloudinaryField('image', null=True, blank=True)
     quantity = models.IntegerField(null=False, blank=False)
     original_price = models.IntegerField(null=False, blank=False)
     selling_price = models.IntegerField(null=False, blank=False)
