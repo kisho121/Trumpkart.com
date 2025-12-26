@@ -1,8 +1,14 @@
-# Ignore .env file
-.env# Python
+# Media files
+media/
+uploads/
+
+# Static files
+staticfiles/
+
+# Python
+*.pyc
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
 .Python
 
@@ -11,33 +17,18 @@ __pycache__/
 venv/
 env/
 ENV/
-
-# Django
-*.log
-local_settings.py
-
-# Sensitive Files
-.env
-secretkey.py
-*.key
-*.crt
-*.pem
-
-# Node
 node_modules/
-package-lock.json
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+*.log
+
+# Environment variables
+.env
+.env.local
 
 # IDE
 .vscode/
 .idea/
 *.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-db.sqlite3
-# Build
-dist/
-build/
-*.egg-info/
