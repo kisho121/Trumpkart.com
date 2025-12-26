@@ -12,8 +12,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY")
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+if DEBUG:
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS_LOCAL', cast=Csv())
+else:
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS_PROD', cast=Csv())
+    # Also allow localhost for testing in production (optional)
+    ALLOWED_HOSTS.append('127.0.0.1')
+    ALLOWED_HOSTS.append('localhost')
+    
 # Detect if running with runserver (local development)
 IS_RUNSERVER = 'runserver' in sys.argv
 
