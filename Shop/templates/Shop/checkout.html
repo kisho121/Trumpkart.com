@@ -8,8 +8,8 @@ Checkout|Ecom
 
 <div class="container my-2">
     <div class="row">
-        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
-            <h2 class="text-dark text-center bg-warning fw-bold" style="font-family: serif;"> Address Form</h2>
+        <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+            <h2 class="text-dark text-center fw-bold rounded-2" style="font-family: serif; background-color: rgb(254, 179, 94);"> Address Form</h2>
             
             <form id="checkout-form" method="POST" action="{% url 'checkout' %}">
                 {% csrf_token %}
@@ -92,7 +92,7 @@ Checkout|Ecom
                     {% if form.email.errors %}
                     <div class="text-danger">{{ form.email.errors }}</div>
                     {% endif %}
-                </div>
+                </div>   
 
                 <label for="" class="form-label">
                     <input type="checkbox" class="from-check"> Default address
@@ -106,8 +106,8 @@ Checkout|Ecom
             </form>
         </div> 
 
-        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
-            <h2 class="fw-bold text-light text-center bg-primary" style="font-family: serif;">
+        <div class="col-12 col-sm-12 col-md-8 col-lg-8">
+            <h2 class="fw-bold text-dark text-center rounded-2" style="font-family: serif; background-color: rgb(117, 247, 166);">
                 <i class="fa-solid fa-cart-shopping fs-4"></i> Cart Items
             </h2>
             <table class="table table-stripped">

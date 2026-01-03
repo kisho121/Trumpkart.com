@@ -7,7 +7,7 @@ Wishlist|Ecom
 {% block content %}
 {% include 'Shop/inc/message.html' %}
 
-<h2 class="text-secondary text-center fw-bold py-2">My Wishlist <i class="fa fa-heart"></i></h2>
+<h2 class="text-dark text-center fw-bold py-2">Wishlist</h2>
 <div class="container bg-light">
 
 {% if fav %}
@@ -16,8 +16,10 @@ Wishlist|Ecom
       
       <div class="card col-12 col-sm-12 col-md-4 col-lg-3">
         <div class="text-center">
+          <a href="{% url 'collectiondetails' item.Product.category.name item.Product.name %}">
           <img class="card-img-top" src="{{ item.Product.product_image.url }}" alt="" style="max-width: 200px;">
-          <h5 class="card-body text-primary text-center fw-bold">{{ item.Product.name }}</h5>
+          <h6 class="card-body text-primary text-center">{{ item.Product.name }}</h6>
+          </a>
         </div>
       </div>
       

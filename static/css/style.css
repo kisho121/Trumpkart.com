@@ -69,7 +69,7 @@ h1{
 }
 h3{
   font-size: 25px;
-  color: white;
+  
 }
 
 nav.navbar-expand-lg{
@@ -102,7 +102,7 @@ nav.navbar-expand-lg{
 
 .nav-link:hover{
   background-color: white;
-  color: blue !important; 
+  color: aqua !important; 
   
 }
 .cltn-image{
@@ -145,17 +145,16 @@ a{
 }
 
 .hot{
-  background-color:orangered;
-  border-top-right-radius: 4px;
-  color: white;
-  display: inline;
+  background: linear-gradient(45deg, #079fd2 0%,  #66046f 100% );
   font-weight: 700;
   position: absolute;
   right: 0;
   text-align: center;
   width: 50px;
   z-index: 1;
-  text-shadow: 1px 1px 3px black;
+  text-shadow: 0.5px 0.5px 1px black;
+  border-bottom-left-radius: 5px;
+  color: white;
 }
 
 img.card-img-top{ 
@@ -184,7 +183,7 @@ span{
 }
 
 .card-text {
-    color: rgb(8, 198, 8);
+    color: black;
     font-size: 1vw;   
  }
 

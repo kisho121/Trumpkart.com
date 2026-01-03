@@ -1,75 +1,217 @@
 {% load static %}
-<nav class="navbar navbar-dark navbar-expand-lg fixed-top " >
-    <div class="container-fluid">
-      <a href="{% url 'home' %}">
-      <img class="brandname" src="{% static 'images/TKicon.png' %}" alt="icon" width="25">
+<nav class="navbar navbar-dark navbar-expand-lg fixed-top shadow-sm" style="  background-color: rgb(4, 9, 90);">
+    <div class="container-fluid px-4">
+      <!-- Brand Logo -->
+      <a href="{% url 'home' %}" class="navbar-brand d-flex align-items-center">
+        <img class="brandname" src="{% static 'images/TKicon.png' %}" alt="icon" width="35" height="35" >
       </a>
-      <form method="GET" action="{% url 'search'  %}" class="input-group inputGroup" >
-        <input name="q" type="text" class="form-control" placeholder="Search for Products, Brands and more..">
-        <button class="btn btn-light"><i class="fa fa-search"></i></button>
-       </form>
-      <button class="navbar-toggler p-1 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon text-light fs-6"></span>
+      
+      <!-- Search Bar (Desktop) -->
+      <form method="GET" action="{% url 'search' %}" class="d-none d-lg-flex found mx-auto" >
+        <div class="input-group shadow-sm">
+          <input name="q" type="text" class="form-control border-0" placeholder="Search for Products, Brands and more.." style="padding: 0.6rem 1rem; font-size: 0.95rem;">
+          <button class="btn btn-light border-0" type="submit" style="padding: 0.6rem 1.2rem;">
+            <i class="fa fa-search"></i>
+          </button>
+        </div>
+      </form>
+      
+      <!-- Navbar Toggler -->
+      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse " id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          
-         {% if request.user.is_authenticated %}
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'socialaccount_connections' %}"><span class="fw-bold me-1" style="color: rgb(35, 246, 60);">Hello! </span><i class="fa fa-user"></i> {{request.user}}</a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'account_logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-          </li>
-         {% else %}
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Login</a>
-          </li> <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'account_signup' %}"><i class="fa fa-users"></i> Register</a>
-          </li>
-         {% endif %}
-
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 tex-light active" aria-current="page" href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Home</a>
-          </li>
-
-         
-
-          <li class="nav-item ">
-            
-            <a class="nav-link rounded-3 text-light" href="{% url 'collection' %}"><i class="fa-solid fa-cubes"></i> Collections</a>
-          </li>
+      
+      <!-- Navigation Links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <!-- Search Bar (Mobile) -->
+        <form method="GET" action="{% url 'search' %}" class="d-lg-none my-3">
+          <div class="input-group shadow-sm">
+            <input name="q" type="text" class="form-control border-0" placeholder="Search for Products, Brands and more..">
+            <button class="btn btn-light border-0" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </form>
+        
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <!-- User Authentication Section -->
           {% if request.user.is_authenticated %}
-          <li class="nav-item ">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle text-light px-3 py-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-user-circle me-1"></i>
+                <span class="fw-semibold text-light">{{request.user}}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="{% url 'socialaccount_connections' %}">
+                  <i class="fa fa-user me-2"></i>Profile
+                </a></li>
+                <!-- <li><a class="dropdown-item" href="{% url 'socialaccount_connections' %}">
+                  <i class="fa-solid fa-gear me-2"></i>Settings
+                </a></li> -->
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'account_logout' %}">
+                  <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                </a></li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link text-light px-3 py-2" href="{% url 'account_login' %}">
+                <i class="fa fa-sign-in me-1"></i> Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-light btn-sm px-3 ms-lg-2" href="{% url 'account_signup' %}">
+                <i class="fa fa-users me-1"></i> Register
+              </a>
+            </li>
+          {% endif %}
           
-            <a class="nav-link rounded-3 text-light" href="{% url 'cart' %}"> <i class="fa-solid fa-cart-shopping "></i> <span class="text-light badge bg-success" id="cartCount">{{cart_count}}</span> Cart</a>
+          <li class="nav-item d-none d-lg-block ms-2">
+            <span class="text-light opacity-50">|</span>
           </li>
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'favrt' %}"> <i class="fa-solid fa-heart "></i> <span class=" badge bg-danger text-light badge " id="wishCount">{{wish_count}}</span> Wishlist</a>
+          
+          <!-- Main Navigation -->
+          <li class="nav-item">
+            <a class="nav-link text-light px-3 py-2" href="{% url 'home' %}">
+              <i class="fa-solid fa-house me-1"></i> Home
+            </a>
           </li>
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'order' %}"> <i class="fa-solid fa-bag-shopping "></i> <span class="badge bg-primary text-light">{{order_count}}</span> Orders</a>
+          
+          <li class="nav-item">
+            <a class="nav-link text-light px-3 py-2" href="{% url 'collection' %}">
+              <i class="fa-solid fa-cubes me-1"></i> Collections
+            </a>
           </li>
-          <li class="nav-item " style="float: right;">
-            <a class="nav-link rounded-3 text-light " href="{% url 'socialaccount_connections' %}"> <i class="fa-solid fa-gear "></i> Settings</a>
-          </li>
-          {% else%}
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-cart-shopping "></i> {{cart_count}} Cart</a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-heart "></i> {{wish_count}} Wishlist</a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-bag-shopping "></i> {{order_count}} Orders</a>
-
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link rounded-3 text-light" href="{% url 'account_login' %}"> <i class="fa-solid fa-gear "></i> Settings</a>
-          </li>
-         {% endif %}
+          
+          <!-- Cart, Wishlist, Orders -->
+          {% if request.user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link text-light px-3 py-2 position-relative" href="{% url 'cart' %}">
+                <i class="fa-solid fa-cart-shopping me-1"></i> Cart
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="cartCount" style="font-size: 0.7rem; margin-left: -10px;">
+                  {{cart_count}}
+                </span>
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link text-light px-3 py-2 position-relative" href="{% url 'favrt' %}">
+                <i class="fa-solid fa-heart me-1"></i> Wishlist
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="wishCount" style="font-size: 0.7rem; margin-left: -10px;">
+                  {{wish_count}}
+                </span>
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link text-light px-3 py-2 position-relative" href="{% url 'order' %}">
+                <i class="fa-solid fa-bag-shopping me-1"></i> Orders
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.7rem; margin-left: -10px;">
+                  {{order_count}}
+                </span>
+              </a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link text-light px-3 py-2" href="{% url 'account_login' %}">
+                <i class="fa-solid fa-cart-shopping me-1"></i> Cart
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link text-light px-3 py-2" href="{% url 'account_login' %}">
+                <i class="fa-solid fa-heart me-1"></i> Wishlist
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link text-light px-3 py-2" href="{% url 'account_login' %}">
+                <i class="fa-solid fa-bag-shopping me-1"></i> Orders
+              </a>
+            </li>
+          {% endif %}
         </ul>
       </div>
     </div>
-  </nav>
+</nav>
+
+<style>
+  .found{
+    width: 30%;
+    max-width: 42%;
+  }
+  .navbar {
+    transition: all 0.3s ease;
+  }
   
+  .navbar .nav-link {
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  
+  .navbar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+  }
+  
+  .navbar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .navbar .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.3);
+    border-color: transparent;
+  }
+  
+  .navbar .dropdown-menu {
+    border: none;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+  }
+  
+  .navbar .dropdown-item {
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s ease;
+  }
+  
+  .navbar .dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+  }
+  
+  .navbar .badge {
+    padding: 0.25em 0.5em;
+    font-weight: 600;
+  }
+  
+  .navbar-brand img {
+    transition: transform 0.3s ease;
+  }
+  
+  .navbar-brand:hover img {
+    transform: scale(1.1);
+  }
+  @media (max-width: 1200px) {
+   
+    .found{
+      width: 18%;
+    }
+  }
+  /* Mobile Responsive */
+  @media (max-width: 991.98px) {
+    .navbar-nav {
+      padding: 1rem 0;
+    }
+    
+    .navbar .nav-item {
+      margin: 0.2rem 0;
+    }
+    .found{
+      width: 15%;
+    }
+  }
+   
+</style>

@@ -5,6 +5,7 @@ import os
 from django.utils import timezone
 import uuid
 from cloudinary.models import CloudinaryField
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 def getFileName(request,filename):
     now_time=datetime.datetime.now().strftime("%y%m%d%H:%M:%S")
@@ -61,6 +62,45 @@ class product(models.Model):
     @property
     def discount(self):
         return round(((self.original_price - self.selling_price) / self.original_price) * 100)
+    
+    @property
+    def average_rating(self):
+        ratings = self.ratings.all()
+        if ratings.exists():
+            return round(sum(r.rating for r in ratings) / ratings.count(), 1)
+        return 0
+
+    @property
+    def rating_count(self):
+        return self.ratings.count()
+
+    @property
+    def rating_distribution(self):
+        """Returns count of each star rating (5 to 1)"""
+        distribution = {}
+        for star in range(5, 0, -1):
+            distribution[star] = self.ratings.filter(rating=star).count()
+        return distribution
+    
+class ProductRating(models.Model):
+    product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Rating from 1 to 5 stars"
+    )
+    review = models.TextField(max_length=500, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'product_rating'
+        unique_together = ('product', 'user')  # One rating per user per product
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} - {self.rating} stars"
+
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

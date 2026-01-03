@@ -6,7 +6,7 @@ Category|TrumpKart
 
 
 {% block content %}
-<h2 class="text-center fw-bolder "; style="font-family: serif; text-decoration-thickness: 0.5px; text-underline-offset: 3px; text-decoration: underline; text-shadow: 0.5px 0.5px 1px black;">CATEGORY</h2>
+<h2 class="text-center fw-bolder "; style="font-family: serif;  text-shadow: 0.5px 0.5px 1px black;">CATEGORY</h2>
 
 {% include 'Shop/inc/message.html' %}
 <div class="container bg-light mb-3">
@@ -14,13 +14,13 @@ Category|TrumpKart
   
 {% for item in categorys %}
 
-<div class="col-6 col-sm-6 col-md-4 col-lg-4 my-4">
+<div class="col-12 col-sm-12 col-md-6 col-lg-4 my-4 ">
  <div class="card w-100 h-100 text-center">
   <a class="text-decoration-none" href="{% url 'collection' item.name %}">
     <img src="{{ item.image.url }}" class="card-img-top mx-auto" alt="{{item.name}}">
     <div class="card-body">
-      <h6 class="card-title text-dark fw-bold">{{item.name}}</h6>
-      <p class="card-text text-dark text-center ">{{item.description}}</p>  
+      <h6 class="card-title text-dark fw-bolder">{{item.name}}</h6>
+      <p class="card-text text-muted text-center fs-6">{{item.description}}</p>  
     </div>
   </a>
  </div>
@@ -30,5 +30,59 @@ Category|TrumpKart
 
 </div>
 </div>
+
+{% if top_rated_products %}
+<h3 class="text-center text-dark fw-bolder text-uppercase" style="font-family: serif; text-shadow: 0.5px 0.5px 1px black;">
+  Top Rated Products
+</h3>
+<div class="container-fluid bg-light">
+  <div class="row my-4 pb-4 px-md-5">
+
+    {% for item in top_rated_products %}
+    <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-3 px-md-4 px-1">
+      <div class="card w-100 h-100 px-0 text-center">
+        <!-- FIXED: Use item.category.name instead of category_name -->
+        <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
+          <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}">
+        </a>
+        
+        {% if item.trending %}
+        <div class="hot">Hot</div>
+        {% endif %}
+
+        <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
+          <div class="card-body">
+            <h6 class="card-title mb-1">{{item.name}}</h6>
+            
+            <!-- Rating Display -->
+            <div class="d-flex justify-content-center align-items-center gap-1 mb-2">
+              <div class="stars-display">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= item.average_rating|floatformat:"0"|add:"0" %}
+                    <i class="fas fa-star text-warning" style="font-size: 0.8rem;"></i>
+                  {% elif forloop.counter <= item.average_rating|floatformat:"1"|add:"0.5" %}
+                    <i class="fas fa-star-half-alt text-warning" style="font-size: 0.8rem;"></i>
+                  {% else %}
+                    <i class="far fa-star text-warning" style="font-size: 0.8rem;"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <span class="text-muted small">{{ item.average_rating }} ({{ item.rating_count }})</span>
+            </div>
+            
+            <h6 class="text-dark fw-bold"><span class="text-success">{{item.discount}} %</span> Off</h6>
+            <p class="card-text">
+              <b class="fs-6">₹ {{item.selling_price}}</b>
+              <s class="text-muted"> ₹ {{item.original_price}}</s>
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}
 
 {% endblock content %}

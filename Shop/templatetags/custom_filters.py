@@ -19,3 +19,17 @@ def mul(value, arg):
         return float(value) * float(arg)
     except (ValueError, TypeError):
         return 0
+    
+@register.filter
+def mul(value, arg):
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return 0
+
+@register.filter
+def div(value, arg):
+    try:
+        return float(value) / float(arg) if arg != 0 else 0
+    except (ValueError, TypeError):
+        return 0

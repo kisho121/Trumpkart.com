@@ -1,116 +1,294 @@
 {% extends 'Shop/layouts/main.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block title %}
 Products_detail|TrumpKart
 {% endblock title %}
 
 {% block content %}
 {% include 'Shop/inc/message.html' %}
-<!-- <h2 class="text-center mb-2 fw-bolder text-wrap" id="detText" style="font-family: sans-serif; background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);font-size: 2rem;">{{products}}</h2> -->
+
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb pt-3">
-      <li class="breadcrumb-item fw-bold text-dark"><a href="{% url 'home' %}">Home</a></li>
-      <li class="breadcrumb-item fw-bold"><a href="{% url 'collection' products.category.name %}">Collections</a></li>
-      <li class="breadcrumb-item active fw-bold" aria-current="page">{{products}}</li>
+    <ol class="breadcrumb pt-3 ps-1">
+      <li class="breadcrumb-item fw-bold text-dark small"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item fw-bold small"><a href="{% url 'collection' products.category.name %}">Collections</a></li>
+      <li class="breadcrumb-item active fw-bold small" aria-current="page">{{products}}</li>
     </ol>
-  </nav>
-  
+</nav>
 
-<div class="container col-9 col-md-7 mb-3 " >
-     <div class="row bg-light p-2 justify-content-around rounded-2">
+<div class="container mb-3">
+     <div class="row bg-light p-1 justify-content-around rounded-2 ">
       
-           <div class="col-12 col-sm-12 col-md-6 col-lg-5 card h-100 pb-2" >
-               {% if products.trending %}
+           <div class="col-12 col-sm-12 col-md-4 col-lg-4 card h-100 pb-2 ">  
+               <!-- {% if products.trending %}
                   <div class="hot">Hot</div>
-               {% endif %}
+               {% endif %} -->
                
-                  <img src="{{products.product_image.url}}" class=" mx-auto w-100" alt="..." >
-                     <div class="card-body text-center">
-                       <h5 class="card-title">{{products.name}}</h5>
-                       <p class="card-text fs-6"><span>RS. </span><s style="color: red;">{{products.original_price}}</s>  | {{products.selling_price}} </p>
-                       <h6 class="text-center text-decoration-underline">Discount: <b class="text-danger fs-5">{{products.discount}} %</b></h6>
+                  <img src="{{products.product_image.url}}" class="mx-auto w-100" alt="image">
+                   <input type="hidden" value="{{products.id}}" id="pid">
+                   <div class="position-absolute top-0 end-0 p-2">
+                   {% if is_authenticated %}
+                        {% if is_favorited %}
+                        
+                          <button class="float-end me-1 p-0" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
+                            <i class="fa-solid fa-heart fs-5 text-danger"></i>
+                          </button>
+                        {% else %}
+                          <button class=" float-end me-1 p-0" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
+                            <i class="fa-regular fa-heart fs-5" style="color: red;"></i>
+                          </button>
+                        {% endif %}
+                      {% else %}
+                        <button class="" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
+                          <i class="fa-regular fa-heart fs-5 p-2" style="color: #999;"></i>
+                        </button>
+                      {% endif %}
+                      </div>
+                       
+                       <p>
+                           <div class="input-group mx-auto" style="width: 150px;">
+                              <button class="input-group-text  text-light" id="btnminus"><i class="fa fa-minus f-bold text-danger"></i></button>
+                              <input type="text" name="qty" id="txtQty" value="1" class="form-control text-center">
+                              <button class="input-group-text  text-light" id="btnplus"><i class="fa fa-plus fw-bold text-success"></i></button>
+                            </div>
+                       </p>
 
-                           
-                              <input type="hidden" value="{{products.id}}" id="pid">
-                                   
-                              <input type="hidden" name="" value="{{products.id}}" id="pid">
-                              <p>
-                                  <div class="input-group mx-auto" style="width: 150px;">
-                                     <button class="input-group-text bg-success text-light" id="btnminus"><i class="fa fa-minus"></i></button>
-                                     <input type="text" name="qty" id="txtQty" value="1" class="form-control text-center ">
-                                     <button class="input-group-text bg-success text-light" id="btnplus"><i class="fa fa-plus"></i></button>
+                  <div class="fav-cart mx-auto ">
+                       {% if products.quantity > 0 %}
+                       <button class="available text-white btn btn-warning" id="btncart" style="width: 150px;"><i class="fa fa-shopping-cart"></i>Add To Cart</button>
+                       
+                          <button class="btn btn-primary text-white" id="btnbuy"  style="width: 150px;">
+                          <i class="fa fa-bolt"></i> Buy Now
+                        </button>
+                     
+                        
+                         {% else %} 
+                       <button class="unavailable text-white mb-2" style="background-color:red; border:none; border-radius:0.3rem ;padding:0.2rem;"><i class="fa fa-minus"></i>Out of Stock</button>
+                          {% endif %}
 
-                                   </div>
-                              </p>
-                              <div class="fav-cart mx-auto">
-                              {% if products.quantity > 0 %}
-                              <button class="available text-white btn btn-warning" id="btncart"><i class="fa fa-shopping-cart"></i>Add To Cart</button>
-                                {% else %} 
-                              <button class="unavailable text-white mb-2" style="background-color:red; border:none; border-radius:0.3rem ;padding:0.2rem;"><i class="fa fa-minus"></i>Out of Stock</button>
-                                 {% endif %}
-                              <button class="btn btn-danger" style="border: none;" id="favbtn"><i class="fa-solid fa-heart fs-5" ></i></button>
-                            </div>                  
+                       
+                     </div>
+                   
+               </div>
+
+     <div class="col-12 col-sm-12 col-md-7 col-lg-7">
+        <div class="card-body ps-0">
+          {% if products.trending %}
+                  <div class="hot" style="position: relative; top: 0%; width:fit-content; border-radius: 5px; padding: 0 5px;">Best Deal</div>
+               {% endif %}
+                       <h3 class="text-black">{{products.name}}</h3>
+                       
+                       <!-- Rating Section -->
+                       <div class="rating-summary mb-2">
+                         <div class="d-flex gap-2">
+                           <div class="stars-display">
+                             {% for i in "12345" %}
+                               {% if forloop.counter <= products.average_rating|floatformat:"0"|add:"0" %}
+                                 <i class="fas fa-star text-warning"></i>
+                               {% elif forloop.counter <= products.average_rating|floatformat:"1"|add:"0.5" %}
+                                 <i class="fas fa-star-half-alt text-warning"></i>
+                               {% else %}
+                                 <i class="far fa-star text-warning"></i>
+                               {% endif %}
+                             {% endfor %}
+                           </div>
+                           <span class="fw-bold">{{ products.average_rating }}</span>
+                           <span class="text-muted">({{ products.rating_count }} reviews)</span>
+                         </div>
                        </div>
-                    </div>
+                       <p class="text-info small">{{products.vendor}}</p>
 
-     <div class="col-12 col-sm-12 col-md-6 col-lg-6 align-content-center">
-      <h3 class="text-decoration-underline text-bold text-center text-primary text-uppercase">About this Item:</h3>
-      <p class="details" style="text-indent: 10px;">{{products.description }}</p>
+                       <div class="card-text "><span class="text-dark fs-5">₹ {{products.selling_price}} </span>  | <s class="text-muted fs-6">{{products.original_price}}</s> <b class="text-success fs-5 fw-bold">{{products.discount}} %</b> <span class="small text-muted fs-6">off</span>  </div>
+                      
+
+                       
+                  </div>
+      <h4 class="text-decoration-underline text-bold text-dark text-uppercase fs-5 mt-2 ">Description</h4>
+      <p class="details fs-6" style="text-indent: 10px;">{{products.description}}</p>
+
+        <div class="bg-light p-4 rounded-2">
+          <h3 class="text-center text-black fw-bold mb-4">Customer Reviews</h3>
+          
+          <!-- Rating Statistics -->
+          <div class="row mb-4">
+            <div class="col-md-4 text-center border-end">
+              <h1 class="display-3 fw-bold">{{ products.average_rating }}</h1>
+              <div class="mb-2">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= products.average_rating|floatformat:"0"|add:"0" %}
+                    <i class="fas fa-star text-warning fs-5"></i>
+                  {% elif forloop.counter <= products.average_rating|floatformat:"1"|add:"0.5" %}
+                    <i class="fas fa-star-half-alt text-warning fs-5"></i>
+                  {% else %}
+                    <i class="far fa-star text-warning fs-5"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <p class="text-muted">Based on {{ products.rating_count }} reviews</p>
+            </div>
+            
+            <div class="col-md-8">
+              <h5 class="mb-3">Rating Distribution</h5>
+              {% for star, count in products.rating_distribution.items %}
+              <div class="d-flex align-items-center mb-2">
+                <span class="me-2" style="width: 60px;">{{ star }} <i class="fas fa-star text-warning"></i></span>
+                <div class="progress flex-grow-1" style="height: 20px;">
+                  <div class="progress-bar bg-warning" role="progressbar" 
+                      style="width: {% if products.rating_count > 0 %}{{ count|mul:100|div:products.rating_count }}%{% else %}0%{% endif %}"
+                      aria-valuenow="{{ count }}" aria-valuemin="0" aria-valuemax="{{ products.rating_count }}">
+                  </div>
+                </div>
+                <span class="ms-2" style="width: 40px;">{{ count }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Submit Rating Form -->
+          {% if is_authenticated %}
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">
+                {% if user_rating %}Edit Your Review{% else %}Write a Review{% endif %}
+              </h5>
+              <form id="ratingForm">
+                <div class="mb-3">
+                  <label class="form-label">Your Rating</label>
+                  <div class="rating-input">
+                    {% for i in "12345" %}
+                    <i class="far fa-star star-btn" data-rating="{{ forloop.counter }}" style="font-size: 2rem; cursor: pointer; color: #ffc107;"></i>
+                    {% endfor %}
+                  </div>
+                  <input type="hidden" id="ratingValue" value="{% if user_rating %}{{ user_rating.rating }}{% else %}0{% endif %}">
+                </div>
+                <div class="mb-3">
+                  <label for="reviewText" class="form-label">Your Review (Optional)</label>
+                  <textarea class="form-control" id="reviewText" rows="3" maxlength="500" placeholder="Share your experience with this product...">{% if user_rating %}{{ user_rating.review }}{% endif %}</textarea>
+                  <small class="text-muted">Maximum 500 characters</small>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitRatingBtn">
+                  {% if user_rating %}Update Review{% else %}Submit Review{% endif %}
+                </button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle"></i> Please <a href="{% url 'account_login' %}" class="alert-link">login</a> to write a review
+          </div>
+          {% endif %}
+
+          <!-- Reviews List -->
+          {% if product_reviews %}
+          <h5 class="mb-3">Customer Reviews</h5>
+          {% for review in product_reviews %}
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h6 class="mb-1">{{ review.user.username }}</h6>
+                  <div class="mb-1">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= review.rating %}
+                        <i class="fas fa-star text-warning"></i>
+                      {% else %}
+                        <i class="far fa-star text-warning"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+                <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+              </div>
+              {% if review.review %}
+              <p class="card-text">{{ review.review }}</p>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="alert alert-light text-center">
+            <i class="fas fa-comment-slash"></i> No reviews yet. Be the first to review this product!
+          </div>
+          {% endif %}
+        </div>
     </div>
-    
-  
+</div>
 </div>
 
 
-</div>
+
+<!-- Delivery Information (existing code) -->
 <div class="container text-center d-flex justify-content-around mb-5">
-  
-  <div class=" col-4 " >
-    <img src="{% static 'images/secure-payment.png' %}" alt="Secured-payment" width="50px" height="50px" ><br>
+  <div class="col-4">
+    <img src="{% static 'images/secure-payment.png' %}" alt="Secured-payment" width="50px" height="50px"><br>
     <button class="btn btn-outline-success mb-2 d-button" data-bs-toggle="collapse" data-bs-target="#demo1" style="min-width: 50%;">Secured-payment</button><br>
-    <div class="collapse text-start " id="demo1">
-      Razorpay uses advanced encryption technologies to protect your sensitive data during transactions. This means that your payment details are securely transmitted and cannot be accessed by unauthorized parties.    </div>
+    <div class="collapse text-start" id="demo1">
+      Razorpay uses advanced encryption technologies to protect your sensitive data during transactions. This means that your payment details are securely transmitted and cannot be accessed by unauthorized parties.
+    </div>
   </div>
   <div class="col-4">
-    <img src="{% static 'images/fast-delivery.png' %}" alt="Free Delivery" width="70px" height="50px" ><br>
+    <img src="{% static 'images/fast-delivery.png' %}" alt="Free Delivery" width="70px" height="50px"><br>
     <button class="btn btn-outline-primary mb-2 d-button" data-bs-toggle="collapse" data-bs-target="#demo2" style="min-width: 50%;">Fast Delivery</button><br>
     <div class="collapse text-start px-2" id="demo2">
-      Enjoy the convenience of free delivery on every order, no matter the size.
-      Shop your favorite items without worrying about shipping costs.
-      We deliver straight to your doorstep, absolutely free!    </div>
+      Enjoy the convenience of free delivery on every order, no matter the size. Shop your favorite items without worrying about shipping costs. We deliver straight to your doorstep, absolutely free!
+    </div>
   </div>
   <div class="col-4">
-    <img src="{% static 'images/product-return.png' %}" alt="Return Policy" width="50px" height="50px" ><br>
-    <button class="btn btn-outline-danger mb-2 d-button " data-bs-toggle="collapse" data-bs-target="#demo3" style="min-width: 50%;">10 Days Return Policy</button><br>
-    <div class="collapse text-start " id="demo3">
-      Shop with confidence with our 10-day return policy.
-      If you're not completely satisfied, you have 10 days to return your purchase.
-      Hassle-free returns to ensure you get exactly what you need!    </div>
-    
+    <img src="{% static 'images/product-return.png' %}" alt="Return Policy" width="50px" height="50px"><br>
+    <button class="btn btn-outline-danger mb-2 d-button" data-bs-toggle="collapse" data-bs-target="#demo3" style="min-width: 50%;">10 Days Return Policy</button><br>
+    <div class="collapse text-start" id="demo3">
+      Shop with confidence with our 10-day return policy. If you're not completely satisfied, you have 10 days to return your purchase. Hassle-free returns to ensure you get exactly what you need!
+    </div>
   </div>
- 
 </div>
 
-<div class="container bg-body ">
-  <div class="row bg-light my-5 pb-4 px-3">
-  
-  {% for item in hot_product %}
-  <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-4">
-   <div class="card w-100 h-100 mx-auto ">   
-      <img src="{{item.product_image.url}}" class="card-img-top h-75 w-75 mx-auto" alt="{{item.name}}" >  
-      <div class="hot">Hot</div>
-      <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
-      <div class="card-body">
-        <h6 class="card-title ">{{item.name}}</h6>
-        <p class="card-text text-success text-center fs-6 fw-bold"><span>₹</span><s style="color: red;">{{item.original_price}}</s>  | {{item.selling_price}} </p>
+<div class="container bg-body">
+  <h3 class="text-center fw-bold">Similar Products in {{ products.category.name }}</h3>
+  <div class="row bg-light my-4 pb-4 md-mx-4">
+    {% if categorys %}
+      {% for item in categorys %}
+      <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-4 px-md-4 px-1">
+        <div class="card w-100 h-100 mx-auto">   
+          <img src="{{item.product_image.url}}" class="card-img-top  mx-auto" alt="{{item.name}}">  
+          {% if item.trending %}
+          <div class="hot">Hot</div>
+          {% endif %}
+          <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
+            <div class="card-body">
+              <h6 class="card-title">{{item.name}}</h6>
+              <div class="rating-summary mb-2">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <div class="stars-display">
+                      {% for i in "12345" %}
+                        {% if forloop.counter <= item.average_rating|floatformat:"0"|add:"0" %}
+                          <i class="fas fa-star text-warning"></i>
+                        {% elif forloop.counter <= item.average_rating|floatformat:"1"|add:"0.5" %}
+                          <i class="fas fa-star-half-alt text-warning"></i>
+                        {% else %}
+                          <i class="far fa-star text-warning"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <span class="fw-bold">{{ item.average_rating }}</span>
+                    <span class="text-muted">({{ item.rating_count }})</span>
+                  </div>
+                </div>
+              <div class="card-text text-center">
+             <b class="fs-6 fw-bolder"> ₹ {{item.selling_price}}</b>   <s class="text-muted small"> ₹ {{item.original_price}}</s>
+              </div>
+            </div>
+          </a>
+        </div>
       </div>
-    </a>
-   </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12 text-center py-5">
+        <p class="text-muted">No similar products found in this category.</p>
+      </div>
+    {% endif %}
   </div>
-  {% endfor %}
-  
-  </div>
-  </div>
+</div>
+
 
 {% endblock content %}
 
@@ -121,12 +299,133 @@ Products_detail|TrumpKart
     const plus = document.getElementById('btnplus');
     const ip = document.getElementById('txtQty');
     const pid = document.getElementById('pid');
-    const tkn = document.querySelector('[name="csrfmiddlewaretoken"]');
     const btncart = document.getElementById('btncart');
     const favbtn = document.getElementById('favbtn');
+    const btnbuy = document.getElementById('btnbuy');
     const isAuthenticated = {{ is_authenticated|yesno:"true,false" }};
 
-    // Function to update cart count in navbar
+    // Rating System Variables
+    const starButtons = document.querySelectorAll('.star-btn');
+    const ratingValue = document.getElementById('ratingValue');
+    const ratingForm = document.getElementById('ratingForm');
+
+    // Initialize rating display
+    if (ratingValue && parseInt(ratingValue.value) > 0) {
+      updateStarDisplay(parseInt(ratingValue.value));
+    }
+
+    // Star rating interaction
+    starButtons.forEach(star => {
+      star.addEventListener('click', function() {
+        const rating = parseInt(this.getAttribute('data-rating'));
+        ratingValue.value = rating;
+        updateStarDisplay(rating);
+      });
+
+      star.addEventListener('mouseenter', function() {
+        const rating = parseInt(this.getAttribute('data-rating'));
+        highlightStars(rating);
+      });
+    });
+
+    // Reset stars on mouse leave
+    document.querySelector('.rating-input')?.addEventListener('mouseleave', function() {
+      const currentRating = parseInt(ratingValue.value) || 0;
+      updateStarDisplay(currentRating);
+    });
+
+    function highlightStars(rating) {
+      starButtons.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.remove('far');
+          star.classList.add('fas');
+        } else {
+          star.classList.remove('fas');
+          star.classList.add('far');
+        }
+      });
+    }
+
+    function updateStarDisplay(rating) {
+      starButtons.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.remove('far');
+          star.classList.add('fas');
+        } else {
+          star.classList.remove('fas');
+          star.classList.add('far');
+        }
+      });
+    }
+
+    // Submit Rating
+    ratingForm?.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const rating = parseInt(ratingValue.value);
+      const review = document.getElementById('reviewText').value.trim();
+
+      if (rating === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Rating Required',
+          text: 'Please select a star rating',
+        });
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitRatingBtn');
+      submitBtn.disabled = true;
+
+      fetch("{% url 'submit_rating' %}", {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({
+          product_id: pid.value,
+          rating: rating,
+          review: review
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: data.message,
+            timer: 2000,
+            showConfirmButton: false
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Rating error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong! Please try again.',
+        });
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+      });
+    });
+
+    // Existing cart and favorite functionality
     function updateCartCount() {
       const cartCountElement = document.getElementById('cartCount');
       if (cartCountElement) {
@@ -135,7 +434,6 @@ Products_detail|TrumpKart
       }
     }
 
-    // Function to update wishlist count in navbar
     function updateWishCount() {
       const wishCountElement = document.getElementById('wishCount');
       if (wishCountElement) {
@@ -163,7 +461,6 @@ Products_detail|TrumpKart
     });
 
     btncart.addEventListener("click", function() {
-      // Check authentication first
       if (!isAuthenticated) {
         Swal.fire({
           icon: 'warning',
@@ -208,8 +505,6 @@ Products_detail|TrumpKart
             timer: 2000,
             showConfirmButton: false
           });
-          
-          // Update cart count in navbar
           updateCartCount();
         })
         .catch(error => {
@@ -229,10 +524,12 @@ Products_detail|TrumpKart
       }
     });
 
+
+    // REPLACE your favbtn event listener with this updated version:
+
     favbtn.addEventListener("click", function(e) {
       e.preventDefault();
 
-      // Check authentication first
       if (!isAuthenticated) {
         Swal.fire({
           icon: 'warning',
@@ -276,19 +573,55 @@ Products_detail|TrumpKart
         console.log('Favorite response:', result);
 
         if (result.status === 200) {
-          let icon = result.data.status.includes('already') ? 'info' : 'success';
+          // Get heart icon
+          const heartIcon = favbtn.querySelector('i');
           
-          Swal.fire({
-            icon: icon,
-            title: result.data.status.includes('already') ? 'Already Added' : 'Success',
-            text: result.data.status,
-            timer: 2000,
-            showConfirmButton: false
-          });
-
-          // Update wishlist count only if item was newly added (not already in favorites)
-          if (!result.data.status.includes('already')) {
-            updateWishCount();
+          // Check the action from backend response
+          if (result.data.action === 'removed') {
+            // Product was REMOVED from wishlist
+            favbtn.classList.remove('btn-danger');
+            favbtn.classList.add('btn-light');
+            favbtn.style.border = '1px solid #ddd';
+            heartIcon.classList.remove('fa-solid');
+            heartIcon.classList.add('fa-regular');
+            heartIcon.style.color = '#999';
+            
+            Swal.fire({
+              icon: 'info',
+              title: 'Removed',
+              text: result.data.status,
+              timer: 2000,
+              showConfirmButton: false
+            });
+            
+            // Update wishlist count from server response
+            const wishCountElement = document.getElementById('wishCount');
+            if (wishCountElement) {
+              wishCountElement.textContent = result.data.wish_count;
+            }
+            
+          } else if (result.data.action === 'added') {
+            // Product was ADDED to wishlist
+            // favbtn.classList.remove('btn-light');
+            // favbtn.classList.add('btn-danger');
+            favbtn.style.border = 'none';
+            heartIcon.classList.remove('fa-regular');
+            heartIcon.classList.add('fa-solid');
+            heartIcon.style.color = 'red';
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: result.data.status,
+              timer: 2000,
+              showConfirmButton: false
+            });
+            
+            // Update wishlist count from server response
+            const wishCountElement = document.getElementById('wishCount');
+            if (wishCountElement) {
+              wishCountElement.textContent = result.data.wish_count;
+            }
           }
         } else {
           Swal.fire({
@@ -309,9 +642,101 @@ Products_detail|TrumpKart
       .finally(() => {
         setTimeout(() => {
           favbtn.disabled = false;
-        }, 2000);
+        }, 500);  // Reduced timeout for better UX
       });
     });
+
+    
+
+    // Buy Now Button Handler
+    btnbuy?.addEventListener("click", function() {
+      // Check authentication first
+      if (!isAuthenticated) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Login Required',
+          text: 'Please login to buy this product.',
+          showCancelButton: true,
+          confirmButtonText: 'Login',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "{% url 'account_login' %}";
+          }
+        });
+        return;
+      }
+
+      let qty = parseInt(txtQty.value, 10);
+      qty = isNaN(qty) ? 0 : qty;
+      
+      if (qty > 0) {
+        // // Disable button during processing
+        // btnbuy.disabled = true;
+        // btnbuy.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+
+        let postobj = {
+          'pid': pid.value,
+          'quantity': qty,
+        }
+
+        // Call buy now endpoint
+        fetch("{% url 'buy_now' %}", {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: JSON.stringify(postobj)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            // Redirect to buy now checkout
+            Swal.fire({
+              icon: 'success',
+              title: 'Processing!',
+              text: data.message,
+              timer: 1000,
+              showConfirmButton: false
+            }).then(() => {
+              window.location.href = data.redirect_url;
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message,
+            });
+            // Re-enable button
+            btnbuy.disabled = false;
+            btnbuy.innerHTML = '<i class="fa fa-bolt"></i> Buy Now';
+          }
+        })
+        .catch(error => {
+          console.error('Buy now error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong! Please try again.',
+          });
+          // Re-enable button
+          btnbuy.disabled = false;
+          btnbuy.innerHTML = '<i class="fa fa-bolt"></i> Buy Now';
+        });
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Oops...',
+          text: 'Please enter the quantity.',
+        });
+      }
+    });
+
+    
   });
 </script>
 {% endblock scripts %}

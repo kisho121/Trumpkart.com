@@ -3,6 +3,7 @@ import io
 from django.shortcuts import render,redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from .forms import customuserform,addressForm,supportForm
 from .models import *
 from django.contrib import messages
@@ -32,6 +33,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 from datetime import datetime
+from django.db.models import Avg, Count
 
 
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -275,6 +277,308 @@ def checkout_view(request):
         'cart_count': cart_count,
         'wish_count': wish_count,
         'order_count': order_count,
+    }
+    return render(request, 'Shop/checkout.html', context)
+
+
+# ADD this new view to your views.py
+
+@login_required
+def buy_now_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product_id = data.get('pid')
+            quantity = data.get('quantity', 1)
+            
+            if not product_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Product ID is required'
+                }, status=400)
+            
+            # Get product
+            try:
+                product_obj = product.objects.get(id=product_id)
+            except product.DoesNotExist:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Product not found'
+                }, status=404)
+            
+            # Check stock
+            if product_obj.quantity < quantity:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Only {product_obj.quantity} items available'
+                }, status=400)
+            
+            # Store buy now data in session
+            request.session['buy_now'] = {
+                'product_id': product_id,
+                'quantity': quantity,
+                'product_name': product_obj.name,
+                'product_price': product_obj.selling_price,
+                'product_image': product_obj.product_image.url if product_obj.product_image else None
+            }
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Redirecting to checkout...',
+                'redirect_url': '/buy-now-checkout/'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=405)
+
+
+@login_required
+def buy_now_checkout_view(request):
+    user = request.user
+    
+    # Get buy now data from session
+    buy_now_data = request.session.get('buy_now')
+    
+    if not buy_now_data:
+        messages.warning(request, 'No product selected for purchase')
+        return redirect('home')
+    
+    # Get product
+    try:
+        product_obj = product.objects.get(id=buy_now_data['product_id'])
+    except product.DoesNotExist:
+        messages.error(request, 'Product not found')
+        del request.session['buy_now']
+        return redirect('home')
+    
+    # Calculate total
+    quantity = buy_now_data['quantity']
+    total_cost = product_obj.selling_price * quantity
+    
+    # Create a temporary item object for display (not saved to DB)
+    class BuyNowItem:
+        def __init__(self, product, qty):
+            self.Product = product
+            self.product_qty = qty
+            self.total = product.selling_price * qty
+    
+    buy_now_item = BuyNowItem(product_obj, quantity)
+    buy_now_items = [buy_now_item]
+    
+    # Get counts for navbar
+    cart_count = Cart.objects.filter(user=user).count()
+    wish_count = favourite.objects.filter(user=user).count()
+    order_count = Order.objects.filter(user=user).count()
+    
+    if request.method == 'POST':
+        # Check if it's an AJAX request for creating Razorpay order
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            payment_mode = request.POST.get('payment_mode')
+            
+            if payment_mode == 'Razorpay':
+                # Validate form
+                form = addressForm(request.POST)
+                if not form.is_valid():
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Please fill all required fields correctly.'
+                    }, status=400)
+                
+                try:
+                    # Create Razorpay order
+                    amount_in_paise = int(total_cost * 100)
+                    
+                    razorpay_order = client.order.create({
+                        'amount': amount_in_paise,
+                        'currency': 'INR',
+                        'payment_capture': '1'
+                    })
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'razorpay_order_id': razorpay_order['id'],
+                        'amount': amount_in_paise,
+                        'currency': 'INR'
+                    })
+                    
+                except Exception as e:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Failed to create payment order: {str(e)}'
+                    }, status=500)
+        
+        # Regular form submission (after payment)
+        form = addressForm(request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = user
+            address.save()
+            
+            payment_mode = request.POST.get('payment_mode')
+            
+            if not payment_mode:
+                messages.error(request, 'Please select a payment method')
+                return redirect('buy_now_checkout')
+            
+            # Check stock again before placing order
+            if product_obj.quantity < quantity:
+                messages.error(request, f'Only {product_obj.quantity} items available')
+                return redirect('buy_now_checkout')
+            
+            # Generate order ID
+            order_uuid = uuid.uuid4().hex[:10]
+            final_order_id = f"ORD-{order_uuid}"
+            
+            if payment_mode == "COD":
+                # Create order for COD
+                order = Order.objects.create(
+                    user=user,
+                    address=address,
+                    payment_method='COD',
+                    total_cost=total_cost,
+                    final_order_id=final_order_id,
+                    products=product_obj,
+                    payment_status='Pending',
+                    status=Order.PENDING
+                )
+                
+                # Create order item
+                order_item = OrderItem.objects.create(
+                    order=order,
+                    Product=product_obj,
+                    quantity=quantity,
+                    price=product_obj.selling_price
+                )
+                order_items = [order_item]
+                
+                # Reduce product stock
+                product_obj.quantity -= quantity
+                product_obj.save()
+                
+                # Clear buy now session
+                del request.session['buy_now']
+                
+                # Send confirmation email
+                try:
+                    sent_order_confirmation_mail(user, order, order_items, final_order_id, request)
+                except Exception as e:
+                    print(f"Email sending failed: {e}")
+                
+                order_count = Order.objects.filter(user=user).count()
+                
+                # Redirect to success page
+                return render(request, 'Shop/success.html', {
+                    'order': order,
+                    'order_items': order_items,
+                    'final_order_id': final_order_id,
+                    'message': 'Order placed successfully with Cash on Delivery!',
+                    'payment_method': 'COD',
+                    'cart_count': cart_count,
+                    'wish_count': wish_count,
+                    'order_count': order_count
+                })
+            
+            elif payment_mode == "Razorpay":
+                # Verify payment signature
+                razorpay_payment_id = request.POST.get('razorpay_payment_id')
+                razorpay_order_id = request.POST.get('razorpay_order_id')
+                razorpay_signature = request.POST.get('razorpay_signature')
+                
+                if not all([razorpay_payment_id, razorpay_order_id, razorpay_signature]):
+                    messages.error(request, 'Payment verification failed. Missing payment details.')
+                    return redirect('buy_now_checkout')
+                
+                try:
+                    # Verify signature
+                    params_dict = {
+                        'razorpay_order_id': razorpay_order_id,
+                        'razorpay_payment_id': razorpay_payment_id,
+                        'razorpay_signature': razorpay_signature
+                    }
+                    
+                    client.utility.verify_payment_signature(params_dict)
+                    
+                    # Payment verified - create order
+                    order = Order.objects.create(
+                        user=user,
+                        address=address,
+                        payment_method='Razorpay',
+                        total_cost=total_cost,
+                        razorpay_order_id=razorpay_order_id,
+                        razorpay_payment_id=razorpay_payment_id,
+                        final_order_id=final_order_id,
+                        products=product_obj,
+                        payment_status='Completed',
+                        status=Order.PENDING
+                    )
+                    
+                    # Create order item
+                    order_item = OrderItem.objects.create(
+                        order=order,
+                        Product=product_obj,
+                        quantity=quantity,
+                        price=product_obj.selling_price
+                    )
+                    order_items = [order_item]
+                    
+                    # Reduce product stock
+                    product_obj.quantity -= quantity
+                    product_obj.save()
+                    
+                    # Clear buy now session
+                    del request.session['buy_now']
+                    
+                    # Send confirmation email
+                    try:
+                        sent_order_confirmation_mail(user, order, order_items, final_order_id, request)
+                    except Exception as e:
+                        print(f"Email sending failed: {e}")
+                    
+                    order_count = Order.objects.filter(user=user).count()
+                    
+                    # Redirect to success page
+                    return render(request, 'Shop/success.html', {
+                        'order': order,
+                        'order_items': order_items,
+                        'final_order_id': final_order_id,
+                        'razorpay_order_id': razorpay_order_id,
+                        'razorpay_payment_id': razorpay_payment_id,
+                        'message': 'Payment successful! Your order has been placed.',
+                        'payment_method': 'Razorpay',
+                        'cart_count': cart_count,
+                        'wish_count': wish_count,
+                        'order_count': order_count
+                    })
+                    
+                except razorpay.errors.SignatureVerificationError:
+                    messages.error(request, 'Payment verification failed. Please contact support.')
+                    return redirect('buy_now_checkout')
+                except Exception as e:
+                    messages.error(request, f'Order creation failed: {str(e)}')
+                    return redirect('buy_now_checkout')
+        else:
+            messages.error(request, 'Please fill all required fields correctly.')
+    else:
+        form = addressForm()
+    
+    context = {
+        'form': form,
+        'cart_items': buy_now_items,  # Using buy now items instead of cart
+        'total_cost': total_cost,
+        'amount': int(total_cost * 100),
+        'razorpay_key': settings.RAZORPAY_KEY_ID,
+        'cart_count': cart_count,
+        'wish_count': wish_count,
+        'order_count': order_count,
+        'is_buy_now': True,  # Flag to identify buy now checkout
     }
     return render(request, 'Shop/checkout.html', context)
 
@@ -690,7 +994,7 @@ def return_order_view(request,order_id):
 def homepage(request):
     slides=carousel.objects.all()
     categorys=category.objects.all()
-    products=product.objects.filter(trending=1)
+    products=product.objects.filter(trending=1, status=0)
     cart_count=Cart.objects.filter(user=request.user.id).count()
     wish_count=favourite.objects.filter(user=request.user.id).count()
     order_count=Order.objects.filter(user=request.user.id).count()
@@ -703,8 +1007,8 @@ def homepage(request):
         "cart_count":cart_count,
         "wish_count":wish_count,
         "order_count":order_count,  
-        "title":"Hot Deals",
-        "Hot": "Hot",
+        "title":"Best Deals",
+        "Hot": "Best",
         "off":"off",
         "category_title":"CATEGORY"
         
@@ -825,17 +1129,23 @@ def favpage(request):
                             'status': 'Product not found'
                         }, status=404)
                     
-                    # Check if already in favourites
-                    if favourite.objects.filter(user=request.user, Product_id=Product_id).exists():
-                        # Get current wishlist count
+                    # FIXED: Toggle - Check if already in favourites
+                    existing_fav = favourite.objects.filter(user=request.user, Product_id=Product_id).first()
+                    
+                    if existing_fav:
+                        # REMOVE from favourites
+                        existing_fav.delete()
+                        
+                        # Get updated wishlist count
                         wish_count = favourite.objects.filter(user=request.user).count()
                         
                         return JsonResponse({
-                            'status': 'Product already in your wishlist',
-                            'wish_count': wish_count
+                            'status': 'Product removed from wishlist',
+                            'wish_count': wish_count,
+                            'action': 'removed'  # Added to help frontend know what happened
                         }, status=200)
                     else:
-                        # Add to favourites
+                        # ADD to favourites
                         favourite.objects.create(user=request.user, Product_id=Product_id)
                         
                         # Get updated wishlist count
@@ -843,7 +1153,8 @@ def favpage(request):
                         
                         return JsonResponse({
                             'status': 'Product added to wishlist successfully',
-                            'wish_count': wish_count
+                            'wish_count': wish_count,
+                            'action': 'added'  # Added to help frontend know what happened
                         }, status=200)
                 else:
                     return JsonResponse({
@@ -868,7 +1179,7 @@ def favpage(request):
         'status': 'Invalid request method'
     }, status=405)
 
-
+@login_required
 def favview(request):
     cart_count = Cart.objects.filter(user=request.user.id).count()
     wish_count = favourite.objects.filter(user=request.user.id).count()
@@ -999,29 +1310,73 @@ def otp_verification(request):
     return render(request, 'Shop/otp_verification.html', {'email': email})
 
 def collectionpage(request):
-    categorys=category.objects.filter(status=0)
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
-    context={
-        "categorys":categorys,
-        "cart_count":cart_count,
-        "wish_count":wish_count,
-        "order_count":order_count,
+    if request.user.is_authenticated:
+        cart_count = Cart.objects.filter(user=request.user.id).count()
+        wish_count = favourite.objects.filter(user=request.user.id).count()
+        order_count = Order.objects.filter(user=request.user.id).count()
+    else:
+        cart_count = 0
+        wish_count = 0
+        order_count = 0
+    
+    categorys = category.objects.filter(status=0)
+    
+    # Add product count and top rated count to each category
+    for cat in categorys:
+        cat.product_count = product.objects.filter(category=cat, status=0).count()
+        
+        # Count products with 4.5+ rating using the model's @property
+        category_products = product.objects.filter(category=cat, status=0)
+        cat.top_rated_count = sum(1 for p in category_products if p.average_rating >= 4.5)
+    
+    # Get all products and filter by rating using the @property
+    all_products = product.objects.filter(status=0)
+    top_rated_products = [p for p in all_products if p.average_rating >= 4.5]
+    
+    # Sort by average rating (highest first) and limit to 8
+    top_rated_products = sorted(top_rated_products, key=lambda x: x.average_rating, reverse=True)[:8]
+    
+    context = {
+        'categorys': categorys,
+        'top_rated_products': top_rated_products,
+        'cart_count': cart_count,
+        'wish_count': wish_count,
+        'order_count': order_count,
     }
-    return render(request,'Shop/collection.html',context)
+    return render(request, 'Shop/collection.html', context)
 
 def collections(request, name):
     category_obj = category.objects.get(name=name, status=0)
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
+    
+    # Get counts
+    cart_count = 0
+    wish_count = 0
+    order_count = 0
+    user_favorites = []
+    
+    if request.user.is_authenticated:
+        cart_count = Cart.objects.filter(user=request.user.id).count()
+        wish_count = favourite.objects.filter(user=request.user.id).count()
+        order_count = Order.objects.filter(user=request.user.id).count()
+        
+        # Get list of product IDs that user has favorited
+        user_favorites = list(favourite.objects.filter(user=request.user).values_list('Product_id', flat=True))
     
     if category_obj is not None:
-        products = product.objects.filter(category=category_obj)
-        return render(request, 'Shop/products/index.html',{"products": products, "category_name": name, "category_description": category_obj.description,"category_image":category_obj.image,"cart_count":cart_count,
-        "wish_count":wish_count,
-        "order_count":order_count,})
+        products = product.objects.filter(category=category_obj, status=0)
+        
+        context = {
+            "products": products, 
+            "category_name": name, 
+            "category_description": category_obj.description,
+            "category_image": category_obj.image,
+            "cart_count": cart_count,
+            "wish_count": wish_count,
+            "order_count": order_count,
+            "user_favorites": user_favorites,  # Add this line
+        }
+        
+        return render(request, 'Shop/products/index.html', context)
     else:
         messages.warning(request, "No such category found")
         return redirect('collection')
@@ -1036,18 +1391,41 @@ def productsDetail(request, cname, pname):
         wish_count = 0
         order_count = 0
     
-    hot_product = product.objects.filter(trending=1)
-    
     if(category.objects.filter(name=cname, status=0)):
         if(product.objects.filter(name=pname, status=0)):
             products = product.objects.filter(name=pname, status=0).first()
+            
+            # Get user's rating if exists
+            user_rating = None
+            is_favorited = False
+            if request.user.is_authenticated:
+                user_rating = ProductRating.objects.filter(
+                    product=products, 
+                    user=request.user
+                ).first()
+                # Check if product is in user's favorites (use correct field name)
+                is_favorited = favourite.objects.filter(user=request.user, Product=products).exists()
+            
+            # Get all reviews for this product
+            product_reviews = ProductRating.objects.filter(product=products).select_related('user')
+            
+            # CHANGED: Get products from the SAME CATEGORY instead of hot products
+            # Exclude the current product and limit to 8 items
+            categorys = product.objects.filter(
+                category=products.category,
+                status=0
+            ).exclude(id=products.id)[:8]
+            
             return render(request, 'Shop/products/products_detail.html', {
                 "products": products, 
-                "hot_product": hot_product,
+                "categorys": categorys,  # Similar products from same category
                 "cart_count": cart_count,
                 "wish_count": wish_count,
                 "order_count": order_count,
-                "is_authenticated": request.user.is_authenticated 
+                "is_authenticated": request.user.is_authenticated,
+                "user_rating": user_rating,
+                "product_reviews": product_reviews,
+                "is_favorited": is_favorited,
             })
         else:
             messages.warning(request, "No Such Product Found")
@@ -1055,6 +1433,58 @@ def productsDetail(request, cname, pname):
     else:
         messages.warning(request, "No Such Category Found")
         return redirect('collectionpage')
+
+@require_http_methods(["POST"])
+def submit_rating(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Please login to rate this product'
+        }, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        rating_value = int(data.get('rating'))
+        review_text = data.get('review', '').strip()
+        
+        if not (1 <= rating_value <= 5):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Rating must be between 1 and 5'
+            }, status=400)
+        
+        prod = product.objects.get(id=product_id)
+        
+        # Update or create rating
+        rating_obj, created = ProductRating.objects.update_or_create(
+            product=prod,
+            user=request.user,
+            defaults={
+                'rating': rating_value,
+                'review': review_text
+            }
+        )
+        
+        action = 'submitted' if created else 'updated'
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Rating {action} successfully!',
+            'average_rating': prod.average_rating,
+            'rating_count': prod.rating_count
+        })
+        
+    except product.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Product not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
             
 
 def searchview(request):

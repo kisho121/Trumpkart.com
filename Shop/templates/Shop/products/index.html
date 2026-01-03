@@ -6,39 +6,222 @@
    
 {% block content %}
 
-<h1 class=" text-center text-light fw-bolder" style="margin: 0px; background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);">{{category_name}}</h1>
-<div class="container-fluid d-flex justify-content-center" style="background-image: linear-gradient(rgb(4, 9, 90),white);">
-<img class="cltn-image" src="{{ category_image.url}}" alt="{{category_name}}" width="">
+<h1 class="text-center text-light fw-bolder" style="margin: 0px; background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);">
+  {{category_name}}
+</h1>
+
+<div class="container-fluid d-flex justify-content-center">
+  <img class="cltn-image rounded-2" src="{{ category_image.url}}" alt="{{category_name}}" width="">
 </div>
-<h3 class="text-center text-dark fw-bolder text-uppercase " style="font-family: serif; text-decoration-thickness: 0.5px; text-underline-offset: 3px; text-decoration: underline; text-shadow: 0.5px 0.5px 1px black;"> {{category_description}}</h3>
-<div class="container bg-light">
-<div class="row my-4 pb-4 px-3">
 
-{% for item in products %}
-<div class=" col-6 col-sm-6 col-md-4 col-lg-3 my-3">
- <div class="card w-100 h-100 px-0 text-center">
-  <a class="link text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
-    <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}" >
-  </a>
-  {% if item.trending %}
-  <div class="hot">hot</div>
-  {% endif %}
-  
+<h3 class="text-center text-dark fw-bolder text-uppercase" style="font-family: serif; text-shadow: 0.5px 0.5px 1px black;">
+  {{category_description}}
+</h3>
 
-    <a class="link text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
-    <div class="card-body" >
-      <h6 class="card-title mb-1">{{item.name}}</h6>
-      <h6 class="text-dark fw-bold"><span class="text-danger ">{{item.discount}} %</span>Off</h6>
-      <p class="card-text "><span>₹ </span><s style="color: red;">{{item.original_price}}</s>  | <b>{{item.selling_price}}</b> </p>
+<div class="container-fluid bg-light">
+  <div class="row my-4 pb-4 mx-md-5">
 
+    {% for item in products %}
+    <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-3 px-md-4 px-1">
+      <div class="card w-100 h-100 px-0 text-center position-relative">
+        <a class="link text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
+          <div>
+          <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}">
+          </div>
+          
+        </a>
+        
+
+        <!-- Favorite Button -->
+        <div class="position-absolute top-0 end-0 p-2">
+          {% if user.is_authenticated %}
+            {% if item.id in user_favorites %}
+              <button class="btn btn-light p-0 fav-btn" data-product-id="{{item.id}}" style="border: 1px solid #ddd; width: 35px; height: 35px; border-radius: 50%; background: transparent;">
+                <i class="fa-solid fa-heart" style="color: red; font-size: 1.1rem;"></i>
+              </button>
+            {% else %}
+              <button class="btn btn-light p-0 fav-btn" data-product-id="{{item.id}}" style="border: 1px solid #ddd; width: 35px; height: 35px; border-radius: 50%;">
+                <i class="fa-regular fa-heart" style="color: red; font-size: 1.1rem;"></i>
+              </button>
+            {% endif %}
+          {% else %}
+            <button class="btn btn-light p-0 fav-btn-guest" data-product-id="{{item.id}}" style="border: 1px solid #ddd; width: 35px; height: 35px; border-radius: 50%;">
+              <i class="fa-regular fa-heart" style="color: #999; font-size: 1.1rem;"></i>
+            </button>
+          {% endif %}
+        </div>
+
+        <a class="link text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
+          <div class="card-body">
+            <h6 class="card-title mb-1">{{item.name}}</h6>
+            
+            <!-- Rating Display -->
+            <div class="d-flex justify-content-center align-items-center gap-1 mb-2">
+              {% if item.rating_count > 0 %}
+                <div class="stars-display">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= item.average_rating|floatformat:"0"|add:"0" %}
+                      <i class="fas fa-star text-warning" style="font-size: 0.8rem;"></i>
+                    {% elif forloop.counter <= item.average_rating|floatformat:"1"|add:"0.5" %}
+                      <i class="fas fa-star-half-alt text-warning" style="font-size: 0.8rem;"></i>
+                    {% else %}
+                      <i class="far fa-star text-warning" style="font-size: 0.8rem;"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <span class="text-muted small">{{ item.average_rating }} ({{ item.rating_count }})</span>
+              {% else %}
+                <div class="stars-display">
+                  {% for i in "12345" %}
+                    <i class="far fa-star text-muted" style="font-size: 0.8rem;"></i>
+                  {% endfor %}
+                </div>
+                <span class="text-muted small">(0)</span>
+              {% endif %}
+            </div>
+            
+            <h6 class="text-dark fw-bold"><span class="text-success">{{item.discount}} %</span> Off</h6>
+            <p class="card-text">
+              <b class="fs-6">₹ {{item.selling_price}}</b>
+              <s class="text-muted"> ₹ {{item.original_price}}</s>
+            </p>
+          </div>
+        </a>
+      </div>
     </div>
-  </a>
-  
- </div>
-</div>
-{% endfor %}
+    {% endfor %}
 
-</div>
+  </div>
 </div>
 
 {% endblock content %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+    const favButtons = document.querySelectorAll('.fav-btn');
+    const guestFavButtons = document.querySelectorAll('.fav-btn-guest');
+
+    // Handle guest favorite buttons
+    guestFavButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        Swal.fire({
+          icon: 'warning',
+          title: 'Login Required',
+          text: 'Please login to add items to your favorites.',
+          showCancelButton: true,
+          confirmButtonText: 'Login',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "{% url 'account_login' %}";
+          }
+        });
+      });
+    });
+
+    // Handle authenticated user favorite buttons
+    favButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const productId = this.getAttribute('data-product-id');
+        const heartIcon = this.querySelector('i');
+        
+        // Disable button during request
+        this.disabled = true;
+
+        let postobj = {
+          'pid': productId,
+        }
+
+        fetch("/fav", {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: JSON.stringify(postobj)
+        })
+        .then(response => {
+          return response.json().then(data => ({
+            status: response.status,
+            data: data
+          }));
+        })
+        .then(result => {
+          console.log('Favorite response:', result);
+
+          if (result.status === 200) {
+            if (result.data.action === 'removed') {
+              // Product was REMOVED from wishlist
+              this.style.border = '1px solid #ddd';
+              this.style.background = '';
+              heartIcon.classList.remove('fa-solid');
+              heartIcon.classList.add('fa-regular');
+              heartIcon.style.color = 'red';
+              
+              Swal.fire({
+                icon: 'info',
+                title: 'Removed',
+                text: result.data.status,
+                timer: 1500,
+                showConfirmButton: false
+              });
+              
+            } else if (result.data.action === 'added') {
+              // Product was ADDED to wishlist
+              this.style.border = 'none';
+              this.style.background = 'transparent';
+              heartIcon.classList.remove('fa-regular');
+              heartIcon.classList.add('fa-solid');
+              heartIcon.style.color = 'red';
+              
+              Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: result.data.status,
+                timer: 1500,
+                showConfirmButton: false
+              });
+            }
+
+            // Update wishlist count
+            const wishCountElement = document.getElementById('wishCount');
+            if (wishCountElement && result.data.wish_count !== undefined) {
+              wishCountElement.textContent = result.data.wish_count;
+            }
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: result.data.status || 'Something went wrong!',
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Favorite error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Network error! Please check your connection.',
+          });
+        })
+        .finally(() => {
+          setTimeout(() => {
+            this.disabled = false;
+          }, 500);
+        });
+      });
+    });
+  });
+</script>
+{% endblock scripts %}

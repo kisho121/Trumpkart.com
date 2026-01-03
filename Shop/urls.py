@@ -24,6 +24,8 @@ urlpatterns=[
     path('privacy',views.privacyview, name='privacy'),
     path('faq',views.faqview, name='faq'),
     path('checkout',views.checkout_view,name='checkout'), 
+    path('buy-now', views.buy_now_view, name='buy_now'),
+    path('buy-now-checkout/', views.buy_now_checkout_view, name='buy_now_checkout'),
     path('success',views.checkout_view,name='success'),
     path('order/', views.order_view, name='order'),
     path('invoice/<int:order_id>/',views.invoice_view,name='invoice'),
@@ -32,4 +34,5 @@ urlpatterns=[
     path('order/<int:order_id>/cancel/',views.cancel_order_view, name="cancel_order"),
     path('order/<int:order_id>/return/',views.return_order_view, name='return_order'),
     path('Support_team',views.supportView,name='support_team'),
+    path('submit-rating', views.submit_rating, name='submit_rating'),
 ]  
