@@ -12,12 +12,12 @@ Login|TrumpKart
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-<div class="bg-login py-4" >
+<div class="container-fluid py-4" >
 {% include 'Shop/inc/message.html' %}
 <h1 class="text-center fw-bolder" style="color: rgb(4, 9, 90); font-family: serif;">LOGIN</h1>
-<div class="container col-10 col-sm-10 col-md-6 col-lg-4  p-3 mx-auto login rounded-2">
+<div class=" col-10 col-sm-10 col-md-6 col-lg-4  px-2 px-md-5 mx-auto login rounded-2">
   
-  <section class="container my-2">
+  <section class=" my-2">
      
                   <form method="POST" action="">
                    {% csrf_token %}
@@ -30,17 +30,17 @@ Login|TrumpKart
                     <div class="mb-2">
                      <label for="" class="form-label fw-bold">Password</label>
                      <div class="input-group mx-0">
-                       <input type="password" name="password" id="password" class="form-control mx-0 w-75" placeholder="Enter your Password">
+                       <input type="password" name="password" id="password" class="form-control " placeholder="Enter your Password">
                        <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword" style="border-left: none;">
-                         <i class="bi bi-eye-slash " id="eyeIcon"></i>
+                         <i class="fa fa-eye-slash " id="eyeIcon"></i>
                        </button>
                      </div>
                  </div>
                  <button type="submit" class="btn btn-primary fw-bold mb-2">Sign-in</button>
 
                 </form>
-                <a class="text-black fw-bolder text-decoration-underline" href="{% url 'account_reset_password' %}">{% trans "Forgot Password" %}</a> 
-                                   <p class="mt-2">Create New Account: <a  href="{% url 'account_signup' %}"><span class=" fw-bolder fs-6 text-primary text-decoration-underline">SIGN UP</span></a> </p>
+                <a class="text-white fw-bolder text-uppercase" style="text-decoration: underline; text-underline-offset: 2px; " href="{% url 'account_reset_password' %}">{% trans "Forgot Password" %}</a> 
+                                   <p class="mt-2 text-dark fw-bold fs-6">Create New Account: <a  href="{% url 'account_signup' %}"><span class=" fw-bolder fs-6 text-info text-decoration-underline"><button class="btn fw-bold btn-outline-success border-2">SIGN UP</button> </span></a> </p>
 
   
   </section>
@@ -58,8 +58,8 @@ Login|TrumpKart
     {% get_providers as socialaccount_providers %}
 
     {% if socialaccount_providers %}
-    <p class="m-0">Please sign in with one
-    of your existing third party accounts.<br>Or, <a href="{% url 'account_signup' %}">sign up</a>
+    <p class="m-0 fs-6">Please sign in with one
+    of your existing third party accounts.<br>Or, <a class="text-white fw-bold" href="{% url 'account_signup' %}">sign up</a>
     for a {{ site_name }} account.</p>
 
     <div class="socialaccount_ballot">

@@ -1,7 +1,8 @@
 {% extends 'Shop/layouts/main.html' %}
+{% load static cloudinary %}
 
 {% block title %}
-   Products|TrumpKart
+   Products
 {% endblock title %}
    
 {% block content %}
@@ -11,7 +12,13 @@
 </h1>
 
 <div class="container-fluid d-flex justify-content-center">
-  <img class="cltn-image rounded-2" src="{{ category_image.url}}" alt="{{category_name}}" width="">
+      <!-- <img class="cltn-image rounded-2" src="{{ category_image.url}}" alt="{{category_name}}" width=""> -->
+      <img
+       src="{% cloudinary_url category_image f_auto=True q_auto=True w=900 dpr='auto' %}"
+       class="img-fluid rounded-2 cltn-image"
+       loading="lazy"
+       alt="{{ category_name }}"
+        >
 </div>
 
 <h3 class="text-center text-dark fw-bolder text-uppercase" style="font-family: serif; text-shadow: 0.5px 0.5px 1px black;">
@@ -26,7 +33,13 @@
       <div class="card w-100 h-100 px-0 text-center position-relative">
         <a class="link text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
           <div>
-          <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}">
+          <!-- <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}"> -->
+          <img
+           src="{% cloudinary_url item.product_image f_auto=True q_auto=True dpr='auto' %}"
+           class="img-fluid"
+           loading="lazy"
+           alt="{{ item.name }}"
+            >
           </div>
           
         </a>

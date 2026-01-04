@@ -1,7 +1,8 @@
 {% extends 'Shop/layouts/main.html' %}
+{% load static cloudinary %}
 
 {% block title %}
-Category|TrumpKart
+Category
 {% endblock title %}
 
 
@@ -17,7 +18,14 @@ Category|TrumpKart
 <div class="col-12 col-sm-12 col-md-6 col-lg-4 my-4 ">
  <div class="card w-100 h-100 text-center">
   <a class="text-decoration-none" href="{% url 'collection' item.name %}">
-    <img src="{{ item.image.url }}" class="card-img-top mx-auto" alt="{{item.name}}">
+    <!-- <img src="{{ item.image.url }}" class="card-img-top mx-auto" alt="{{item.name}}"> -->
+    <img
+     src="{% cloudinary_url item.image f_auto=True q_auto=True w=600 dpr='auto' %}"
+     class="img-fluid rounded-2"
+     loading="lazy"
+     alt="{{ item.name }}"
+      >
+
     <div class="card-body">
       <h6 class="card-title text-dark fw-bolder">{{item.name}}</h6>
       <p class="card-text text-muted text-center fs-6">{{item.description}}</p>  
@@ -43,7 +51,13 @@ Category|TrumpKart
       <div class="card w-100 h-100 px-0 text-center">
         <!-- FIXED: Use item.category.name instead of category_name -->
         <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
-          <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}">
+          <!-- <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}"> -->
+          <img
+           src="{% cloudinary_url item.product_image f_auto=True q_auto=True w=400 dpr='auto' %}"
+           class="img-fluid"
+           loading="lazy"
+           alt="{{ item.name }}"
+            >
         </a>
         
         {% if item.trending %}

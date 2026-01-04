@@ -1,5 +1,6 @@
 {% extends 'Shop/layouts/main.html' %}
-{% load static %}
+{% load static cloudinary %}
+
 {% load custom_filters %}
 {% block title %}
 Products_detail|TrumpKart
@@ -10,9 +11,9 @@ Products_detail|TrumpKart
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb pt-3 ps-1">
-      <li class="breadcrumb-item fw-bold text-dark small"><a href="{% url 'home' %}">Home</a></li>
-      <li class="breadcrumb-item fw-bold small"><a href="{% url 'collection' products.category.name %}">Collections</a></li>
-      <li class="breadcrumb-item active fw-bold small" aria-current="page">{{products}}</li>
+      <li class="breadcrumb-item fw-bold text-dark "><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item fw-bold "><a href="{% url 'collection' products.category.name %}">Collections</a></li>
+      <li class="breadcrumb-item active fw-bold " aria-current="page">{{products}}</li>
     </ol>
 </nav>
 
@@ -23,8 +24,15 @@ Products_detail|TrumpKart
                <!-- {% if products.trending %}
                   <div class="hot">Hot</div>
                {% endif %} -->
-               
-                  <img src="{{products.product_image.url}}" class="mx-auto w-100" alt="image">
+
+
+<img
+  src="{% cloudinary_url products.product_image f_auto=True q_auto=True w=600 dpr='auto' %}"
+  class="img-fluid"
+  loading="lazy"
+  alt="{{ products.name }}"
+>
+
                    <input type="hidden" value="{{products.id}}" id="pid">
                    <div class="position-absolute top-0 end-0 p-2">
                    {% if is_authenticated %}
@@ -74,7 +82,7 @@ Products_detail|TrumpKart
      <div class="col-12 col-sm-12 col-md-7 col-lg-7">
         <div class="card-body ps-0">
           {% if products.trending %}
-                  <div class="hot" style="position: relative; top: 0%; width:fit-content; border-radius: 5px; padding: 0 5px;">Best Deal</div>
+                  <div class="hot mt-1" style="position: relative;  width:fit-content; border-radius: 5px; padding: 2px 5px;">Best Deal</div>
                {% endif %}
                        <h3 class="text-black">{{products.name}}</h3>
                        
@@ -98,12 +106,12 @@ Products_detail|TrumpKart
                        </div>
                        <p class="text-info small">{{products.vendor}}</p>
 
-                       <div class="card-text "><span class="text-dark fs-5">₹ {{products.selling_price}} </span>  | <s class="text-muted fs-6">{{products.original_price}}</s> <b class="text-success fs-5 fw-bold">{{products.discount}} %</b> <span class="small text-muted fs-6">off</span>  </div>
+                       <div class="card-text "><span class="text-dark fs-5">₹ {{products.selling_price}} </span> <s class="text-muted fs-6">₹ {{products.original_price}}</s> <b class="text-success fs-5 fw-bold"> {{products.discount}} %</b> <span class="small text-muted fs-6">off</span>  </div>
                       
 
                        
                   </div>
-      <h4 class="text-decoration-underline text-bold text-dark text-uppercase fs-5 mt-2 ">Description</h4>
+      <h4 class="text-dark text-uppercase fs-5 mt-2 " style="font-family: sans-serif; font-weight: 700;">Description</h4>
       <p class="details fs-6" style="text-indent: 10px;">{{products.description}}</p>
 
         <div class="bg-light p-4 rounded-2">
@@ -249,7 +257,13 @@ Products_detail|TrumpKart
       {% for item in categorys %}
       <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-4 px-md-4 px-1">
         <div class="card w-100 h-100 mx-auto">   
-          <img src="{{item.product_image.url}}" class="card-img-top  mx-auto" alt="{{item.name}}">  
+          <!-- <img src="{{item.product_image.url}}" class="card-img-top  mx-auto" alt="{{item.name}}">   -->
+           <img
+            src="{% cloudinary_url item.product_image f_auto=True q_auto=True w=600 dpr='auto' %}"
+            class="img-fluid"
+            loading="lazy"
+            alt="{{ item.name }}"
+          >
           {% if item.trending %}
           <div class="hot">Hot</div>
           {% endif %}

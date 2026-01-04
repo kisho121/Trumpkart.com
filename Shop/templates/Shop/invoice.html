@@ -18,7 +18,7 @@ Invoice | Ecom
         <div class="col-12 col-lg-6">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-receipt"></i> Order Details</h5>
+                    <h5 class="mb-0"><i class="fa fa-receipt"></i> Order Details</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-hover mb-0">
@@ -87,7 +87,7 @@ Invoice | Ecom
                                     <ul class="list-unstyled mb-0">
                                         {% for item in order.order_items.all %}
                                             <li class="mb-1">
-                                                <i class="bi bi-box-seam text-primary"></i> {{ item.Product.name }}
+                                                {{ item.Product.name }}
                                                 <span class="text-muted">(Qty: {{ item.quantity }})</span>
                                             </li>
                                         {% endfor %}
@@ -108,7 +108,7 @@ Invoice | Ecom
         <div class="col-12 col-lg-6">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Shipping Address</h5>
+                    <h5 class="mb-0"><i class="fa fa-globe"></i> Shipping Address</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-hover mb-0">
@@ -132,13 +132,13 @@ Invoice | Ecom
                             <tr>
                                 <th class="text-secondary">Phone</th>
                                 <td>
-                                    <i class="bi bi-telephone"></i> {{ order.address.phone }}
+                                    <i class="fa fa-phone"></i> {{ order.address.phone }}
                                 </td>
                             </tr>
                             <tr>
                                 <th class="text-secondary">Email</th>
                                 <td>
-                                    <i class="bi bi-envelope"></i> {{ order.address.email }}
+                                    <i class="fa fa-envelope"></i> {{ order.address.email }}
                                 </td>
                             </tr>
                         </tbody>
@@ -152,7 +152,7 @@ Invoice | Ecom
     <div class="row justify-content-center mt-5 mb-4">
         <div class="col-12 col-md-4 text-center">
             <a href="{% url 'pdf' order.id %}" class="btn btn-primary btn-lg w-100 shadow">
-                <i class="bi bi-file-earmark-pdf"></i> Download Invoice as PDF
+                <i class="fa-solid fa-file-pdf"></i> Download Invoice as PDF
             </a>
         </div>
     </div>

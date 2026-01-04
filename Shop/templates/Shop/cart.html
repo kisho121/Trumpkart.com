@@ -1,5 +1,5 @@
 {% extends 'Shop/layouts/main.html' %}
-
+{% load static cloudinary %}
 {% block title %}
 Cart|TrumpKart
 {% endblock title %}
@@ -10,63 +10,112 @@ Cart|TrumpKart
 
 <div class="container-md-fluid py-3">
 
-<h2 class="text-center fw-bolder" style="font-family:serif; color: rgb(4, 9, 90);">
-    CART ITEMS <i class="fa-solid fa-cart-shopping"></i>
+<h2 class="text-center text-dark fw-bolder" >
+    Cart <i class="fa-solid fa-cart-shopping FS-4"></i>
 </h2>
 
 <div class="bg-light my-3">
    {% if cart %}
-   <table class="container-fluid table table-striped mb-3 rounded-2">
-      <thead>
-         <tr class="bg-primary text-light text-uppercase">
-            <th colspan="2">Image</th>
-            <th colspan="4">Product Name</th>
-            <th colspan="2">Price</th>
-            <th colspan="1">Qty</th>
-            <th colspan="2">Total</th>
-            <th colspan="1">Action</th>
-         </tr>
-      </thead>
-      <tbody>
-         {% for item in cart %}
-         <tr class="my-auto cart-row" data-item-id="{{ item.id }}">
-            <td colspan="2">
-               <img class="cart-image align-content-center my-0" 
-                    src="{{ item.Product.product_image.url }}" 
-                    alt="image" width="100px">
-            </td>
-            <td colspan="4" class="align-content-center">
-               <a href="{% url 'collectiondetails' item.Product.category.name item.Product.name %}">
-                  {{ item.Product.name }}
-               </a>
-            </td>
-            <td colspan="2" class="align-content-center">₹{{ item.Product.selling_price }}</td>
-            <td colspan="1" class="align-content-center">{{ item.product_qty }}</td>
-            <td colspan="2" class="price align-content-center">{{ item.total_cost }}</td>
-            <td colspan="1" class="align-content-center">
-               <button class="btn btn-outline-danger fw-bold delete-btn" 
-                       data-item-id="{{ item.id }}"
-                       data-product-name="{{ item.Product.name }}">
-                  <i class="fa fa-trash"></i>
-               </button>
-            </td>
-         </tr>
-         {% endfor %}
-         
-         <tr>
-            <td colspan="7"></td>
-            <td colspan="2" class="text-dark fw-bold align-content-center">Total Amount:</td>
-            <td colspan="2" id="total" class="text-danger fs-6 text-center fw-bold align-content-center">₹0</td>
-            <td colspan="1" class="align-content-center">
-               <a href="{% url 'checkout' %}">
-                  <button class="btn btn-success h6 fw-bolder text-white buy">
-                     CHECKOUT
-                  </button>
-               </a>
-            </td>
-         </tr>
-      </tbody>
-   </table>
+ 
+
+   <div class="container  py-2 my-4 rounded-2" style="background-color: rgb(218, 229, 229);">
+
+  {% for item in cart %}
+  <div class="card mb-3 shadow-sm cart-card" data-item-id="{{ item.id }}">
+    <div class="row g-0 align-items-center">
+
+      <!-- Image -->
+      <div class="col-4 col-md-2 text-center p-2">
+        <img
+          src="{% cloudinary_url item.Product.product_image f_auto=True q_auto=True w=300 dpr='auto' %}"
+          class="img-fluid rounded"
+          alt="{{ item.Product.name }}"
+        >
+      </div>
+
+      <!-- Product Info -->
+      <div class="col-8 col-md-4">
+        <div class="card-body py-2">
+          <h6 class="fw-bold mb-1">{{ item.Product.name }}</h6>
+          <!-- <p class="text-muted small mb-1">
+            ₹{{ item.Product.selling_price }} × {{ item.product_qty }}
+          </p> -->
+        </div>
+      </div>
+
+      <!-- Quantity -->
+      <div class="col-6 col-md-2 text-center">
+        <span class="badge bg-secondary small">
+          Qty: {{ item.product_qty }}
+        </span>
+      </div>
+
+      <!-- Total -->
+      <div
+  class="col-6 col-md-2 text-center fw-bold text-primary price"
+  data-total="{{ item.total_cost }}"
+  data-qty="{{ item.product_qty }}"
+>
+  ₹{{ item.total_cost }}
+</div>
+
+
+      <!-- Action -->
+      <div class="col-12 col-md-2 text-center my-2">
+        <button
+          class="btn btn-outline-danger btn-sm delete-btn"
+          data-item-id="{{ item.id }}"
+          data-product-name="{{ item.Product.name }}"
+        >
+          Remove
+        </button>
+      </div>
+
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- Cart Total -->
+  <div class="mt-3">
+  <div class="card-body">
+
+    <div class="row align-items-center text-center text-md-start ">
+      <div class="col-12 col-md-2">
+        
+      </div>
+      <div class="col-12 col-md-4">
+        
+      </div>
+
+      <!-- TOTAL QTY -->
+      <div class="col-12 col-md-2 text-center">
+        <span class="badge bg-dark  fs-6 py-2">
+          Qty: <span class="text-white" id="totalQty">0</span>
+        </span>
+      </div>
+
+      <!-- TOTAL AMOUNT -->
+      <div class="col-12 col-md-2">
+        
+        <h2 class="fw-bold text-success text-center mt-sm-2" id="total">₹0</h2>
+      </div>
+
+      <!-- CHECKOUT BUTTON -->
+      <div class="col-12 col-md-2 text-md-end">
+        <a href="{% url 'checkout' %}" class="btn btn-success btn-lg w-75 w-md-75 fw-bold">
+          Buy Now
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+
+</div>
+
    
    {% else %}
    <div class="text-center my-5 py-5">
@@ -88,16 +137,24 @@ Cart|TrumpKart
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-   // Calculate total price
+
    function calculateTotal() {
       let price = document.querySelectorAll('.price');
-      let node = Array.from(price);
-      let result = node.reduce((acc, curr) => {
-         return acc += Number(curr.textContent);
-      }, 0);
-      document.getElementById('total').innerHTML = '₹' + result.toLocaleString('en-IN');
+      let totalAmount = 0;
+      let totalQty = 0;
+
+      price.forEach(item => {
+         totalAmount += Number(item.dataset.total);
+         totalQty += Number(item.dataset.qty);
+      });
+
+      document.getElementById('total').innerHTML =
+         '₹' + totalAmount.toLocaleString('en-IN');
+
+      const qtyEl = document.getElementById('totalQty');
+      if (qtyEl) qtyEl.innerHTML = totalQty;
    }
-   
+
    // Initial calculation
    calculateTotal();
    

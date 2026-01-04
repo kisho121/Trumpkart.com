@@ -35,7 +35,7 @@ Register|TrumpKart
                         <!-- {{form.password1}} -->
                             <input type="password" name="password1" id="showpwd1" placeholder="Enter the Password" class="form-control mx-0 w-75">
                             <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword1" style="border-left: none;">
-                                <i class="bi bi-eye-slash text-black" id="eyeIcon1"></i>
+                                <i class="fa fa-eye-slash text-black" id="eyeIcon1"></i>
                             </button>
                             
                         </div>
@@ -48,7 +48,7 @@ Register|TrumpKart
                             <!-- {{form.password1}} -->
                                 <input type="password" name="password2" id="showpwd2" placeholder="Enter the Password" class="form-control mx-0 w-75">
                                 <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword2" style="border-left: none;">
-                                    <i class="bi bi-eye-slash text-black" id="eyeIcon2"></i>
+                                    <i class="fa fa-eye-slash text-black" id="eyeIcon2"></i>
                                 </button>
                                 
                         </div>
@@ -66,14 +66,14 @@ Register|TrumpKart
 
                 </form>
                 <div class="my-2 rounded-2 px-2 py-2" style="border: 1px solid black; background-color: rgba(255,255,255,0.1);">
-                    <h6 class="fw-bolder text-dark mb-2"><i class="bi bi-info-circle-fill fs-5 me-2"></i>Password Requirements</h6>
+                    <h6 class="fw-bolder text-dark mb-2"><i class="fa fa-info-circle fs-5 me-2"></i>Password Requirements</h6>
                     <ul class="mb-0 list-unstyled">
                         <li class="small text-dark">Minimum 8 characters</li>
                         <li class="small text-dark">Use a combination of uppercase (A–Z), lowercase (a–z), digits (0–9), and special characters (! @ # $ %)</li>
                         <li class="small text-dark">Password should not be same as Username or Email</li>
                     </ul>
                 </div>
-                <p class="my-2 fw-bold">Already an user?? <a class=" fw-bold ms-2" href="{% url 'account_login' %}"> <span class="text-primary text-decoration-underline fw-bolder fs-6">LOGIN</span></a></p>
+                <p class="my-2 fs-6 fw-bold">Already an user?? <a class=" fw-bold ms-2" href="{% url 'account_login' %}"> <span class="text-primary text-decoration-underline fw-bolder fs-6"><button class="btn btn-outline-primary fw-bold border-3">LOGIN</button></span></a></p>
                
             
 
@@ -118,8 +118,8 @@ Register|TrumpKart
       {% get_providers as socialaccount_providers %}
   
       {% if socialaccount_providers %}
-      <p class="m-0">Please sign in with one
-      of your existing third party accounts.<br>Or, <a href="{% url 'account_signup' %}">sign up</a>
+      <p class="m-0 fs-6">Please sign in with one
+      of your existing third party accounts.<br>Or, <a class="fw-bold text-white" href="{% url 'account_signup' %}">sign up</a>
       for a {{ site_name }} account.</p>
   
       <div class="socialaccount_ballot">
