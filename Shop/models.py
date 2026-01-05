@@ -55,6 +55,11 @@ class product(models.Model):
     
     class Meta:
         db_table = 'shop_product'
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['vendor']),
+            models.Index(fields=['category']),
+        ]
        
     def __str__(self):
         return self.name
@@ -97,6 +102,11 @@ class ProductRating(models.Model):
         db_table = 'product_rating'
         unique_together = ('product', 'user')  # One rating per user per product
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['product']),
+            models.Index(fields=['product', 'rating']),
+            models.Index(fields=['user', 'product']),
+        ]
     
     def __str__(self):
         return f"{self.user.username} - {self.product.name} - {self.rating} stars"

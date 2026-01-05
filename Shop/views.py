@@ -3,6 +3,8 @@ import io
 from django.shortcuts import render,redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
+from django.core.cache import cache
+from django.db.models import Prefetch
 from django.views.decorators.http import require_http_methods
 from .forms import customuserform,addressForm,supportForm
 from .models import *
@@ -34,6 +36,9 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 from datetime import datetime
 from django.db.models import Avg, Count
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+
 
 
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -991,29 +996,73 @@ def return_order_view(request,order_id):
         order.save()
         return redirect('order')    
 
+
 def homepage(request):
-    slides=carousel.objects.all()
-    categorys=category.objects.all()
-    products=product.objects.filter(trending=1, status=0)
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
+    # Cache key for user-specific data
+    user_id = request.user.id if request.user.is_authenticated else None
     
-    
-    context={
-        "slides":slides,
-        "categorys":categorys,
-        "products":products,
-        "cart_count":cart_count,
-        "wish_count":wish_count,
-        "order_count":order_count,  
-        "title":"Best Deals",
-        "Hot": "Best",
-        "off":"off",
-        "category_title":"CATEGORY"
+    # Get counts efficiently (cache for 5 minutes)
+    if user_id:
+        cache_key = f'user_counts_{user_id}'
+        counts = cache.get(cache_key)
         
+        if not counts:
+            cart_count = Cart.objects.filter(user_id=user_id).count()
+            wish_count = favourite.objects.filter(user_id=user_id).count()
+            order_count = Order.objects.filter(user_id=user_id).count()
+            
+            counts = {
+                'cart_count': cart_count,
+                'wish_count': wish_count,
+                'order_count': order_count
+            }
+            cache.set(cache_key, counts, 300)  
+    else:
+        counts = {'cart_count': 0, 'wish_count': 0, 'order_count': 0}
+    
+    slides = cache.get('carousel_slides')
+    if not slides:
+        slides = carousel.objects.all()
+        cache.set('carousel_slides', slides, 3600)
+    
+    categorys = cache.get('active_categories')
+    if not categorys:
+        categorys = category.objects.filter(status=0)
+        cache.set('active_categories', categorys, 3600)
+    
+    products = product.objects.filter(
+        trending=1,
+        status=0
+    ).select_related(
+        'category'
+    )[:40]
+
+    
+    context = {
+        "slides": slides,
+        "categorys": categorys,
+        "products": products,
+        "title": "Best Deals",
+        "Hot": "Best",
+        "off": "off",
+        "category_title": "CATEGORY",
+        **counts  
     }
-    return render(request,'Shop/dashboard/home.html', context)
+    return render(request, 'Shop/dashboard/home.html', context)
+
+
+# HELPER FUNCTION to invalidate cache when data changes
+def invalidate_user_counts_cache(user_id):
+    """Call this when cart/wishlist/orders change"""
+    cache.delete(f'user_counts_{user_id}')
+
+def invalidate_carousel_cache():
+    """Call this when carousel changes (in admin)"""
+    cache.delete('carousel_slides')
+
+def invalidate_categories_cache():
+    """Call this when categories change (in admin)"""
+    cache.delete('active_categories')
 
 
 def add_to_cart(request):
@@ -1310,129 +1359,225 @@ def otp_verification(request):
     return render(request, 'Shop/otp_verification.html', {'email': email})
 
 def collectionpage(request):
-    if request.user.is_authenticated:
-        cart_count = Cart.objects.filter(user=request.user.id).count()
-        wish_count = favourite.objects.filter(user=request.user.id).count()
-        order_count = Order.objects.filter(user=request.user.id).count()
+    # Get counts efficiently
+    user_id = request.user.id if request.user.is_authenticated else None
+    
+    if user_id:
+        cache_key = f'user_counts_{user_id}'
+        counts = cache.get(cache_key)
+        if not counts:
+            cart_count = Cart.objects.filter(user_id=user_id).count()
+            wish_count = favourite.objects.filter(user_id=user_id).count()
+            order_count = Order.objects.filter(user_id=user_id).count()
+            counts = {'cart_count': cart_count, 'wish_count': wish_count, 'order_count': order_count}
+            cache.set(cache_key, counts, 300)
     else:
-        cart_count = 0
-        wish_count = 0
-        order_count = 0
+        counts = {'cart_count': 0, 'wish_count': 0, 'order_count': 0}
     
-    categorys = category.objects.filter(status=0)
+    # OPTIMIZATION: Annotate categories with counts in single query
+    categorys = category.objects.filter(status=0).annotate(
+        product_count=Count(
+            'product',
+            filter=Q(product__status=0),
+            distinct=True
+        ),
+        # Count products with ratings >= 4.5 directly in database
+        top_rated_count=Count(
+            'product',
+            filter=Q(
+                product__status=0,
+                product__ratings__rating__gte=4.5
+            ),
+            distinct=True
+        )
+
+    ).prefetch_related(
+        Prefetch(
+            'product_set',
+            queryset=product.objects.filter(status=0).only('id', 'name')
+        )
+    )
     
-    # Add product count and top rated count to each category
-    for cat in categorys:
-        cat.product_count = product.objects.filter(category=cat, status=0).count()
-        
-        # Count products with 4.5+ rating using the model's @property
-        category_products = product.objects.filter(category=cat, status=0)
-        cat.top_rated_count = sum(1 for p in category_products if p.average_rating >= 4.5)
-    
-    # Get all products and filter by rating using the @property
-    all_products = product.objects.filter(status=0)
-    top_rated_products = [p for p in all_products if p.average_rating >= 4.5]
-    
-    # Sort by average rating (highest first) and limit to 8
-    top_rated_products = sorted(top_rated_products, key=lambda x: x.average_rating, reverse=True)[:8]
+    # OPTIMIZATION: Get top rated products efficiently with database aggregation
+    top_rated_products = product.objects.filter(
+        status=0
+    ).annotate(
+        avg_rating=Avg('ratings__rating'),
+        total_ratings=Count('ratings')
+    ).filter(
+        avg_rating__gte=4.5,
+        total_ratings__gt=0  
+    ).select_related(
+        'category'  
+    ).only(
+        'id', 'name', 'selling_price', 'product_image', 'category__name'
+    ).order_by(
+        '-avg_rating', '-total_ratings'  
+    )[:8]  
     
     context = {
         'categorys': categorys,
         'top_rated_products': top_rated_products,
-        'cart_count': cart_count,
-        'wish_count': wish_count,
-        'order_count': order_count,
+        **counts
     }
     return render(request, 'Shop/collection.html', context)
 
 def collections(request, name):
-    category_obj = category.objects.get(name=name, status=0)
+
+    category_obj = get_object_or_404(category, name=name, status=0)
     
-    # Get counts
-    cart_count = 0
-    wish_count = 0
-    order_count = 0
+    user_id = request.user.id if request.user.is_authenticated else None
+    
+    # Initialize defaults
+    cart_count = wish_count = order_count = 0
     user_favorites = []
     
-    if request.user.is_authenticated:
-        cart_count = Cart.objects.filter(user=request.user.id).count()
-        wish_count = favourite.objects.filter(user=request.user.id).count()
-        order_count = Order.objects.filter(user=request.user.id).count()
+    if user_id:
+        # Get counts from cache
+        cache_key = f'user_counts_{user_id}'
+        counts = cache.get(cache_key)
+        if not counts:
+            cart_count = Cart.objects.filter(user_id=user_id).count()
+            wish_count = favourite.objects.filter(user_id=user_id).count()
+            order_count = Order.objects.filter(user_id=user_id).count()
+            cache.set(cache_key, {'cart_count': cart_count, 'wish_count': wish_count, 'order_count': order_count}, 300)
+        else:
+            cart_count = counts['cart_count']
+            wish_count = counts['wish_count']
+            order_count = counts['order_count']
         
-        # Get list of product IDs that user has favorited
-        user_favorites = list(favourite.objects.filter(user=request.user).values_list('Product_id', flat=True))
+        user_favorites = list(
+            favourite.objects.filter(
+                user_id=user_id
+            ).values_list('Product_id', flat=True)
+        )
     
-    if category_obj is not None:
-        products = product.objects.filter(category=category_obj, status=0)
-        
-        context = {
-            "products": products, 
-            "category_name": name, 
-            "category_description": category_obj.description,
-            "category_image": category_obj.image,
-            "cart_count": cart_count,
-            "wish_count": wish_count,
-            "order_count": order_count,
-            "user_favorites": user_favorites,  # Add this line
-        }
-        
-        return render(request, 'Shop/products/index.html', context)
-    else:
-        messages.warning(request, "No such category found")
-        return redirect('collection')
+    # OPTIMIZATION: Get products with optimized query
+    products = product.objects.filter(
+        category=category_obj,
+        status=0
+    ).select_related(
+        'category'
+    ).prefetch_related(
+        'ratings'  
+    ).only(
+        'id', 'name', 'selling_price', 'original_price',
+        'product_image', 'quantity', 'description',
+        'category__name'
+    )
+
+    
+    # PAGINATION
+    paginator = Paginator(products, 24) 
+    page = request.GET.get('page', 1)
+    
+    try:
+        products_page = paginator.page(page)
+    except PageNotAnInteger:
+        products_page = paginator.page(1)
+    except EmptyPage:
+        products_page = paginator.page(paginator.num_pages)
+    
+    context = {
+        "products": products_page,  
+        "category_name": name,
+        "category_description": category_obj.description,
+        "category_image": category_obj.image,
+        "cart_count": cart_count,
+        "wish_count": wish_count,
+        "order_count": order_count,
+        "user_favorites": user_favorites,
+        "paginator": paginator,  
+        "page_obj": products_page,  
+    }
+    
+    return render(request, 'Shop/products/index.html', context)
 
 def productsDetail(request, cname, pname):
-    if request.user.is_authenticated:
-        cart_count = Cart.objects.filter(user=request.user.id).count()
-        wish_count = favourite.objects.filter(user=request.user.id).count()
-        order_count = Order.objects.filter(user=request.user.id).count()
-    else:
-        cart_count = 0
-        wish_count = 0
-        order_count = 0
+
+    user_id = request.user.id if request.user.is_authenticated else None
     
-    if(category.objects.filter(name=cname, status=0)):
-        if(product.objects.filter(name=pname, status=0)):
-            products = product.objects.filter(name=pname, status=0).first()
-            
-            # Get user's rating if exists
-            user_rating = None
-            is_favorited = False
-            if request.user.is_authenticated:
-                user_rating = ProductRating.objects.filter(
-                    product=products, 
-                    user=request.user
-                ).first()
-                # Check if product is in user's favorites (use correct field name)
-                is_favorited = favourite.objects.filter(user=request.user, Product=products).exists()
-            
-            # Get all reviews for this product
-            product_reviews = ProductRating.objects.filter(product=products).select_related('user')
-            
-            # CHANGED: Get products from the SAME CATEGORY instead of hot products
-            # Exclude the current product and limit to 8 items
-            categorys = product.objects.filter(
-                category=products.category,
-                status=0
-            ).exclude(id=products.id)[:8]
-            
-            return render(request, 'Shop/products/products_detail.html', {
-                "products": products, 
-                "categorys": categorys,  # Similar products from same category
-                "cart_count": cart_count,
-                "wish_count": wish_count,
-                "order_count": order_count,
-                "is_authenticated": request.user.is_authenticated,
-                "user_rating": user_rating,
-                "product_reviews": product_reviews,
-                "is_favorited": is_favorited,
-            })
-        else:
-            messages.warning(request, "No Such Product Found")
-            return redirect('collectionpage') 
+    # Get counts
+    if user_id:
+        cache_key = f'user_counts_{user_id}'
+        counts = cache.get(cache_key)
+        if not counts:
+            cart_count = Cart.objects.filter(user_id=user_id).count()
+            wish_count = favourite.objects.filter(user_id=user_id).count()
+            order_count = Order.objects.filter(user_id=user_id).count()
+            counts = {'cart_count': cart_count, 'wish_count': wish_count, 'order_count': order_count}
+            cache.set(cache_key, counts, 300)
     else:
-        messages.warning(request, "No Such Category Found")
-        return redirect('collectionpage')
+        counts = {'cart_count': 0, 'wish_count': 0, 'order_count': 0}
+    
+    # Verify category exists
+    category_obj = get_object_or_404(category, name=cname, status=0)
+    
+    # OPTIMIZATION: Single query with all related data
+    products = get_object_or_404(
+        product.objects.select_related(
+            'category'
+        ).prefetch_related(
+            Prefetch(
+                'ratings',
+                queryset=ProductRating.objects.select_related('user').order_by('-created_at')
+            )
+        ),
+        name=pname,
+        status=0,
+        category=category_obj
+    )
+    
+    # Get user-specific data efficiently
+    user_rating = None
+    is_favorited = False
+    
+    if user_id:
+        # Single query for both checks
+        user_data = {
+            'rating': ProductRating.objects.filter(
+                product=products, 
+                user_id=user_id
+            ).first(),
+            'is_fav': favourite.objects.filter(
+                user_id=user_id, 
+                Product=products
+            ).exists()
+        }
+        user_rating = user_data['rating']
+        is_favorited = user_data['is_fav']
+    
+    # Get related products from same category (already prefetched ratings above)
+    cache_key = f'related_products_{products.category_id}_{products.id}'
+    related_products = cache.get(cache_key)
+    
+    if not related_products:
+        related_products = product.objects.filter(
+            category=products.category,
+            status=0
+        ).exclude(
+            id=products.id
+        ).select_related(
+            'category'
+        ).only(
+            'id', 'name', 'selling_price', 'product_image', 'category__name'
+        )[:8]
+        cache.set(cache_key, related_products, 600)  # 10 minutes
+    
+    # Reviews are already prefetched
+    product_reviews = products.ratings.all()
+    
+    context = {
+        "products": products,
+        "categorys": related_products,  # Related products
+        "is_authenticated": user_id is not None,
+        "user_rating": user_rating,
+        "product_reviews": product_reviews,
+        "is_favorited": is_favorited,
+        **counts
+    }
+    
+    return render(request, 'Shop/products/products_detail.html', context)
 
 @require_http_methods(["POST"])
 def submit_rating(request):
@@ -1490,36 +1635,35 @@ def submit_rating(request):
 def searchview(request):
     user = request.user if request.user.is_authenticated else None
 
-    cart_count = Cart.objects.filter(user=user).count() if user else 0
-    wish_count = favourite.objects.filter(user=user).count() if user else 0
-    order_count = Order.objects.filter(user=user).count() if user else 0
+    # Counts
+    if user:
+        cart_count = Cart.objects.filter(user=user).count()
+        wish_count = favourite.objects.filter(user=user).count()
+        order_count = Order.objects.filter(user=user).count()
+    else:
+        cart_count = wish_count = order_count = 0
 
-    query = request.GET.get('q', '').strip().lower()
+    query = request.GET.get('q', '').strip()
 
-    categories = category.objects.none()
     products = product.objects.none()
 
     if query:
-        words = query.split()
+        products = product.objects.filter(
+            name__istartswith=query,
+            status=0
+        ).select_related('category').order_by('name')
 
-        cat_q = Q()
-        prod_q = Q()
-
-        for word in words:
-            # Match word start anywhere in name
-            regex = rf'(^|\s){re.escape(word)}'
-            cat_q &= Q(name__iregex=regex) if cat_q else Q(name__iregex=regex)
-            prod_q &= Q(name__iregex=regex) if prod_q else Q(name__iregex=regex)
-
-        categories = category.objects.filter(cat_q).distinct()
-        products = product.objects.filter(prod_q).distinct()
+    # ✅ PAGINATION (VERY GOOD PRACTICE)
+    paginator = Paginator(products, 24)  # 6 products per page
+    page_number = request.GET.get('page')
+    products_page = paginator.get_page(page_number)
 
     context = {
-        'categories': categories,
-        'products': products,
+        'products': products_page,
+        'query': query,
         'cart_count': cart_count,
         'wish_count': wish_count,
-        'order_count': order_count
+        'order_count': order_count,
     }
 
     return render(request, 'Shop/search.html', context)

@@ -1,5 +1,5 @@
 {% extends 'Shop/layouts/main.html' %}
-{% load static %}
+{% load static cloudinary %}
 
 {% block title %}
    Register|Ecom
@@ -7,50 +7,35 @@
 
 {% block content %}
 <div class="container-fluid my-3">
-<h1 class="text-center fw-bolder" style="color: rgb(4, 9, 90);">SEARCH RESULTS</h1>
-<!-- <h2 class="text-primary text-center fw-bold ">Related category</h2>
-<div class="container bg-light">
-    {% if categories %}
-  
-     
-        <div class="container ">
-            <div class="row my-2">
-                {% for item in categories %}
-                    <div class=" col-6 col-sm-6 col-md-4 col-lg-4 my-4">
-                        <div class="card w-100 h-100 text-center">
-                            <a href="{% url 'collection' item.name %}" class="link">
-                                <img src="{{item.image.url}}" class="card-img-top mx-auto" style="margin:auto" alt="..." >
-                                <div class="card-body" style="text-decoration: none;">
-                                     <h6 class="card-title">{{item.name}}</h6> 
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% else %}
-       <p class="text-secondary">No such category</p>
-  
-    {% endif %}
-</div> -->
-
-<!-- <h2 class="text-secondary text-center fw-bold ">Related Products</h2> -->
+<h2 class="text-center text-black fw-bolder">SEARCH RESULTS</h2>
   
 <div class="bg-light mx-auto text-center my-4">
     {% if products %}
     
         <div class=" my-2">
-            <div class="row my-2 mx-md-5">
+            <div class="row my-2 ">
                 {% for item in products %}
-                    <div class=" col-6 col-sm-6 col-md-3 col-lg-3 my-3 px-md-4 px-1">
+                    <div class=" col-6 col-sm-6 col-md-2 col-lg-2 my-3 px-1">
                         <div class="card h-100 mx-auto">
+                            {% if item.trending %}
+                                <div class="hot">Hot</div>
+                                {% endif %}
                             <a href="{% url 'collectiondetails' item.category.name item.name %}" class="link">
-                                <img src="{{item.product_image.url}}" class="card-img-top w-100" style="margin:auto" alt="..." >
+                                <!-- <img src="{{item.product_image.url}}" class="card-img-top w-100" style="margin:auto" alt="..." > -->
+                                 <img
+                                    src="{% cloudinary_url item.product_image f_auto=True q_auto=True dpr='auto' %}"
+                                    class="img-fluid p-1"
+                                    loading="lazy"+
+                                    alt="{{ item.name }}"
+                                >
+                                
                                     <div class="card-body" style="text-decoration: none;">
                                          <h6 class="card-title">{{item.name}}</h6> 
-                                         <p class="card-text text-center"><span>RS. </span><s style="color: red;">{{item.original_price}}</s>  | {{item.selling_price}} </p> 
-                                    </div>
+                                        <p class="card-text">
+                                            <b class="fs-6">₹ {{item.selling_price}}</b>
+                                            <s class="text-muted"> ₹ {{item.original_price}}</s>
+                                        </p>                                  
+                                      </div>
                             </a>
                         </div>
                     </div>
@@ -65,5 +50,50 @@
     {% endif %}
 </div>
 </div>
+{% if products.paginator.num_pages > 1 %}
+<nav class="d-flex justify-content-center my-4">
+  <ul class="pagination">
+
+    {% if products.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ query }}&page={{ products.previous_page_number }}">
+          Previous
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Previous</span>
+      </li>
+    {% endif %}
+
+    {% for num in products.paginator.page_range %}
+      {% if products.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% elif num > products.number|add:'-2' and num < products.number|add:'2' %}
+        <li class="page-item">
+          <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if products.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ query }}&page={{ products.next_page_number }}">
+          Next
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Next</span>
+      </li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}
+
+
 {% endblock content %}
 
