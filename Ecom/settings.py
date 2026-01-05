@@ -275,8 +275,18 @@ ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
 
 # Email settings for django-allauth
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+# Allow login using username OR email
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+
+# Required fields during signup
+ACCOUNT_SIGNUP_FIELDS = [
+    'email*',
+    'username*',
+    'password1*',
+    'password2*',
+]
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

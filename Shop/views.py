@@ -1529,16 +1529,12 @@ def searchview(request):
 def aboutview(request):
     cart_count = Cart.objects.filter(user=request.user.id).count()
     wish_count = favourite.objects.filter(user=request.user.id).count()
-    order_count = Order.objects.filter(user=request.user.id).count()
-    
-    if request.user.is_authenticated:
-        fav = favourite.objects.filter(user=request.user)
-        
-        context = {
-            "cart_count": cart_count,
-            "wish_count": wish_count,
-            "order_count": order_count,
-        }
+    order_count = Order.objects.filter(user=request.user.id).count()  
+    context = {
+        "cart_count": cart_count,
+        "wish_count": wish_count,
+        "order_count": order_count,
+    }
     
     
     return render(request,'Shop/about.html', context)
@@ -1548,31 +1544,24 @@ def privacyview(request):
     cart_count = Cart.objects.filter(user=request.user.id).count()
     wish_count = favourite.objects.filter(user=request.user.id).count()
     order_count = Order.objects.filter(user=request.user.id).count()
-    
-    if request.user.is_authenticated:
-        fav = favourite.objects.filter(user=request.user)
-        
-        context = {
-            "cart_count": cart_count,
-            "wish_count": wish_count,
-            "order_count": order_count,
-        }
+
+    context = {
+        "cart_count": cart_count,
+        "wish_count": wish_count,
+        "order_count": order_count,
+    }
     return render(request,'Shop/privacy.html', context)
 
 
 def faqview (request):
     cart_count = Cart.objects.filter(user=request.user.id).count()
     wish_count = favourite.objects.filter(user=request.user.id).count()
-    order_count = Order.objects.filter(user=request.user.id).count()
-    
-    if request.user.is_authenticated:
-        fav = favourite.objects.filter(user=request.user)
-        
-        context = {
-            "cart_count": cart_count,
-            "wish_count": wish_count,
-            "order_count": order_count,
-        }
+    order_count = Order.objects.filter(user=request.user.id).count()  
+    context = {
+        "cart_count": cart_count,
+        "wish_count": wish_count,
+        "order_count": order_count,
+    }
     return render(request, 'Shop/FAQ.html', context)
  
  

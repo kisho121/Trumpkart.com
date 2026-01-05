@@ -107,8 +107,8 @@ Home|Trumpkart
                 <div class="carousel-item {% if forloop.first %} active {% endif %}">
                     <!-- <img src="{{ slide.carousel_image.url}}" class="w-100 h-auto position-relative" alt="{{slide.alt_text}}"> -->
                      <img
-                        src="{% cloudinary_url slide.carousel_image f_auto=True q_auto=True w=1000 dpr='auto' %}"
-                        class="img-fluid"
+                        src="{% cloudinary_url slide.carousel_image f_auto=True q_auto=True dpr='auto' %}"
+                        class="img-fluid rounded-4 mx-auto w-100 h-auto position-relative"
                         loading="lazy"
                         alt="{{ slide.alt_text }}"
                      >

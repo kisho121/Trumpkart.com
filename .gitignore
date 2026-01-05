@@ -23,7 +23,7 @@ node_modules/
 db.sqlite3
 db.sqlite3-journal
 *.log
-
+backup.sql
 # Environment variables
 .env
 .env.local
