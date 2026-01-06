@@ -35,4 +35,5 @@ urlpatterns=[
     path('order/<int:order_id>/return/',views.return_order_view, name='return_order'),
     path('Support_team',views.supportView,name='support_team'),
     path('submit-rating', views.submit_rating, name='submit_rating'),
+    path("health/", views.health, name="health"),
 ]  
