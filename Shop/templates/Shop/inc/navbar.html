@@ -385,21 +385,26 @@
   
   function displaySuggestions(suggestions, container) {
     if (!suggestions || suggestions.length === 0) {
-      container.innerHTML = '<div class="no-suggestions">No products found</div>';
+      container.innerHTML = `
+        <div class="no-suggestions text-center">
+          No products found
+        </div>
+      `;
       return;
     }
-    
+
     let html = '';
+
     suggestions.forEach(item => {
-      // Handle image URL - check if it's a Cloudinary URL or static file
-      let imageUrl = item.image;
-      if (!imageUrl || imageUrl === 'None' || imageUrl === '') {
-        imageUrl = '{% static "images/default-product.png" %}';
-      }
-      
+      let imageUrl = item.image || '';
+
       html += `
         <a href="${item.url}" class="suggestion-item">
-          <img src="${imageUrl}" alt="${item.name}" class="suggestion-image" onerror="this.src='{% static "images/default-product.png" %}'">
+          ${imageUrl ? `
+            <img src="${imageUrl}"
+                alt="${item.name}"
+                class="suggestion-image">
+          ` : ''}
           <div class="suggestion-content">
             <div class="suggestion-name">${item.name}</div>
             <div class="suggestion-category">${item.category}</div>
@@ -408,9 +413,10 @@
         </a>
       `;
     });
-    
+
     container.innerHTML = html;
   }
+
   
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', function() {
