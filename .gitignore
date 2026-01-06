@@ -32,3 +32,9 @@ backup.sql
 .vscode/
 .idea/
 *.swp
+
+data.json
+dump_to_neon.py
+migrate_to_cloudinary.py
+poetry.lock
+celerybeat-schedule
