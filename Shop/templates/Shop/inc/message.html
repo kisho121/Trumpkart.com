@@ -1,26 +1,29 @@
 {% for msg in messages %}
-<div class="alert alert-info alert-dismissible fade show auto-dismiss" role="alert">
-{{msg}}
-<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
-
+<div class="alert alert-{{ msg.tags }} alert-dismissible fade show auto-dismiss" role="alert">
+    {% if msg.tags == 'error' or msg.tags == 'danger' %}
+        <i class="fa-solid fa-circle-exclamation me-2"></i>
+    {% elif msg.tags == 'success' %}
+        <i class="fa-solid fa-circle-check me-2"></i>
+    {% elif msg.tags == 'warning' %}
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    {% else %}
+        <i class="fa-solid fa-circle-info me-2"></i>
+    {% endif %}
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
 </div>
-
 {% endfor %}
 
 <script>
-   
     setTimeout(function() {
-       
         let alerts = document.querySelectorAll('.auto-dismiss');
         alerts.forEach(function(alert) {
-           
             alert.classList.remove('show'); 
             alert.classList.add('fade');
-
             
             setTimeout(function() {
                 alert.remove();
             }, 500);
         });
-    }, 2000); 
+    }, 3000);
 </script>

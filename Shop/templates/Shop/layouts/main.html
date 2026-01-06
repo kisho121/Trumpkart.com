@@ -54,27 +54,23 @@
       <script>
           const loader = document.getElementById("page-loader");
 
-          // Show loader on link click
-          document.addEventListener("click", function (e) {
-            const target = e.target.closest("a, button");
-
-            if (!target) return;
-
-            // Ignore new tabs or disabled buttons
-            if (target.target === "_blank" || target.disabled) return;
-
-            loader.style.display = "flex";
+          /* show loader ONLY for real navigation links */
+          document.querySelectorAll("a.show-loader").forEach(link => {
+            link.addEventListener("click", () => {
+              loader.style.display = "flex";
+            });
           });
 
-          // Show loader on form submit
+          /* show loader on form submit (keep this ✔) */
           document.addEventListener("submit", function () {
             loader.style.display = "flex";
           });
 
-          // Hide loader when page fully loads
-          window.addEventListener("load", function () {
+          /* always hide loader when page loads or comes back */
+          window.addEventListener("pageshow", function () {
             loader.style.display = "none";
           });
+
       </script>
     {% endblock scripts %}
     

@@ -19,7 +19,6 @@ urlpatterns=[
     path('collection',views.collectionpage, name="collection"),
     path('collection/<str:name>',views.collections, name="collection"),
     path('collection/<str:cname>/<str:pname>',views.productsDetail, name="collectiondetails"),
-    path('search',views.searchview,name='search'),
     path('about',views.aboutview, name='about'),
     path('privacy',views.privacyview, name='privacy'),
     path('faq',views.faqview, name='faq'),
@@ -36,4 +35,6 @@ urlpatterns=[
     path('Support_team',views.supportView,name='support_team'),
     path('submit-rating', views.submit_rating, name='submit_rating'),
     path("health/", views.health, name="health"),
+    path('ajax/search-suggestions/', views.ajax_search_suggestions, name='ajax_search_suggestions'),
+
 ]  

@@ -38,6 +38,7 @@ from datetime import datetime
 from django.db.models import Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.views.decorators.http import require_http_methods
 
 
 
@@ -1281,20 +1282,38 @@ def logout_page(request):
 def login_page(request):
     if request.user.is_authenticated:
         return redirect('/')
-    else:
-     if request.method == "POST":
-        name=request.POST.get('username')
-        pwd=request.POST.get('password')
-        user=authenticate(request,username=name,password=pwd)
-        if user is not None:
-            login(request,user)
-            messages.success(request,"SuccessFully Logged in")
-            return redirect('/')  
-        else:
-            messages.error(request,"Invalid User name Or Password")
+    
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # Validation
+        if not username or not password:
+            messages.error(request, "Please enter both username and password.")
             return redirect('account_login')
         
-     return render(request,'Shop/account/login.html')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f"Welcome back, {user.username}! You have successfully logged in.")
+            
+            # Redirect to next page if exists, otherwise home
+            next_page = request.GET.get('next', '/')
+            return redirect(next_page)
+        else:
+            # Check if user exists
+            from django.contrib.auth.models import User
+            user_exists = User.objects.filter(username=username).exists()
+            
+            if user_exists:
+                messages.error(request, "Incorrect password. Please try again or reset your password.")
+            else:
+                messages.error(request, "Account not found. Please check your username or sign up for a new account.")
+            
+            return redirect('account_login')
+    
+    return render(request, 'Shop/account/login.html')
  
 def sent_otp(email, otp):
     subject = 'Your OTP for Registration'
@@ -1630,45 +1649,57 @@ def submit_rating(request):
             'status': 'error',
             'message': str(e)
         }, status=500)
-            
-
-def searchview(request):
-    user = request.user if request.user.is_authenticated else None
-
-    # Counts
-    if user:
-        cart_count = Cart.objects.filter(user=user).count()
-        wish_count = favourite.objects.filter(user=user).count()
-        order_count = Order.objects.filter(user=user).count()
-    else:
-        cart_count = wish_count = order_count = 0
-
+    
+@require_http_methods(["GET"])
+def ajax_search_suggestions(request):
+    """
+    Returns JSON search suggestions for AJAX autocomplete
+    """
     query = request.GET.get('q', '').strip()
-
-    products = product.objects.none()
-
-    if query:
-        products = product.objects.filter(
-            name__istartswith=query,
-            status=0
-        ).select_related('category').order_by('name')
-
-    # ✅ PAGINATION (VERY GOOD PRACTICE)
-    paginator = Paginator(products, 24)  # 6 products per page
-    page_number = request.GET.get('page')
-    products_page = paginator.get_page(page_number)
-
-    context = {
-        'products': products_page,
-        'query': query,
-        'cart_count': cart_count,
-        'wish_count': wish_count,
-        'order_count': order_count,
-    }
-
-    return render(request, 'Shop/search.html', context)
-
-
+    
+    if not query or len(query) < 2:
+        return JsonResponse({'suggestions': []})
+    
+    # Search products with multiple field matching
+    products = product.objects.filter(
+        Q(name__icontains=query) | Q(category__name__icontains=query),
+        status=0
+    ).select_related('category')[:10]  # Limit to 10 suggestions
+    
+    suggestions = []
+    for p in products:
+        # Convert CloudinaryResource to URL string
+        image_url = ''
+        if p.product_image:
+            try:
+                image_url = p.product_image.url
+            except:
+                image_url = ''
+        
+        # Get category name for URL
+        category_name = p.category.name if p.category else ''
+        
+        try:
+            # Use Django's reverse URL resolution
+            product_url = reverse('collectiondetails', kwargs={
+                'cname': category_name,
+                'pname': p.name
+            })
+        except:
+            product_url = '#'
+        
+        suggestions.append({
+            'id': p.id,
+            'name': p.name,
+            'category': category_name,
+            'price': str(p.selling_price),
+            'description': p.description[:50] if p.description else '',
+            'image': image_url,
+            'url': product_url
+        })
+    
+    return JsonResponse({'suggestions': suggestions})
+            
 
 def aboutview(request):
     cart_count = Cart.objects.filter(user=request.user.id).count()

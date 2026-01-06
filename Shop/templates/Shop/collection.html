@@ -17,7 +17,7 @@ Category
 
 <div class="col-12 col-sm-12 col-md-6 col-lg-4 my-4 ">
  <div class="card w-100 h-100 text-center">
-  <a class="text-decoration-none" href="{% url 'collection' item.name %}">
+  <a class="show-loader text-decoration-none" href="{% url 'collection' item.name %}">
     <!-- <img src="{{ item.image.url }}" class="card-img-top mx-auto" alt="{{item.name}}"> -->
     <img
      src="{% cloudinary_url item.image f_auto=True q_auto=True w=600 dpr='auto' %}"
@@ -50,7 +50,7 @@ Category
     <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-3 px-md-4 px-1">
       <div class="card w-100 h-100 px-0 text-center">
         <!-- FIXED: Use item.category.name instead of category_name -->
-        <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
+        <a class="show-loader link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
           <!-- <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}"> -->
           <img
            src="{% cloudinary_url item.product_image f_auto=True q_auto=True w=400 dpr='auto' %}"
@@ -64,7 +64,7 @@ Category
         <div class="hot">Hot</div>
         {% endif %}
 
-        <a class="link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
+        <a class="link show-loader text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
           <div class="card-body">
             <h6 class="card-title mb-1">{{item.name}}</h6>
             
