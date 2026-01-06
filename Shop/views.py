@@ -1814,12 +1814,6 @@ def robots_txt(request):
     )
 
 def health(request):
-    # Optional simple protection
-    key = request.headers.get("X-CRON-KEY")
-
-    if key != settings.CRON_SECRET_KEY:
-        return JsonResponse({"error": "unauthorized"}, status=401)
-
     return JsonResponse({
         "status": "ok",
         "service": "dabzo",
