@@ -1816,5 +1816,5 @@ def robots_txt(request):
 def health(request):
     return JsonResponse({
         "status": "ok",
-        "service": "dabzo",
+        "service": "trumpkart",
     })
