@@ -156,15 +156,15 @@ Home|Trumpkart
                         <!-- <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}">   -->
                         <img
                          src="{% cloudinary_url item.product_image f_auto=True q_auto=True w=400 dpr='auto' %}"
-                         class="img-fluid"
+                         class="img-fluid card-img-top"
                          loading="lazy"
                          alt="{{ item.name }}"
                           >
                     </a>
                     <div class="hot">{{Hot}}</div>
-                    <a class="link show-loader text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
+                    <a class="link text-black show-loader text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
                         <div class="card-body">
-                            <h6 class="card-title mb-1">{{item.name}}</h6>
+                            <h6 class="card-title text-black mb-1">{{item.name}}</h6>
                             <div class=""> <span class="text-muted">Just </span> <span class="text-dark fw-bold">₹  {{item.selling_price}}</span></div>
                         </div>
                     </a>

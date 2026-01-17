@@ -28,7 +28,7 @@ Products_detail|TrumpKart
 
 <img
   src="{% cloudinary_url products.product_image f_auto=True q_auto=True w=600 dpr='auto' %}"
-  class="img-fluid"
+  class="img-fluid card-img-top"
   loading="lazy"
   alt="{{ products.name }}"
 >
@@ -261,7 +261,7 @@ Products_detail|TrumpKart
          <a class="link show-loader text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
            <img
             src="{% cloudinary_url item.product_image f_auto=True q_auto=True w=600 dpr='auto' %}"
-            class="img-fluid"
+            class="img-fluid card-img-top"
             loading="lazy"
             alt="{{ item.name }}"
           >

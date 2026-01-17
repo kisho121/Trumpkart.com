@@ -40,16 +40,16 @@ body.poppins-regular {
 .btn-outline-secondary:hover i {
     color: black !important;
 }
-.login{
+/* .login{
   background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);
-}
+} */
 .login:hover{
   opacity: 0.9;
   transition-duration: 0.7s;
 }
-.register{
+/* .register{
   background: linear-gradient(135deg, #1bdff5 0%, #e22ed0 100%);
-}
+} */
 .register:hover{
   opacity: 0.9;
   transition-duration: 0.7s;
@@ -250,6 +250,7 @@ span{
     letter-spacing: 0.3px;
     word-spacing: 0.5px;
    
+   
   }
   p.card-text{
     font-size: 0.8vw;
@@ -380,10 +381,11 @@ span{
       margin: 0% !important;   
     }
    
-    h6.card-title{
+    .card-title{
       font-size: 11px;
       font-weight: 500;
       margin: 0%;
+      
     }
 
     p.card-text{

@@ -4,6 +4,12 @@ from django import forms
 from .models import addressModel,SupportIssue
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from datetime import date, timedelta
+
+def calculate_age(dob):
+    today = date.today()
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    
 
 
 class MyLoginForm(forms.Form):
@@ -26,9 +32,6 @@ class customuserform(UserCreationForm):
     class Meta:
         model = User
         fields = ['username','email','password1','password2']
-
-
-
 
 class addressForm(forms.ModelForm):    
     
@@ -87,3 +90,46 @@ class supportForm(forms.ModelForm):
     class Meta:
         model = SupportIssue  
         fields = ['name', 'email', 'feedback']
+
+    
+class EditProfileForm(forms.Form):
+    first_name = forms.CharField(
+        max_length=30, 
+        required=False, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'First Name'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30, 
+        required=False, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Last Name'
+        })
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email Address'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exclude(pk=self.user.pk).exists():
+            raise forms.ValidationError('This email is already in use.')
+        return email
+
+    def clean_dateOfBirth(self):
+        dob = self.cleaned_data.get('dateOfBirth')
+        if dob:
+            age = calculate_age(dob)
+            if age < 15:
+                raise forms.ValidationError('You must be at least 15 years old.')
+        return dob    

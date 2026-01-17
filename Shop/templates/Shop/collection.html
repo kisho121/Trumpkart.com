@@ -21,7 +21,7 @@ Category
     <!-- <img src="{{ item.image.url }}" class="card-img-top mx-auto" alt="{{item.name}}"> -->
     <img
      src="{% cloudinary_url item.image f_auto=True q_auto=True w=600 dpr='auto' %}"
-     class="img-fluid rounded-2"
+     class="img-fluid rounded-2 card-img-top"
      loading="lazy"
      alt="{{ item.name }}"
       >

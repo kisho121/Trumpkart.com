@@ -1,0 +1,73 @@
+{% extends 'Shop/layouts/main.html' %}
+{% load static %}
+
+{% block title %}
+Edit Profile
+{% endblock title %}
+
+{% block content %}
+
+    <div class="container-fluid py-4" style="background: linear-gradient(to bottom, #f8f9fa, #e9ecef); min-height: calc(100vh - 80px);" >
+        <h1 class="text-center fw-bolder" style="color: rgb(4, 9, 90); font-family: serif;">Edit Profile</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-4">
+                
+                <div class="shadow-lg border-0 rounded-4">
+                    <div class="card-body px-4 py-2">
+                        
+                        <form method="POST" >
+                            {% csrf_token %}
+                            
+                            <!-- Profile Picture Preview -->
+                            <div class="text-center mb-1">
+                       
+                                <img src="{% static 'images/default-user.png' %}" 
+                                     id="profilePreview"
+                                     class="rounded-circle border border-3 border-primary shadow" 
+                                     alt="Profile" 
+                                     style="width: 100px; height: 100px; object-fit: cover;">
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">
+                                        First Name
+                                    </label>
+                                    {{ form.first_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">
+                                        Last Name
+                                    </label>
+                                    {{ form.last_name }}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Email Address
+                                </label>
+                                {{ form.email }}
+                            </div>
+
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    Save Changes
+                                </button>
+                                <a href="{% url 'profile_page' %}" class="btn btn-outline-secondary">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

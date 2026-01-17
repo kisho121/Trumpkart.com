@@ -11,9 +11,9 @@ Register|TrumpKart
 {% block content %}
 <div class="bg-register py-4">
     {% include 'Shop/inc/message.html' %}
-<h1 class="text-center fw-bolder" style="color: rgb(4,9,90); font-family: serif;">REGISTER</h1>
+<h2 class="text-center fw-bolder" style="color: rgb(4,9,90); font-family: sans-serif;">REGISTER</h2>
 
-    <div class="container col-10 col-sm-10 col-md-6 col-lg-4 p-3 mx-auto rounded-2 register" >
+    <div class="container col-10 col-sm-10 col-md-6 col-lg-4 p-3 shadow-lg mx-auto rounded-2 register" >
         <section class="container my-2 ">
            
                 <form method="POST" action="">
@@ -31,10 +31,10 @@ Register|TrumpKart
                 </div>
                   <div>
                     <label for="" class="form-label fw-bold">Password</label>
-                    <div class="input-group">
+                    <div class="input-group rounded-1" style="border: 1px solid rgb(164, 164, 164);">
                         <!-- {{form.password1}} -->
                             <input type="password" name="password1" id="showpwd1" placeholder="Enter the Password" class="form-control mx-0 w-75">
-                            <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword1" style="border-left: none;">
+                            <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword1" style="border: none;">
                                 <i class="fa fa-eye-slash text-black" id="eyeIcon1"></i>
                             </button>
                             
@@ -44,10 +44,10 @@ Register|TrumpKart
 
                     <div>
                         <label for="" class="form-label fw-bold">Password</label>
-                        <div class="input-group">
+                        <div class="input-group rounded-1" style="border: 1px solid rgb(164, 164, 164);">
                             <!-- {{form.password1}} -->
                                 <input type="password" name="password2" id="showpwd2" placeholder="Enter the Password" class="form-control mx-0 w-75">
-                                <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword2" style="border-left: none;">
+                                <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword2" style="border: none;">
                                     <i class="fa fa-eye-slash text-black" id="eyeIcon2"></i>
                                 </button>
                                 
@@ -118,9 +118,7 @@ Register|TrumpKart
       {% get_providers as socialaccount_providers %}
   
       {% if socialaccount_providers %}
-      <p class="m-0 fs-6">Please sign in with one
-      of your existing third party accounts.<br>Or, <a class="fw-bold text-white" href="{% url 'account_signup' %}">sign up</a>
-      for a {{ site_name }} account.</p>
+      <p class="m-0 fs-6">Please sign in with your Google account.</p>
   
       <div class="socialaccount_ballot">
       </div>

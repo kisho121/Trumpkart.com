@@ -1,6 +1,8 @@
 from django.urls import path,include
 from . import views 
 from django.views.generic import TemplateView
+from .views import CustomPasswordResetView, CustomPasswordResetDoneView, CustomPasswordResetConfirmView, CustomPasswordResetCompleteView
+
 
 urlpatterns=[
     path('accounts/', include('allauth.urls')),
@@ -10,6 +12,14 @@ urlpatterns=[
     path('logout', views.logout_page,name="account_logout"),
     path('register',views.registerpage, name="account_signup"),
     path('otp-verification/', views.otp_verification, name='otp_verification'),
+     path('profile/', views.profile_page, name='profile_page'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/change-password/', views.change_password, name='change_password'),
+    path('profile/delete/', views.delete_account, name='delete_account'),
+    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password-reset-complete/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('addtocart', views.add_to_cart,name="addtocart"),
     path('cart',views.cartpage, name="cart"),
     path('removecart/<int:cid>',views.removecartpage, name="removecart"),

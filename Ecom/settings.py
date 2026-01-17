@@ -279,7 +279,20 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 LOGIN_REDIRECT_URL = "home"
+LOGIN_URL = 'account_login'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# settings.py
+
+# Allow accounts to be authenticated via their email
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+
+# Automatically link the social account to the local account if the email matches
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# Skip the "signup" form if all required info is provided by Google
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
 # Email settings for django-allauth
 ACCOUNT_EMAIL_VERIFICATION = 'optional'

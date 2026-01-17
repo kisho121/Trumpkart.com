@@ -39,6 +39,13 @@ from django.db.models import Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.urls import reverse_lazy
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.models import User
+from .forms import EditProfileForm, customuserform
+from datetime import date, timedelta
 
 
 
@@ -1376,6 +1383,172 @@ def otp_verification(request):
         except OTPVerification.DoesNotExist:
             return HttpResponse('Invalid OTP. Please try again.')
     return render(request, 'Shop/otp_verification.html', {'email': email})
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'Shop/account/password_reset.html'
+    email_template_name = 'Shop/account/password_reset_email.html'
+    subject_template_name = 'Shop/account/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        
+        # Check if user exists with this email
+        try:
+            user = User.objects.get(email=email)
+            
+            # Check if user has a usable password
+            if not user.has_usable_password():
+                # OAuth user - don't send email
+                messages.error(
+                    self.request, 
+                    'This account uses Google sign-in. Please login using the "Sign in with Google" button.'
+                )
+                return redirect('password_reset')
+        except User.DoesNotExist:
+            # User doesn't exist - continue normally (Django won't send email anyway)
+            pass
+        
+        return super().form_valid(form)
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'Shop/account/password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'Shop/account/password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'Shop/account/password_reset_complete.html'
+
+
+def profile_page(request):
+    """Display user profile - redirect guests to login"""
+    if not request.user.is_authenticated:
+        messages.info(request, 'Please login to view your profile.')
+        return redirect('account_login')
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()  
+    context = {
+        "cart_count": cart_count,
+        "wish_count": wish_count,
+        "order_count": order_count,
+    }
+    
+    return render(request, 'Shop/account/profile.html', context)
+
+
+# Edit Profile View
+@login_required
+def edit_profile(request):
+    """Edit user profile"""
+    user = request.user
+    
+    # Get or create user profile
+    # profile, created = UserProfile.objects.get_or_create(user=user)
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()  
+    
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, request.FILES, user=user)
+        
+        if form.is_valid():
+            # Update User model fields
+            user.first_name = form.cleaned_data.get('first_name', '')
+            user.last_name = form.cleaned_data.get('last_name', '')
+            user.email = form.cleaned_data['email']
+            user.save()
+            
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile_page')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{error}')
+    else:
+        # Pre-populate form with existing data
+        initial_data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+        }
+        form = EditProfileForm(initial=initial_data, user=user)
+    
+    max_date = date.today() - timedelta(days=15*365)
+    
+    context = {
+        'form': form,
+        'max_date': max_date.strftime('%Y-%m-%d'),
+        "cart_count": cart_count,
+        "wish_count": wish_count,
+        "order_count": order_count,
+    }
+    return render(request, 'Shop/account/edit_profile.html', context)
+
+
+@login_required
+def change_password(request):
+    """Change user password - only for users with regular passwords"""
+    cart_count = Cart.objects.filter(user=request.user.id).count()
+    wish_count = favourite.objects.filter(user=request.user.id).count()
+    order_count = Order.objects.filter(user=request.user.id).count()  
+    
+    # Check if user has a usable password (not OAuth user)
+    has_usable_password = request.user.has_usable_password()
+    
+    if request.method == 'POST':
+        # If user doesn't have a password, they shouldn't be submitting this form
+        if not has_usable_password:
+            messages.error(request, 'You cannot change password for OAuth accounts.')
+            return redirect('profile_page')
+        
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Keep user logged in after password change
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('profile_page')
+        else:
+            # Display form errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, error)
+    else:
+        if has_usable_password:
+            form = PasswordChangeForm(request.user)
+        else:
+            form = None
+    
+    return render(request, 'Shop/account/change_password.html', {
+        'form': form,
+        'has_usable_password': has_usable_password,
+        "cart_count": cart_count,
+        "wish_count": wish_count,
+        "order_count": order_count,
+    })
+
+
+# Delete Account View
+@login_required
+def delete_account(request):
+    """Delete user account"""
+    if request.method == 'POST':
+        user = request.user
+        try:
+            # Delete the user (UserProfile will be deleted automatically due to CASCADE)
+            user.delete()
+            messages.success(request, 'Your account has been deleted successfully.')
+            return redirect('/')
+        except Exception as e:
+            messages.error(request, f'Error deleting account: {str(e)}')
+            return redirect('profile_page')
+    else:
+        # If not POST, redirect back to profile
+        return redirect('profile_page')
+    
 
 def collectionpage(request):
     # Get counts efficiently

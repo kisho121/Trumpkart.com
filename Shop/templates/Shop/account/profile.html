@@ -1,0 +1,189 @@
+{% extends 'Shop/layouts/main.html' %}
+{% load static %}
+
+{% block title %}
+User Profile
+{% endblock title %}
+
+{% block content %}
+
+
+     {% include 'Shop/inc/message.html' %}
+    <!-- Profile Content -->
+    <div class="container-fluid py-4" style="background: linear-gradient(to bottom, #f8f9fa, #e9ecef); min-height: calc(100vh - 80px);">
+      <h1 class="text-center fw-bolder" style="color: rgb(4, 9, 90); font-family: serif;">My Profile</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-12 col-12">
+                
+                <!-- Profile Card -->
+                <div class=" shadow-lg border-0 rounded-4 overflow-hidden">
+                    
+                    <!-- Cover Image -->
+                    <div class="position-relative" style="height: 85px; background: linear-gradient(135deg, Aqua 0%, #314deb 100%);">
+                        <div class="position-absolute bottom-0 start-50 translate-middle-x" style="transform: translateY(50%) translateX(-50%) !important;">
+                            
+                            <img src="{% static 'images/default-user.png' %}" 
+                                 class="rounded-circle border border-5 border-white shadow" 
+                                 alt="Default Profile" 
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                
+                        </div>
+                    </div>
+
+                    <!-- Profile Info -->
+                    <div class="card-body text-center pt-5 pb-4">
+                        <h3 class="fw-bold mb-2" style="color: #2c3e50;">{{ user.username }}</h3>
+                        <p class="text-muted mb-1">
+                            {% if user.first_name or user.last_name %}
+                                {{ user.first_name }} {{ user.last_name }}
+                            {% endif %}
+                        </p>
+
+                        <!-- Info Grid -->
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-12">
+                                <div class="p-3 rounded-3" style="background-color: #f8f9fa;">
+                                    <i class="bi-solid fa-envelope text-info fs-5 mb-2"></i>
+                                    <p class="text-muted small mb-1">Email Address</p>
+                                    <p class="fw-semibold mb-0" style="color: #2c3e50; word-break: break-word;">{{ user.email }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background-color: #f8f9fa;">
+                                    
+                                    <p class="text-muted small mb-1">Username</p>
+                                    <p class="fw-semibold mb-0" style="color: #2c3e50;">@{{ user.username }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background-color: #f8f9fa;">
+                                    
+                                    <p class="text-muted small mb-1">Member Since</p>
+                                    <p class="fw-semibold mb-0" style="color: #2c3e50;">{{ user.date_joined|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                         
+                        <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+                            <a href="{% url 'edit_profile' %}" class="btn btn-primary px-4 py-2 rounded-pill" style="width: 250px;">
+                                Edit Profile
+                            </a>
+                            <a href="{% url 'change_password' %}" class="btn btn-secondary px-4 py-2 rounded-pill" style="width: 250px;">
+                                Change Password
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Info Section -->
+                <div class=" shadow-sm border-0 px-sm-4 rounded-4 mt-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3 text-center" style="color: #2c3e50;">
+                            Account Information
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-md-6 text-center">
+                                <h6 class="text-black fw-bold">Account Status</h6>
+                                <p class="mb-0">
+                                    {% if user.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">Inactive</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <h6 class="text-black fw-bold">Last Login</h6>
+                                <p class="mb-0">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"F d, Y g:i A" }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="row d-flex mx-auto text-center">
+                                <div class="col-12 col-md-6">
+                                     <a type="button" class="btn btn-danger mx-auto justify-content-center py-2 mt-4 rounded-pill" style="width: 200px;" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                        Delete Account
+                                    </a>
+                                    
+                                    
+                                </div>
+                                <div class="col-12 col-md-6">
+                                     <a type="button" href="{% url 'account_logout' %}" class="btn btn-warning py-2 mt-4 text-dark rounded-pill" style="width: 200px;">       
+                                        Log out
+                                    </a>
+
+                                </div>
+                            </div>
+                           
+                           
+                    </div>
+                        </div>
+                       
+                    
+                </div>
+                 
+            </div>
+        </div>
+    </div>
+{% include 'Shop/inc/footer.html' %}
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">
+                    Delete Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Are you sure you want to delete your account? This action cannot be undone.</p>
+                <div class="alert alert-warning" role="alert">
+                    <strong>Warning:</strong> All your data will be permanently deleted, including:
+                    <ul class="mb-0 mt-2">
+                        <li>Profile information</li>
+                        <li>Account history</li>
+                        <li>All associated data</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'delete_account' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Delete My Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+</style>
+
+{% endblock content %}
