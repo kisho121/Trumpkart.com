@@ -6,12 +6,12 @@ Checkout|Ecom
 
 {% block content %}
 
-<div class="container my-2">
-    <div class="row">
-        <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+<div class="container-fluid my-3">
+    <div class="row mx-2">
+        <div class="col-12 col-sm-12 col-md-4 col-lg-4 shadow-lg rounded-2 py-2 px-4">
             <h2 class="text-dark text-center fw-bold rounded-2" style="font-family: serif; background-color: rgb(254, 179, 94);"> Address Form</h2>
             
-            <form id="checkout-form" method="POST" action="{% url 'checkout' %}">
+            <form id="checkout-form" method="POST" action="{% if is_buy_now %}{% url 'buy_now_checkout' %}{% else %}{% url 'checkout' %}{% endif %}">
                 {% csrf_token %}
                 
                 <div class="my-1">
@@ -106,7 +106,7 @@ Checkout|Ecom
             </form>
         </div> 
 
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8">
+        <div class="col-12 col-sm-12 col-md-8 col-lg-8 px-4">
             <h2 class="fw-bold text-dark text-center rounded-2" style="font-family: serif; background-color: rgb(117, 247, 166);">
                 <i class="fa-solid fa-cart-shopping fs-4"></i> Cart Items
             </h2>
@@ -136,7 +136,7 @@ Checkout|Ecom
             </table>
             
             <div class="container">
-                <p class="display-6 fw-bold text-end">PAYMENT MODE</p>
+                <h2 class="fw-bold text-end">PAYMENT MODE</h2>
                 <div class="float-end">
                     <button id="rzp-button1" type="button" class="btn btn-success fw-bold" style="width: 200px;">
                         Pay with Razorpay
@@ -158,6 +158,8 @@ Checkout|Ecom
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const isBuyNow = {{ is_buy_now|yesno:"true,false" }};
+    const checkoutUrl = isBuyNow ? "{% url 'buy_now_checkout' %}" : "{% url 'checkout' %}";
     const form = document.getElementById('checkout-form');
     const rzpButton = document.getElementById('rzp-button1');
     const codButton = document.getElementById('cod_button');
@@ -261,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(form);
         formData.set('payment_mode', 'Razorpay');
 
-        fetch('{% url "checkout" %}', {
+        fetch(checkoutUrl, {
             method: 'POST',
             body: formData,
             headers: {

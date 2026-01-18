@@ -11,7 +11,7 @@ Cart|TrumpKart
 <div class="container-md-fluid py-3">
 
 <h2 class="text-center text-dark fw-bolder" >
-    Cart <i class="fa-solid fa-cart-shopping FS-4"></i>
+    Cart 
 </h2>
 
 <div class="bg-light my-3">
@@ -89,7 +89,7 @@ Cart|TrumpKart
 
       <!-- TOTAL QTY -->
       <div class="col-12 col-md-2 text-center">
-        <span class="badge bg-dark  fs-6 py-2">
+        <span class="badge bg-dark  fs-6 py-1">
           Qty: <span class="text-white" id="totalQty">0</span>
         </span>
       </div>
@@ -97,12 +97,12 @@ Cart|TrumpKart
       <!-- TOTAL AMOUNT -->
       <div class="col-12 col-md-2">
         
-        <h2 class="fw-bold text-success text-center mt-sm-2" id="total">₹0</h2>
+        <h4 class="fw-bold text-black text-center mt-2" id="total">₹0</h4>
       </div>
 
       <!-- CHECKOUT BUTTON -->
-      <div class="col-12 col-md-2 text-md-end">
-        <a href="{% url 'checkout' %}" class="btn btn-success btn-lg w-75 w-md-75 fw-bold">
+      <div class="col-12 col-md-2 text-center">
+        <a href="{% url 'checkout' %}" class="btn btn-success">
           Buy Now
         </a>
       </div>

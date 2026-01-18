@@ -26,11 +26,11 @@
 </h3>
 
 <div class="container-fluid bg-light">
-  <div class="row my-4 pb-4 mx-md-5">
+  <div class="row my-4 pb-4 px-1">
 
     {% for item in products %}
-    <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-3 px-md-4 px-1">
-      <div class="card w-100 h-100 px-0 text-center position-relative">
+    <div class="col-6 col-sm-6 col-md-4 col-lg-2 my-3 px-1">
+      <div class="card w-100 h-100 px-0 mx-0 text-center position-relative">
         <a class="link show-loader text-decoration-none" href="{% url 'collectiondetails' category_name item.name %}">  
             <div>
             <img

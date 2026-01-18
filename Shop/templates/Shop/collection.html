@@ -44,17 +44,17 @@ Category
   Top Rated Products
 </h3>
 <div class="container-fluid bg-light">
-  <div class="row my-4 pb-4 px-md-5">
+  <div class="row my-4 pb-4 m-0 p-0">
 
     {% for item in top_rated_products %}
-    <div class="col-6 col-sm-6 col-md-4 col-lg-3 my-3 px-md-4 px-1">
+    <div class="col-6 col-sm-6 col-md-3 col-lg-2 my-3 px-1">
       <div class="card w-100 h-100 px-0 text-center">
         <!-- FIXED: Use item.category.name instead of category_name -->
         <a class="show-loader link text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
           <!-- <img src="{{item.product_image.url}}" class="card-img-top mx-auto" alt="{{item.name}}"> -->
           <img
            src="{% cloudinary_url item.product_image f_auto=True q_auto=True w=400 dpr='auto' %}"
-           class="img-fluid"
+           class="img-fluid fluid card-img-top"
            loading="lazy"
            alt="{{ item.name }}"
             >
