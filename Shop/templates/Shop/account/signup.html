@@ -73,7 +73,7 @@ Register|TrumpKart
                         <li class="small text-dark">Password should not be same as Username or Email</li>
                     </ul>
                 </div>
-                <p class="my-2 fs-6 fw-bold">Already an user?? <a class=" fw-bold ms-2" href="{% url 'account_login' %}"> <span class="text-primary text-decoration-underline fw-bolder fs-6"><button class="btn btn-outline-primary fw-bold border-3">LOGIN</button></span></a></p>
+                <p class="my-2 fs-6 fw-bold">Already an user?? <a class=" fw-bold ms-2" href="{% url 'account_login' %}"> <span class="text-primary text-decoration-underline fw-bolder fs-6"><button class="btn btn-outline-primary p-0 fw-bold border-3">LOGIN</button></span></a></p>
                
             
 
@@ -144,12 +144,12 @@ Register|TrumpKart
         
         if (passwordField.type === 'password') {
             passwordField.type = 'text';
-            eyeIcon.classList.remove('bi-eye');
-            eyeIcon.classList.add('bi-eye-slash');
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
         } else {
             passwordField.type = 'password';
-            eyeIcon.classList.remove('bi-eye-slash');
-            eyeIcon.classList.add('bi-eye');
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
         }
     });
 
@@ -160,12 +160,12 @@ Register|TrumpKart
         
         if (passwordField.type === 'password') {
             passwordField.type = 'text';
-            eyeIcon.classList.remove('bi-eye');
-            eyeIcon.classList.add('bi-eye-slash');
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
         } else {
             passwordField.type = 'password';
-            eyeIcon.classList.remove('bi-eye-slash');
-            eyeIcon.classList.add('bi-eye');
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
         }
     });
 </script>

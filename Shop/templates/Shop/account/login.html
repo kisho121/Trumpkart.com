@@ -2,88 +2,169 @@
 
 {% load i18n %}
 {% load account socialaccount %}
-
 {% load static %}
+
 {% block title %}
 Login|TrumpKart
 {% endblock title %}
 
-
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4" >
-{% include 'Shop/inc/message.html' %}
-<h1 class="text-center fw-bolder" style="color: rgb(4, 9, 90); font-family: serif;">LOGIN</h1>
-<div class=" col-10 col-sm-10 col-md-6 col-lg-4 py-4 px-2 px-md-5 mx-auto login shadow-lg rounded-2">
+<div style="z-index: 50;">{% include 'Shop/inc/message.html' %}</div>
+
+ <!-- Display action-based messages from URL parameter -->
+        {% if request.GET.action %}
+            <div class="alert alert-info alert-dismissible text-center fade show mt-2 py-1 me-4" role="alert" >
+                {% if request.GET.action == 'cart' %}
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    <strong>Login Required!</strong> <br> Please login to view your cart.
+                {% elif request.GET.action == 'wishlist' %}
+                    <i class="fas fa-heart me-2"></i>
+                    <strong>Login Required!</strong> <br> Please login to view your wishlist.
+                {% elif request.GET.action == 'orders' %}
+                    <i class="fas fa-box me-2"></i>
+                    <strong>Login Required!</strong> <br>Please login to view your orders.
+                {% elif request.GET.action == 'checkout' %}
+                    <i class="fas fa-credit-card me-2"></i>
+                    <strong>Login Required!</strong> <br> Please login to complete your purchase.
+                {% elif request.GET.action == 'profile' %}
+                    <i class="fas fa-user me-2"></i>
+                    <strong>Login Required!</strong> <br> Please login to access your account.
+                {% else %}
+                    <i class="fas fa-lock me-2"></i>
+                    <strong>Login Required!</strong> <br> Please login to continue.
+                {% endif %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+
+        <!-- Display Django messages -->
+        {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }} alert-dismissible fade show auto-dismiss mb-3" role="alert" >
+            {% if msg.tags == 'error' or msg.tags == 'danger' %}
+                <i class="fa-solid fa-circle-exclamation me-2"></i>
+            {% elif msg.tags == 'success' %}
+                <i class="fa-solid fa-circle-check me-2"></i>
+            {% elif msg.tags == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            {% else %}
+                <i class="fa-solid fa-circle-info me-2"></i>
+            {% endif %}
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+        </div>
+      {% endfor %}
+
+<div class="container-fluid py-4">
   
-  <section class=" my-2">
-     
-                  <form method="POST" action="">
-                   {% csrf_token %}
-                   <div class="mb-2 mx-0">
-                      <label for="" class="form-label fw-bold">Email/Username</label>
-                      <input type="text" name="username" id="username" class="form-control" style="border: 1px solid grey;" placeholder="Enter your Username">
-                      
-                     </div>
-  
-                    <div class="mb-2">
-                     <label for="" class="form-label fw-bold">Password</label>
-                     <div class="input-group mx-0">
-                       <input type="password" name="password" id="password" class="form-control " style="border: 1px solid grey;" placeholder="Enter your Password">
-                       <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword" style="border-left: none;">
-                         <i class="fa fa-eye-slash " id="eyeIcon"></i>
-                       </button>
-                     </div>
-                 </div>
-                 <button type="submit" class="btn btn-primary fw-bold mb-3">Sign-in</button>
+    <h1 class="text-center fw-bolder" style="color: rgb(4, 9, 90); font-family: serif;">LOGIN</h1>
+    
+    <div class="col-10 col-sm-10 col-md-6 col-lg-4 py-4 px-2 px-md-5 mx-auto login shadow-lg rounded-2">
+        
+        
+        
+        <section class="my-2">
+            <form method="POST" action="{% url 'account_login' %}">
+                {% csrf_token %}
+                
+                <div class="mb-2 mx-0">
+                    <label for="username" class="form-label fw-bold">Email/Username</label>
+                    <input type="text" name="username" id="username" class="form-control" 
+                           style="border: 1px solid grey;" 
+                           placeholder="Enter your Username" required>
+                </div>
+                
+                <div class="mb-2">
+                    <label for="password" class="form-label fw-bold">Password</label>
+                    <div class="input-group mx-0">
+                        <input type="password" name="password" id="password" class="form-control" 
+                               style="border: 1px solid grey;" 
+                               placeholder="Enter your Password" required>
+                        <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword" 
+                                style="border-left: none;">
+                            <i class="fa fa-eye-slash" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Hidden field to preserve next parameter -->
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
+                
+                <button type="submit" class="btn btn-primary fw-bold mb-3 w-100">Sign-in</button>
+            </form>
+            
+            <a class="text-black fw-bolder py-2 text-uppercase" 
+               style="text-decoration: underline; text-underline-offset: 2px;" 
+               href="{% url 'password_reset' %}">
+                <i class="fa-solid fa-key me-1"></i>{% trans "Forgot Password" %}
+            </a>
+            
+            <p class="mt-3 text-dark fw-bold fs-6">
+                Create New Account: 
+                <a href="{% url 'account_signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">
+                    <button class="btn fw-bold btn-outline-success samll p-0 border-2">SIGN UP</button>
+                </a>
+            </p>
+        </section>
+        
+        <div class="login-or my-3 text-center mb-2">{% trans 'OR' %}</div>
+        
+        <div class="text-center">
+            <div class="socialaccount_providers">
+                {% include "Shop/socialaccount/snippets/provider_list.html" with process="login" %}
+            </div>
 
-                </form>
-                <a class="text-black fw-bolder py-2 text-uppercase" style="text-decoration: underline; text-underline-offset: 2px; " href="{% url 'password_reset' %}"><i class="fa-solid fa-key me-1"></i>{% trans "Forgot Password" %}</a> 
-                                   <p class="mt-3 text-dark fw-bold fs-6">Create New Account: <a  href="{% url 'account_signup' %}"><span class=" fw-bolder fs-6 text-info text-decoration-underline"><button class="btn fw-bold btn-outline-success border-2">SIGN UP</button> </span></a> </p>
+            {% get_providers as socialaccount_providers %}
 
-  
-  </section>
-
-  <div class="login-or my-3  text-center mb-2">{% trans 'OR' %}</div>
-
-  <div class="text-center">
-    <div class="socialaccount_providers">
-      {% include "Shop/socialaccount/snippets/provider_list.html" with process="login" %}
+            {% if socialaccount_providers %}
+                <p class="m-0 fs-6">Sign in instantly using your Google account.</p>
+                <div class="socialaccount_ballot"></div>
+            {% else %}
+                <p>If you have not created an account yet, then please
+                <a href="{% url 'account_signup' %}">sign up</a> first.</p>
+            {% endif %}
+        </div>
     </div>
-
-    {% get_providers as socialaccount_providers %}
-
-    {% if socialaccount_providers %}
-    <p class="m-0 fs-6">Sign in instantly using your Google account.</p>
-
-
-    <div class="socialaccount_ballot">
-    </div>
-
-    {% else %}
-    <p>If you have not created an account yet, then please
-    <a href="{% url 'account_signup' %}">sign up</a> first.</p>
-    {% endif %}
-  </div>
 </div>
-  </div>
 {% endblock %}
+
 {% block scripts %}
 <script>
-  document.getElementById('togglePassword').addEventListener('click', function() {
-    const passwordField = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
-    
-    if (passwordField.type === 'password') {
-      passwordField.type = 'text';
-      eyeIcon.classList.remove('bi-eye-slash');
-      eyeIcon.classList.add('bi-eye');
-    } else {
-      passwordField.type = 'password';
-      eyeIcon.classList.remove('bi-eye');
-      eyeIcon.classList.add('bi-eye-slash');
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    if (togglePassword) {
+      togglePassword.addEventListener('click', function() {
+        const passwordField = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        if (passwordField.type === 'password') {
+          passwordField.type = 'text';
+          eyeIcon.classList.remove('fa-eye-slash');
+          eyeIcon.classList.add('fa-eye');
+        } else {
+          passwordField.type = 'password';
+          eyeIcon.classList.remove('fa-eye');
+          eyeIcon.classList.add('fa-eye-slash');
+        }
+      });
     }
+
+    // Auto-dismiss all alerts after 5 seconds
+    setTimeout(function() {
+      const allAlerts = document.querySelectorAll('.alert');
+      allAlerts.forEach(function(alert) {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+        
+        setTimeout(function() {
+          alert.remove();
+        }, 150);
+      });
+    }, 3000);
   });
 </script>
 {% endblock scripts %}

@@ -38,3 +38,15 @@ dump_to_neon.py
 migrate_to_cloudinary.py
 poetry.lock
 celerybeat-schedule
+
+# Google Sheets Credentials
+credentials/
+*.json
+!package.json
+
+# Utility/Debug Scripts
+check_orders.py
+debug_sheets.py
+reset_and_setup_sheets.py
+setup_headers.py
+setup_professional_sheets.py

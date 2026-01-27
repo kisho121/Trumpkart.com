@@ -66,7 +66,7 @@ Category
 
         <a class="link show-loader text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">  
           <div class="card-body">
-            <h6 class="card-title mb-1">{{item.name}}</h6>
+            <h6 class="card-title text-dark fs-6 mb-1">{{item.name}}</h6>
             
             <!-- Rating Display -->
             <div class="d-flex justify-content-center align-items-center gap-1 mb-2">
@@ -86,7 +86,7 @@ Category
             
             <h6 class="text-dark fw-bold"><span class="text-success">{{item.discount}} %</span> Off</h6>
             <p class="card-text">
-              <b class="fs-6">₹ {{item.selling_price}}</b>
+              <b class="fs-6 text-secondary">₹ {{item.selling_price}}</b>
               <s class="text-muted"> ₹ {{item.original_price}}</s>
             </p>
           </div>

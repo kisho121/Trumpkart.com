@@ -21,37 +21,80 @@ Products_detail|TrumpKart
      <div class="row bg-light p-1 justify-content-around rounded-2 ">
       
            <div class="col-12 col-sm-12 col-md-4 col-lg-4 card mx-auto h-100 pb-5 ">  
-               <!-- {% if products.trending %}
-                  <div class="hot">Hot</div>
-               {% endif %} -->
-                    <img
-                      src="{% cloudinary_url products.product_image f_auto=True q_auto=True w=600 dpr='auto' %}"
-                      class="img-fluid card-img-top mx-auto text-center w-75 h-75"
-                      loading="lazy"
-                      alt="{{ products.name }}"
-                    >
-
-                   <input type="hidden" value="{{products.id}}" id="pid">
-                   <div class="position-absolute top-0 end-0 p-2">
-                   {% if is_authenticated %}
-                        {% if is_favorited %}
-                        
-                          <button class="float-end me-1 p-0" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
-                            <i class="fa-solid fa-heart fs-5 text-danger"></i>
-                          </button>
+                    <!-- Main Product Image -->
+                    <div class="position-relative text-center">
+                      <img
+                        id="mainProductImage"
+                        src="{% if products.product_image %}{% cloudinary_url products.product_image f_auto=True q_auto=True w=600 dpr='auto' %}{% else %}{% static 'images/no-image.png' %}{% endif %}"
+                        class="img-fluid card-img-top mx-auto text-center w-75 h-75"
+                        loading="lazy"
+                        alt="{{ products.name }}"
+                      >
+                      
+                      <!-- Favorite Button -->
+                      <div class="position-absolute top-0 end-0 p-2">
+                        {% if is_authenticated %}
+                          {% if is_favorited %}
+                            <button class="float-end me-1 p-0" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
+                              <i class="fa-solid fa-heart fs-5 text-danger"></i>
+                            </button>
+                          {% else %}
+                            <button class=" float-end me-1 p-0" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
+                              <i class="fa-regular fa-heart fs-5" style="color: red;"></i>
+                            </button>
+                          {% endif %}
                         {% else %}
-                          <button class=" float-end me-1 p-0" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
-                            <i class="fa-regular fa-heart fs-5" style="color: red;"></i>
+                          <button class="" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
+                            <i class="fa-regular fa-heart fs-5 p-2" style="color: #999;"></i>
                           </button>
                         {% endif %}
-                      {% else %}
-                        <button class="" style="border: 1px solid #ddd; width: 50px; height: 48px; border-radius: 50%;" id="favbtn">
-                          <i class="fa-regular fa-heart fs-5 p-2" style="color: #999;"></i>
-                        </button>
-                      {% endif %}
                       </div>
+                    </div>
+
+                    <!-- Thumbnail Gallery -->
+                    <div class="d-flex justify-content-center gap-2 mt-3 px-3">
+                      <!-- Thumbnail 1 -->
+                      <div class="thumbnail-container" style="cursor: pointer; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; width: 80px; height: 80px;">
+                        <img
+                          src="{% if products.product_image %}{% cloudinary_url products.product_image f_auto=True q_auto=True w=200 dpr='auto' %}{% else %}{% static 'images/no-image.png' %}{% endif %}"
+                          class="thumbnail-image img-fluid w-100 h-100"
+                          style="object-fit: cover;"
+                          alt="{{ products.name }} - Image 1"
+                          data-full-image="{% if products.product_image %}{% cloudinary_url products.product_image f_auto=True q_auto=True w=600 dpr='auto' %}{% else %}{% static 'images/no-image.png' %}{% endif %}"
+                        >
+                      </div>
+                      
+                      <!-- Thumbnail 2 -->
+                      <div class="thumbnail-container" style="cursor: pointer; border: 2px solid transparent; border-radius: 8px; overflow: hidden; width: 80px; height: 80px;">
+                        <img
+                          src="{% if products.product_image_2 %}{% cloudinary_url products.product_image_2 f_auto=True q_auto=True w=200 dpr='auto' %}{% else %}{% static 'images/no-image.png' %}{% endif %}"
+                          class="thumbnail-image img-fluid w-100 h-100"
+                          style="object-fit: cover;"
+                          alt="{{ products.name }} - Image 2"
+                          data-full-image="{% if products.product_image_2 %}{% cloudinary_url products.product_image_2 f_auto=True q_auto=True w=600 dpr='auto' %}{% else %}{% static 'images/no-image.png' %}{% endif %}"
+                        >
+                      </div>
+                      
+                      <!-- Thumbnail 3 -->
+                      <div class="thumbnail-container" style="cursor: pointer; border: 2px solid transparent; border-radius: 8px; overflow: hidden; width: 80px; height: 80px;">
+                        <img
+                          src="{% if products.product_image_3 %}{% cloudinary_url products.product_image_3 f_auto=True q_auto=True w=200 dpr='auto' %}{% else %}{% static 'images/no-image.png' %}{% endif %}"
+                          class="thumbnail-image img-fluid w-100 h-100"
+                          style="object-fit: cover;"
+                          alt="{{ products.name }} - Image 3"
+                          data-full-image="{% if products.product_image_3 %}{% cloudinary_url products.product_image_3 f_auto=True q_auto=True w=600 dpr='auto' %}{% else %}{% static 'images/no-image.png' %}{% endif %}"
+                        >
+                      </div>
+                    </div>
+
+                    <h6 class="card-body card-title text-center">{{products.name}}</h6>
+                    <div class="text-center "><span class="text-dark fs-5">₹ {{products.selling_price}} </span> <s class="text-muted fs-6">₹ {{products.original_price}}</s> <b class="text-success fs-5 fw-bold"> {{products.discount}} %</b> <span class="small text-muted fw-normal fs-6">off</span>  </div>
+
+                   <input type="hidden" value="{{products.id}}" id="pid">
+                   
                        
                        <p>
+                        <p class="text-center fs-6 mx-auto mb-0">Quantity</p>
                            <div class="input-group mx-auto" style="width: 150px;">
                               <button class="input-group-text  text-light" id="btnminus"><i class="fa fa-minus f-bold text-danger"></i></button>
                               <input type="text" name="qty" id="txtQty" value="1" class="form-control text-center">
@@ -59,11 +102,11 @@ Products_detail|TrumpKart
                             </div>
                        </p>
 
-                  <div class="fav-cart mx-auto ">
+                  <div class="d-flex fav-cart gap-4 mx-auto ">
                        {% if products.quantity > 0 %}
-                       <button class="available text-white btn btn-warning" id="btncart" style="width: 150px;"><i class="fa fa-shopping-cart"></i>Add To Cart</button>
+                       <button class="available text-white btn btn-warning show-loader" id="btncart" style="width: 150px;  box-shadow: 0px 3px 8px rgb(30, 30, 30);"><i class="fa fa-shopping-cart"></i>Add To Cart</button>
                        
-                          <button class="btn btn-primary text-white" id="btnbuy"  style="width: 150px;">
+                          <button class="btn btn-primary text-white show-loader" id="btnbuy"  style="width: 150px;  box-shadow: 0px 3px 8px rgb(30, 30, 30);">
                           <i class="fa fa-bolt"></i> Buy Now
                         </button>
                      
@@ -77,10 +120,11 @@ Products_detail|TrumpKart
                    
                </div>
 
+     <!-- Rest of the template remains the same -->
      <div class="col-12 col-sm-12 col-md-7 col-lg-7">
         <div class="card-body ps-0">
           {% if products.trending %}
-                  <div class="hot mt-1" style="position: relative;  width:fit-content; border-radius: 5px; padding: 2px 5px;">Best Deal</div>
+                  <div class="hot my-2 my-sm-2  my-md-0 my-md-0" style="position: relative;  width:fit-content; border-radius: 5px; padding: 2px 5px;">Best Deal</div>
                {% endif %}
                        <h3 class="text-black">{{products.name}}</h3>
                        
@@ -102,16 +146,12 @@ Products_detail|TrumpKart
                            <span class="text-muted">({{ products.rating_count }} reviews)</span>
                          </div>
                        </div>
-                       <p class="text-info small">{{products.vendor}}</p>
-
-                       <div class="card-text "><span class="text-dark fs-5">₹ {{products.selling_price}} </span> <s class="text-muted fs-6">₹ {{products.original_price}}</s> <b class="text-success fs-5 fw-bold"> {{products.discount}} %</b> <span class="small text-muted fs-6">off</span>  </div>
-                      
-
-                       
+                       <p class="text-info small mb-1">{{products.vendor}}</p>
                   </div>
-      <h4 class="text-dark text-uppercase fs-5 mt-2 " style="font-family: sans-serif; font-weight: 700;">Description</h4>
+      <h4 class="text-dark text-uppercase fs-5 " style="font-family: sans-serif; font-weight: 700;">Description</h4>
       <p class="details fs-6" style="text-indent: 10px;">{{products.description}}</p>
 
+        <!-- Reviews section continues as before... -->
         <div class="bg-light p-4 rounded-2">
           <h3 class="text-center text-black fw-bold mb-4">Customer Reviews</h3>
           
@@ -152,7 +192,7 @@ Products_detail|TrumpKart
 
           <!-- Submit Rating Form -->
           {% if is_authenticated %}
-          <div class="card mb-4">
+          <div class="card mb-4 p-1">
             <div class="card-body">
               <h5 class="card-title">
                 {% if user_rating %}Edit Your Review{% else %}Write a Review{% endif %}
@@ -172,7 +212,7 @@ Products_detail|TrumpKart
                   <textarea class="form-control" id="reviewText" rows="3" maxlength="500" placeholder="Share your experience with this product...">{% if user_rating %}{{ user_rating.review }}{% endif %}</textarea>
                   <small class="text-muted">Maximum 500 characters</small>
                 </div>
-                <button type="submit" class="btn btn-primary" id="submitRatingBtn">
+                <button type="submit" class="btn btn-primary" style=" box-shadow: 0px 3px 8px rgb(30, 30, 30);" id="submitRatingBtn">
                   {% if user_rating %}Update Review{% else %}Submit Review{% endif %}
                 </button>
               </form>
@@ -221,9 +261,7 @@ Products_detail|TrumpKart
 </div>
 </div>
 
-
-
-<!-- Delivery Information (existing code) -->
+<!-- Delivery Information and Similar Products sections remain the same... -->
 <div class="container text-center d-flex justify-content-around mb-5">
   <div class="col-4">
     <img src="{% static 'images/secure-payment.png' %}" alt="Secured-payment" width="50px" height="50px"><br>
@@ -236,7 +274,7 @@ Products_detail|TrumpKart
     <img src="{% static 'images/fast-delivery.png' %}" alt="Free Delivery" width="70px" height="50px"><br>
     <button class="btn btn-outline-primary mb-2 d-button" data-bs-toggle="collapse" data-bs-target="#demo2" style="min-width: 50%;">Fast Delivery</button><br>
     <div class="collapse text-start px-2" id="demo2">
-      Enjoy the convenience of free delivery on every order, no matter the size. Shop your favorite items without worrying about shipping costs. We deliver straight to your doorstep, absolutely free!
+      Enjoy the convenience of Fast delivery on every order, no matter the size. Shop your favorite items without worrying about shipping costs. We deliver straight to your doorstep!
     </div>
   </div>
   <div class="col-4">
@@ -255,7 +293,6 @@ Products_detail|TrumpKart
       {% for item in categorys %}
       <div class="col-6 col-sm-6 col-md-4 col-lg-2 my-4 px-1">
         <div class="card w-100 h-100 mx-auto">   
-          <!-- <img src="{{item.product_image.url}}" class="card-img-top  mx-auto" alt="{{item.name}}">   -->
          <a class="link show-loader text-decoration-none" href="{% url 'collectiondetails' item.category.name item.name %}">
            <img
             src="{% cloudinary_url item.product_image f_auto=True q_auto=True w=600 dpr='auto' %}"
@@ -288,7 +325,7 @@ Products_detail|TrumpKart
                   </div>
                 </div>
               <div class="card-text text-center">
-             <b class="fs-6 fw-bolder"> ₹ {{item.selling_price}}</b>   <s class="text-muted small"> ₹ {{item.original_price}}</s>
+             <b class="fs-6 fw-bolder text-secondary"> ₹ {{item.selling_price}}</b>   <s class="text-muted small"> ₹ {{item.original_price}}</s>
               </div>
             </div>
           </a>
@@ -317,6 +354,24 @@ Products_detail|TrumpKart
     const favbtn = document.getElementById('favbtn');
     const btnbuy = document.getElementById('btnbuy');
     const isAuthenticated = {{ is_authenticated|yesno:"true,false" }};
+
+    // Image Gallery Functionality
+    const mainImage = document.getElementById('mainProductImage');
+    const thumbnails = document.querySelectorAll('.thumbnail-image');
+    const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+
+    thumbnails.forEach((thumbnail, index) => {
+      thumbnail.addEventListener('click', function() {
+        const fullImageUrl = this.getAttribute('data-full-image');
+        mainImage.src = fullImageUrl;
+        
+        // Update active thumbnail border
+        thumbnailContainers.forEach(container => {
+          container.style.border = '2px solid transparent';
+        });
+        thumbnailContainers[index].style.border = '2px solid #ddd';
+      });
+    });
 
     // Rating System Variables
     const starButtons = document.querySelectorAll('.star-btn');

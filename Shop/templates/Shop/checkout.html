@@ -1,14 +1,14 @@
 {% extends 'Shop/layouts/main.html' %}
-
+{% load static %}
 {% block title %}
 Checkout|Ecom
 {% endblock title %}
 
 {% block content %}
 
-<div class="container-fluid my-3">
-    <div class="row mx-2">
-        <div class="col-12 col-sm-12 col-md-4 col-lg-4 shadow-lg rounded-2 py-2 px-4">
+<div class="container-fluid my-3 px-0">
+    <div class="row my-2 mx-2">
+        <div class="col-12 col-sm-12 col-md-4 col-lg-4 shadow-lg rounded-2 py-2 px-lg-4">
             <h2 class="text-dark text-center fw-bold rounded-2" style="font-family: serif; background-color: rgb(254, 179, 94);"> Address Form</h2>
             
             <form id="checkout-form" method="POST" action="{% if is_buy_now %}{% url 'buy_now_checkout' %}{% else %}{% url 'checkout' %}{% endif %}">
@@ -106,7 +106,7 @@ Checkout|Ecom
             </form>
         </div> 
 
-        <div class="col-12 col-sm-12 col-md-8 col-lg-8 px-4">
+        <div class="col-12 col-sm-12 col-md-8 col-lg-8 px-0 px-lg-4 py-2">
             <h2 class="fw-bold text-dark text-center rounded-2" style="font-family: serif; background-color: rgb(117, 247, 166);">
                 <i class="fa-solid fa-cart-shopping fs-4"></i> Cart Items
             </h2>
@@ -136,17 +136,28 @@ Checkout|Ecom
             </table>
             
             <div class="container">
-                <h2 class="fw-bold text-end">PAYMENT MODE</h2>
-                <div class="float-end">
-                    <button id="rzp-button1" type="button" class="btn btn-success fw-bold" style="width: 200px;">
-                        Pay with Razorpay
-                    </button>
-                    <br>
-                    <p class="text-center">OR</p>
-                    <button id="cod_button" type="button" class="btn btn-warning fw-bold text-center" style="width: 200px;">
-                        Cash on Delivery
-                    </button>
+                <div class="row d-flex">
+                    <div class="col-12 col-lg-6 mb-4 my-lg-5">
+                        <img src="{% static 'images/gateway.png' %}" class="mt-2" alt="gatewayImage" width="100%">
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <h2 class="fw-bold text-end">PAYMENT MODE</h2>
+                        <div class="float-end">
+                            <button id="rzp-button1" type="button" class="btn rounded-5 fw-bold text-light show-loader" style="width: 200px; background-color: rgb(0, 200, 0); box-shadow: 0px 3px 8px rgb(30, 30, 30);">
+                                <i class="fa-solid fa-credit-card"></i> Pay Now
+                            </button>
+                            <br>
+                            <p class="text-center mt-3">OR</p>
+                            <button id="cod_button" type="button" class="btn btn-warning fw-bold text-center show-loader" style="width: 200px;  box-shadow: 0px 3px 8px rgb(30, 30, 30);">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>   Cash on Delivery
+                            </button>
+                        </div>
+                    </div>
+                    
+                    
                 </div>
+
+                
             </div>
         </div>
     </div>

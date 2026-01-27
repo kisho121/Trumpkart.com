@@ -1,92 +1,102 @@
 {% load static %}
-<nav class="navbar navbar-dark navbar-expand-lg fixed-top shadow-sm" style="background-color: rgb(4, 9, 90);">
+<nav class="navbar navbar-dark navbar-expand-lg fixed-top shadow-lg " style="background-color: rgb(4, 9, 90);">
     <div class="container-fluid px-4">
-      <!-- Brand Logo -->
-      <a href="{% url 'home' %}" class="navbar-brand show-loader d-flex align-items-center">
-        <img class="brandname" src="{% static 'images/TKicon.png' %}" alt="icon" width="35" height="35">
-      </a>
-      
-      <!-- Search Bar (Desktop) with Autocomplete -->
-      <div class="d-none d-lg-flex found mx-auto position-relative">
-        <div class="input-group shadow-sm">
-          <input 
-            id="searchInputDesktop" 
-            name="q" 
-            type="text" 
-            class="form-control border-0" 
-            placeholder="Search for Products, Brands and more.." 
-            autocomplete="off"
-            style="padding: 0.6rem 1rem; font-size: 0.95rem;">
-          <button class="btn btn-light border-0" type="button" id="searchBtnDesktop" style="padding: 0.6rem 1.2rem;">
-            <i class="fa fa-search"></i>
-          </button>
-        </div>
+      <!-- Mobile Layout: Menu | Logo | Search | Orders -->
+      <div class="d-lg-none w-100 d-flex align-items-center justify-content-between">
+        <!-- Navbar Toggler (Left) - Changes to X when open -->
+        <button class="navbar-toggler border-0 shadow-none p-2 position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" id="navbarToggler">
+          <span class="navbar-toggler-icon" id="hamburgerIcon"></span>
+          <i class="fa fa-times position-absolute top-50 start-50 translate-middle d-none" id="closeIcon" style="font-size: 1.5rem;"></i>
+        </button>
         
-        <!-- Dropdown Suggestions -->
-        <div id="searchSuggestionsDesktop" class="search-suggestions"></div>
+        <!-- Brand Logo (Center) -->
+        <a href="{% url 'home' %}" class="navbar-brand show-loader d-flex align-items-center mx-auto mb-0">
+          <img class="brandname" src="{% static 'images/TKicon.png' %}" alt="icon" width="35" height="35">
+        </a>
+        
+        <!-- Right Icons: Search & Orders -->
+        <div class="d-flex align-items-center gap-2">
+          <!-- Mobile Search Icon -->
+          <button class="btn btn-link text-light border-0 shadow-none p-2" type="button" id="mobileSearchToggle">
+            <i class="fa fa-search" style="font-size: 1.2rem;"></i>
+          </button>
+          
+          <!-- Mobile Orders Icon -->
+          {% if request.user.is_authenticated %}
+            <a href="{% url 'order' %}" class="btn btn-link text-light border-0 shadow-none p-2 position-relative show-loader">
+              <i class="fa-solid fa-bag-shopping" style="font-size: 1.2rem;"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.65rem;">
+                {{order_count}}
+              </span>
+            </a>
+          {% else %}
+              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_login' %}?next={% url 'order' %}&action=orders">
+              <i class="fa-solid fa-bag-shopping" style="font-size: 1.2rem;"></i>
+            </a>
+          {% endif %}
+        </div>
       </div>
       
-      <!-- Navbar Toggler -->
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <!-- Desktop Layout: Logo | Search | Nav Items -->
+      <div class="d-none d-lg-flex align-items-center">
+        <!-- Brand Logo -->
+        <a href="{% url 'home' %}" class="navbar-brand show-loader d-flex align-items-center">
+          <img class="brandname" src="{% static 'images/TKicon.png' %}" alt="icon" width="35" height="35">
+        </a>
+        
+        <!-- Search Bar (Desktop) with Autocomplete -->
+        <div class="found  position-relative">
+          <div class="input-group shadow-lg ">
+            <input 
+              id="searchInputDesktop" 
+              name="q" 
+              type="text" 
+              class="form-control border-0" 
+              placeholder="Search for Products, Brands and more.." 
+              autocomplete="off"
+              style="padding: 0.6rem 1rem; font-size: 0.95rem;">
+            <button class="btn btn-light border-0" type="button" id="searchBtnDesktop" style="padding: 0.6rem 1.2rem;">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+          
+          <!-- Dropdown Suggestions -->
+          <div id="searchSuggestionsDesktop" class="search-suggestions"></div>
+        </div>
+      </div>
       
-      <!-- Navigation Links -->
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <!-- Search Bar (Mobile) with Autocomplete -->
-        <div class="d-lg-none my-3 position-relative">
-          <div class="input-group shadow-sm">
+      <!-- Mobile Search Popup (Full Screen) -->
+      <div class="mobile-search-overlay d-none" id="mobileSearchOverlay">
+        <div class="mobile-search-popup" >
+          <div class="d-flex align-items-center gap-3 mx-1 mb-2">
+            <button class="btn btn-link text-dark p-0" type="button" id="closeSearchPopup">
+              <i class="fa fa-arrow-left" style="font-size: 1.3rem;"></i>
+            </button>
+            <h6 class="mb-0 fw-semibold">Search Products</h6>
+          </div>
+          
+          <div class="input-group shadow-sm rounded-2" style="border: 1px solid black;">
             <input 
               id="searchInputMobile" 
               name="q" 
               type="text" 
               class="form-control border-0" 
               placeholder="Search for Products, Brands and more.."
-              autocomplete="off">
-            <button class="btn btn-light border-0" type="button" id="searchBtnMobile">
+              autocomplete="off"
+              style="padding: 0.6rem 1rem; font-size: 0.95rem;">
+            <button class="btn btn-light border-0" type="button" id="searchBtnMobile" style="padding: 0.6rem 1.2rem;">
               <i class="fa fa-search"></i>
             </button>
           </div>
           
           <!-- Mobile Dropdown Suggestions -->
-          <div id="searchSuggestionsMobile" class="search-suggestions"></div>
+          <div id="searchSuggestionsMobile" class="search-suggestions position-relative"></div>
         </div>
-        
+      </div>
+      
+      <!-- Navigation Links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-lg-center">
-          <!-- User Authentication Section -->
-          {% if request.user.is_authenticated %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-light px-3 py-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                <i class="fa fa-user-circle me-1"></i>
-                <span class="fw-semibold text-light">{{request.user}}</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><a class="dropdown-item" href="{% url 'profile_page' %}">
-                  <i class="fa fa-user me-2"></i>Profile
-                </a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{% url 'account_logout' %}">
-                  <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
-                </a></li>
-              </ul>
-            </li>
-          {% else %}
-            <li class="nav-item">
-              <a class="nav-link text-light show-loader px-3 py-2" href="{% url 'account_login' %}">
-                <i class="fa fa-sign-in me-1"></i> Login
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-light btn-sm show-loader px-3 ms-lg-2" href="{% url 'account_signup' %}">
-                <i class="fa fa-users me-1"></i> Register
-              </a>
-            </li>
-          {% endif %}
-          
-          <li class="nav-item d-none d-lg-block ms-2">
-            <span class="text-light opacity-50">|</span>
-          </li>
-          
           <!-- Main Navigation -->
           <li class="nav-item">
             <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'home' %}">
@@ -96,7 +106,7 @@
           
           <li class="nav-item">
             <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'collection' %}">
-              <i class="fa-solid fa-cubes me-1"></i> Collections
+              <i class="fa-solid fa-cubes me-1"></i> Category
             </a>
           </li>
           
@@ -120,7 +130,7 @@
               </a>
             </li>
             
-            <li class="nav-item">
+            <li class="nav-item mobile-hide">
               <a class="nav-link show-loader text-light px-3 py-2 position-relative" href="{% url 'order' %}">
                 <i class="fa-solid fa-bag-shopping me-1"></i> Orders
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.7rem; margin-left: -10px;">
@@ -128,24 +138,56 @@
                 </span>
               </a>
             </li>
+            
+            <!-- Profile - Last Item -->
+            <li class="nav-item">
+              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'profile_page' %}">
+                <i class="fa fa-user-circle me-1"></i> Profile
+              </a>
+            </li>
+            
+            <!-- Logout - Mobile Only (Last) -->
+            <li class="nav-item d-lg-none">
+              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_logout' %}">
+                <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+              </a>
+            </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_login' %}">
+              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_login' %}?next={% url 'cart' %}&action=cart">
                 <i class="fa-solid fa-cart-shopping me-1"></i> Cart
               </a>
             </li>
             
             <li class="nav-item">
-              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_login' %}">
+              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_login' %}?next={% url 'favrt' %}&action=wishlist">
                 <i class="fa-solid fa-heart me-1"></i> Wishlist
               </a>
             </li>
             
-            <li class="nav-item">
-              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_login' %}">
+            <li class="nav-item mobile-hide">
+              <a class="nav-link show-loader text-light px-3 py-2" href="{% url 'account_login' %}?next={% url 'order' %}&action=orders">
                 <i class="fa-solid fa-bag-shopping me-1"></i> Orders
               </a>
             </li>
+            
+            <li class="nav-item">
+              <a class="nav-link text-light show-loader px-3 py-2" href="{% url 'account_login' %}">
+                <i class="fa fa-sign-in me-1"></i> Login
+              </a>
+            </li>
+            
+            <!-- <li class="nav-item d-none d-lg-block">
+              <a class="btn btn-light btn-sm show-loader px-3 ms-lg-2" href="{% url 'account_signup' %}">
+                <i class="fa fa-users me-1"></i> Register
+              </a>
+            </li> -->
+            
+            <!-- <li class="nav-item d-lg-none">
+              <a class="btn btn-light btn-sm show-loader px-3 w-100 mt-2" href="{% url 'account_signup' %}">
+                <i class="fa fa-users me-1"></i> Register
+              </a>
+            </li> -->
           {% endif %}
         </ul>
       </div>
@@ -154,16 +196,77 @@
 
 <style>
   .found {
-    width: 30%;
-    max-width: 42%;
+
+    width: 50vw;
+    max-width: 350px;
+    margin-left: 5vw;
+    
   }
   
-  /* Search Suggestions Dropdown - Flipkart Style */
-  .search-suggestions {
-    position: absolute;
-    top: 100%;
+  /* Mobile Search Overlay - Full Screen */
+  .mobile-search-overlay {
+    position: fixed;
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: 1060;
+    overflow-y: auto;
+  }
+  
+  .mobile-search-overlay.show {
+    display: block !important;
+  }
+  
+  .mobile-search-popup {
+    background: linear-gradient(rgba(255,255,255, 0.9), rgba(255, 255, 255, 0.9));
+    padding: 1.5rem;
+    margin: 0% 0.5rem;
+    border-bottom-left-radius: 5px; 
+    border-bottom-right-radius:  5px;
+    box-shadow: 0px 8px 16px rgb(26, 26, 26);
+  }
+  
+  #closeSearchPopup {
+    color: #212121;
+  }
+  
+  /* Navbar toggler - keep hamburger/close icon on left */
+  .navbar-toggler {
+    width: 40px;
+    height: 40px;
+  }
+  
+  #hamburgerIcon {
+    display: block;
+    border: 1px solid white ;
+    border-radius: 5px;
+    transition-delay: 0.5s ease;
+    padding: 1px;
+    margin-top: -2px;
+  }
+  
+  #closeIcon {
+    display: none;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 2px;
+    margin-top:1px;
+    margin-left: 3px;
+  }
+  
+  /* When navbar is open */
+  .navbar-toggler[aria-expanded="true"] #hamburgerIcon {
+    display: none;
+  }
+  
+  .navbar-toggler[aria-expanded="true"] #closeIcon {
+    display: block !important;
+  }
+  
+  /* Search Suggestions Dropdown */
+  .search-suggestions {
     background: white;
     border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -171,7 +274,8 @@
     overflow-y: auto;
     z-index: 1050;
     display: none;
-    margin-top: 2px;
+    margin-top: 8px;
+    position: absolute;
   }
   
   .search-suggestions.show {
@@ -233,7 +337,8 @@
   }
   
   .no-suggestions {
-    padding: 16px;
+    padding: 16px 50px;
+    width: 350px;
     text-align: center;
     color: #878787;
     font-size: 0.9rem;
@@ -266,25 +371,13 @@
     border-color: transparent;
   }
   
-  .navbar .dropdown-menu {
-    border: none;
-    border-radius: 8px;
-    margin-top: 0.5rem;
-  }
-  
-  .navbar .dropdown-item {
-    padding: 0.6rem 1.2rem;
-    transition: all 0.2s ease;
-  }
-  
-  .navbar .dropdown-item:hover {
-    background-color: #f8f9fa;
-    transform: translateX(5px);
-  }
-  
   .navbar .badge {
     padding: 0.25em 0.5em;
     font-weight: 600;
+  }
+  
+  .navbar-brand {
+    margin-right: 0;
   }
   
   .navbar-brand img {
@@ -297,27 +390,54 @@
   
   @media (max-width: 1200px) {
     .found {
-      width: 18%;
+      width: 15vw;
+      max-width: 260px;
+      
     }
   }
   
   @media (max-width: 991.98px) {
     .navbar-nav {
       padding: 1rem 0;
+      
     }
+    /* .navbar{
+      position: absolute;
+      position: fixed;
+    } */
     
-    .navbar .nav-item {
-      margin: 0.2rem 0;
+    body.menu-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+  
+  .navbar-collapse {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background-color: rgb(4, 9, 90);
+    z-index: 1050;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 0 30px;
+  }
+    .navbar-collapse {
+      position: absolute;
     }
     
     .found {
-      width: 15%;
+      width: 50%;
+    }
+    .mobile-hide{
+      display: none;
     }
   }
 </style>
 
 <script>
-  // AJAX Search Functionality - Navigates directly to product page
+  // AJAX Search Functionality
   let searchTimeout;
   
   function initSearchAutocomplete(inputId, suggestionsId, buttonId) {
@@ -348,7 +468,7 @@
       }, 300);
     });
     
-    // Handle Enter key - just close suggestions, clicking item navigates directly
+    // Handle Enter key
     searchInput.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -356,7 +476,7 @@
       }
     });
     
-    // Search button does nothing special - suggestions handle navigation
+    // Search button
     if (searchBtn) {
       searchBtn.addEventListener('click', function() {
         searchInput.focus();
@@ -386,7 +506,7 @@
   function displaySuggestions(suggestions, container) {
     if (!suggestions || suggestions.length === 0) {
       container.innerHTML = `
-        <div class="no-suggestions text-center">
+        <div class="no-suggestions d-block text-center">
           No products found
         </div>
       `;
@@ -417,9 +537,49 @@
     container.innerHTML = html;
   }
 
-  
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', function() {
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+    const closeSearchPopup = document.getElementById('closeSearchPopup');
+    const navbarToggler = document.getElementById('navbarToggler');
+    const navbarCollapse = document.getElementById('navbarNav');
+    
+    // Mobile search popup toggle
+    if (mobileSearchToggle) {
+      mobileSearchToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        mobileSearchOverlay.classList.remove('d-none');
+        mobileSearchOverlay.classList.add('show');
+        
+        // Focus on search input
+        setTimeout(() => {
+          const searchInput = document.getElementById('searchInputMobile');
+          if (searchInput) {
+            searchInput.focus();
+          }
+        }, 100);
+      });
+    }
+    
+    // Close search popup
+    if (closeSearchPopup) {
+      closeSearchPopup.addEventListener('click', function() {
+        mobileSearchOverlay.classList.remove('show');
+        mobileSearchOverlay.classList.add('d-none');
+      });
+    }
+    
+    // Update toggler icon when navbar opens/closes
+    navbarCollapse.addEventListener('show.bs.collapse', function() {
+      navbarToggler.setAttribute('aria-expanded', 'true');
+    });
+    
+    navbarCollapse.addEventListener('hide.bs.collapse', function() {
+      navbarToggler.setAttribute('aria-expanded', 'false');
+    });
+    
+    // Initialize autocomplete
     initSearchAutocomplete('searchInputDesktop', 'searchSuggestionsDesktop', 'searchBtnDesktop');
     initSearchAutocomplete('searchInputMobile', 'searchSuggestionsMobile', 'searchBtnMobile');
   });

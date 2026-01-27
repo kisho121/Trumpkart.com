@@ -325,3 +325,10 @@ RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
 
 CRON_SECRET_KEY = config('CRON_SECRET_KEY')
+
+# ========== Google Sheets Configuration ==========
+GOOGLE_SHEETS_CREDENTIALS_FILE = 'credentials/google_sheets_credentials.json'
+#GOOGLE_SHEET_ID = '1qKeFpvDaJzoy3u8WWOB46jLUzlrxPvugeg7CQ0CplbA'
+MASTER_SHEET_ID = '14b2YfDSZDYlk9osiwB62QY3u0DuQkSw92ZP8aUpsisQ'
+DEALER_SHEET_ID = '1VzP0fHr1YuF4N-FKcrUvYy-GemO97iuCKrNbW37xZKo'
+DELIVERY_SHEET_ID = '1SJpKnUvqL5Gz07q9kI4Okh1wRla0HqMs3os8krvtBRI'

@@ -52,6 +52,61 @@ from datetime import date, timedelta
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 client.set_app_details({"title": "Shop", "version": "1.0"})
 
+@login_required
+def update_order_address(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        
+        # Check if order can be edited
+        if order.status not in [Order.PLACED, Order.PACKED]:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Address cannot be changed at this stage.'
+                }, status=400)
+            messages.error(request, 'Address cannot be changed at this stage.')
+            return redirect('order_summary')
+        
+        if request.method == 'POST':
+            # Create form with instance data
+            form = addressForm(request.POST, instance=order.address)
+            
+            if form.is_valid():
+                address = form.save(commit=False)
+                address.user = request.user
+                address.save()
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Address updated successfully!'
+                    })
+                
+                messages.success(request, 'Address updated successfully!')
+                return redirect('order_summary')
+            else:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Please fill all fields correctly.'
+                    }, status=400)
+                
+                messages.error(request, 'Please fill all fields correctly.')
+                return redirect('order_summary')
+        
+    except Order.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'Order not found.'
+            }, status=404)
+        
+        messages.error(request, 'Order not found.')
+        return redirect('order_summary')
+    
+    # If not POST request
+    return redirect('order_summary')
+
 @login_required 
 def checkout_view(request):
     user = request.user
@@ -133,11 +188,12 @@ def checkout_view(request):
                     user=user,
                     address=address,
                     payment_method='COD',
+                    payment_status=Order.PAYMENT_PENDING,
                     total_cost=total_cost,
                     final_order_id=final_order_id,
                     products=cart_items.first().Product,
-                    payment_status='Pending',
-                    status=Order.PENDING
+                    #payment_status='Pending',
+                    status=Order.PLACED
                 )
                 
                 # Create order items
@@ -212,13 +268,14 @@ def checkout_view(request):
                         user=user,
                         address=address,
                         payment_method='Razorpay',
+                        payment_status=Order.PAYMENT_COMPLETED,
                         total_cost=total_cost,
                         razorpay_order_id=razorpay_order_id,
                         razorpay_payment_id=razorpay_payment_id,
                         final_order_id=final_order_id,
                         products=cart_items.first().Product,
-                        payment_status='Completed',
-                        status=Order.PENDING
+                        status=Order.PLACED,  
+                        #confirmed_at=timezone.now()  
                     )
                     
                     # Create order items
@@ -292,9 +349,6 @@ def checkout_view(request):
         'order_count': order_count,
     }
     return render(request, 'Shop/checkout.html', context)
-
-
-# ADD this new view to your views.py
 
 @login_required
 def buy_now_view(request):
@@ -427,8 +481,7 @@ def buy_now_checkout_view(request):
                         'success': False,
                         'message': f'Failed to create payment order: {str(e)}'
                     }, status=500)
-        
-        # Regular form submission (after payment)
+
         form = addressForm(request.POST)
         if form.is_valid():
             address = form.save(commit=False)
@@ -456,11 +509,11 @@ def buy_now_checkout_view(request):
                     user=user,
                     address=address,
                     payment_method='COD',
+                    payment_status=Order.PAYMENT_PENDING,
                     total_cost=total_cost,
                     final_order_id=final_order_id,
                     products=product_obj,
-                    payment_status='Pending',
-                    status=Order.PENDING
+                    status=Order.PLACED  # ✅ COD starts as PENDING
                 )
                 
                 # Create order item
@@ -524,13 +577,14 @@ def buy_now_checkout_view(request):
                         user=user,
                         address=address,
                         payment_method='Razorpay',
+                        payment_status=Order.PAYMENT_COMPLETED,
                         total_cost=total_cost,
                         razorpay_order_id=razorpay_order_id,
                         razorpay_payment_id=razorpay_payment_id,
                         final_order_id=final_order_id,
                         products=product_obj,
-                        payment_status='Completed',
-                        status=Order.PENDING
+                        status=Order.PLACED,  
+                        # confirmed_at=timezone.now()  
                     )
                     
                     # Create order item
@@ -584,14 +638,14 @@ def buy_now_checkout_view(request):
     
     context = {
         'form': form,
-        'cart_items': buy_now_items,  # Using buy now items instead of cart
+        'cart_items': buy_now_items,
         'total_cost': total_cost,
         'amount': int(total_cost * 100),
         'razorpay_key': settings.RAZORPAY_KEY_ID,
         'cart_count': cart_count,
         'wish_count': wish_count,
         'order_count': order_count,
-        'is_buy_now': True,  # Flag to identify buy now checkout
+        'is_buy_now': True,  
     }
     return render(request, 'Shop/checkout.html', context)
 
@@ -642,19 +696,26 @@ def sent_order_confirmation_mail(user, order, order_items, razorpay_order_id, re
     
     send_mail(subject, plain_message, from_mail, [to], html_message=html_message)
     
+
 @login_required
 def order_view(request):
-    cart_count=Cart.objects.filter(user=request.user.id).count()
-    wish_count=favourite.objects.filter(user=request.user.id).count()
-    order_count=Order.objects.filter(user=request.user.id).count()
-    user=request.user
-    orders= Order.objects.filter(user=user).order_by('id')
-    context={
-        "cart_count":cart_count,
-        "wish_count":wish_count,
-        "order_count":order_count,
-        "orders":orders
+    user = request.user
+    
+    # Get orders in reverse chronological order (newest first)
+    orders = Order.objects.filter(user=user).order_by('-created_at')
+    
+    # Get counts
+    cart_count = Cart.objects.filter(user=user).count()
+    wish_count = favourite.objects.filter(user=user).count()
+    order_count = orders.count()
+    
+    context = {
+        'orders': orders,
+        'cart_count': cart_count,
+        'wish_count': wish_count,
+        'order_count': order_count,
     }
+    
     return render(request, 'Shop/orders.html', context)
 
 
@@ -691,10 +752,10 @@ def pdf_view(request, order_id):
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
-        rightMargin=50,
-        leftMargin=50,
-        topMargin=40,
-        bottomMargin=40
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=20,
+        bottomMargin=20
     )
     
     # Container for PDF elements
@@ -728,26 +789,35 @@ def pdf_view(request, order_id):
         parent=styles['Heading2'],
         fontSize=14,  # Increased from 12
         textColor=colors.HexColor('#1f2937'),
-        spaceAfter=10,  # Increased from 6
-        spaceBefore=15,  # Increased from 8
+        spaceAfter=5,  # Increased from 6
+        spaceBefore=5,  # Increased from 8
         fontName='Helvetica-Bold'
     )
     
     normal_style = ParagraphStyle(
         'CustomNormal',
         parent=styles['Normal'],
-        fontSize=11,  # Increased from 10
+        fontSize=11,  
         textColor=colors.HexColor('#4b5563'),
-        spaceAfter=6,  # Increased from 3
-        leading=18  # Increased from 14
+        spaceAfter=6,  
+        leading=18  
+    )
+
+    wrap_style = ParagraphStyle(
+        name='Wrap',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=11,
+        leading=14,
+        wordWrap='CJK',  
     )
     
     # Header Section - LARGER
     elements.append(Paragraph("TRUMPKART", title_style))
-    elements.append(Spacer(1, 0.1 * inch))
+    elements.append(Spacer(0.8, 0.1 * inch))
 
     elements.append(Paragraph("Your Trusted Shopping Partner", subtitle_style))
-    elements.append(Spacer(1, 0.1 * inch))
+    elements.append(Spacer(0.8, 0.1 * inch))
 
     # Invoice title - LARGER
     invoice_title_data = [['TAX INVOICE']]
@@ -757,12 +827,12 @@ def pdf_view(request, order_id):
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 18),  # Increased from 16
-        ('TOPPADDING', (0, 0), (-1, -1), 14),  # Increased padding
+        ('FONTSIZE', (0, 0), (-1, -1), 18),  
+        ('TOPPADDING', (0, 0), (-1, -1), 1),  
         ('BOTTOMPADDING', (0, 0), (-1, -1), 14),
     ]))
     elements.append(invoice_title_table)
-    elements.append(Spacer(1, 0.3 * inch))  # Increased spacing
+    elements.append(Spacer(0.8, 0.3 * inch))  
     
     # Determine payment status
     if order.payment_method == 'COD':
@@ -773,20 +843,20 @@ def pdf_view(request, order_id):
     # Invoice Details and Company Info - LARGER TEXT
     invoice_info_data = [
         [
-            Paragraph(f"<b>Invoice Details</b><br/><br/>"
-                     f"<font size=11>Invoice No: <b>{order.final_order_id}</b><br/>"
-                     f"Order ID: <b>{order.id}</b><br/>"
+            Paragraph(f"<b>Invoice Details</b><br/>"
+                     f"<font size=11>Invoice No: <b>{order.id}</b><br/>"
+                     f"Order ID: <b>{order.final_order_id}</b><br/>"
                      f"Date: <b>{order.created_at.strftime('%d %B %Y')}</b><br/>"
                      f"Payment: <b>{order.payment_method}</b><br/>"
                      f"Status: <b>{payment_status}</b></font>", 
                      normal_style),
             
-            Paragraph("<b>TrumpKart Store</b><br/><br/>"
+            Paragraph("<b>TrumpKart Store</b><br/>"
                      "<font size=11>123 Shopping Street<br/>"
                      "Tamil Nadu, India - 620001<br/>"
                      "Phone: +91 1234567890<br/>"
-                     "Email: support@trumpkart.com<br/>"
-                     "GSTIN: 22AAAAA0000A1Z5</font>", 
+                     "Email: trumpkart.co@gmail.com<br/>"
+                     "GSTIN: 22AAAxxxxxxx1Z5</font>", 
                      normal_style)
         ]
     ]
@@ -794,11 +864,11 @@ def pdf_view(request, order_id):
     invoice_info_table = Table(invoice_info_data, colWidths=[3.4 * inch, 3.4 * inch])
     invoice_info_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),  # Increased
+        ('TOPPADDING', (0, 0), (-1, -1), 8),  
         ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
     ]))
     elements.append(invoice_info_table)
-    elements.append(Spacer(1, 0.3 * inch))  # Increased spacing
+    elements.append(Spacer(1, 0.3 * inch))  
     
     # Billing & Shipping Address - LARGER
     address = order.address
@@ -826,12 +896,12 @@ def pdf_view(request, order_id):
     address_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f3f4f6')),
-        ('TOPPADDING', (0, 0), (-1, -1), 10),  # Increased
+        ('TOPPADDING', (0, 0), (-1, -1), 10),  
         ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
         ('LEFTPADDING', (0, 0), (-1, -1), 12),
     ]))
     elements.append(address_table)
-    elements.append(Spacer(1, 0.3 * inch))  # Increased spacing
+    elements.append(Spacer(1, 0.1 * inch))  
     
     # Order Items Table - LARGER
     elements.append(Paragraph("ORDER DETAILS", heading_style))
@@ -852,8 +922,8 @@ def pdf_view(request, order_id):
         
         items_data.append([
             str(idx),
-            item.Product.name[:40],  # Allow longer names
-            vendor_name[:20],
+            Paragraph(item.Product.name, wrap_style),
+            Paragraph(vendor_name, wrap_style),
             str(item.quantity),
             f"Rs.{item.price:,.2f}",
             f"Rs.{item_total:,.2f}"
@@ -875,8 +945,8 @@ def pdf_view(request, order_id):
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 11),  # Increased from 10
-        ('TOPPADDING', (0, 0), (-1, 0), 12),  # Increased
+        ('FONTSIZE', (0, 0), (-1, 0), 11),  
+        ('TOPPADDING', (0, 0), (-1, 0), 12),  
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         
         # Body style
@@ -884,8 +954,8 @@ def pdf_view(request, order_id):
         ('ALIGN', (3, 1), (3, -1), 'CENTER'),
         ('ALIGN', (4, 1), (-1, -1), 'RIGHT'),
         ('FONTNAME', (0, 1), (-1, -3), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 11),  # Increased from 10
-        ('TOPPADDING', (0, 1), (-1, -1), 10),  # Increased
+        ('FONTSIZE', (0, 1), (-1, -1), 11),  
+        ('TOPPADDING', (0, 1), (-1, -1), 10),  
         ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
@@ -904,10 +974,10 @@ def pdf_view(request, order_id):
     ]))
     
     elements.append(items_table)
-    elements.append(Spacer(1, 0.25 * inch))  # Increased spacing
+    elements.append(Spacer(0.6, 0.1 * inch))  
     
     # Grand Total - LARGER
-    total_data = [['TOTAL AMOUNT', f"Rs.{order.total_cost:,.2f}"]]
+    total_data = [['TOTAL AMOUNT', f" Rs.{order.total_cost:,.2f}"]]
     total_table = Table(total_data, colWidths=[5.8 * inch, 1.2 * inch])
     total_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#10b981')),
@@ -915,47 +985,46 @@ def pdf_view(request, order_id):
         ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 16),  # Increased from 14
-        ('TOPPADDING', (0, 0), (-1, -1), 14),  # Increased
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 14),
+        ('FONTSIZE', (0, 0), (-1, -1), 16),  
+        ('TOPPADDING', (0, 0), (-1, -1), 1),  
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
         ('LEFTPADDING', (0, 0), (-1, -1), 12),
         ('RIGHTPADDING', (0, 0), (-1, -1), 12),
     ]))
     elements.append(total_table)
-    elements.append(Spacer(1, 0.35 * inch))  # Increased spacing
+    elements.append(Spacer(1, 0.35 * inch)) 
     
     # Terms and Conditions - LARGER
     elements.append(Paragraph("<b>Terms & Conditions:</b>", heading_style))
-    elements.append(Spacer(1, 0.1 * inch))
+    elements.append(Spacer(0.6, 0.1 * inch))
     
     terms_style = ParagraphStyle(
         'TermsStyle',
         parent=normal_style,
         fontSize=11,
-        leading=20,  # More line spacing
+        leading=20,  
         leftIndent=15
     )
     
     terms = """
     • Products can be returned within 10 days of delivery<br/>
-    • For any queries, contact our customer support<br/>
     • Please keep this invoice for warranty and return purposes<br/>
     • All prices are inclusive of applicable taxes
     """
     elements.append(Paragraph(terms, terms_style))
-    elements.append(Spacer(1, 0.3 * inch))  # Increased spacing
+    elements.append(Spacer(0.6, 0.1 * inch))  
     
     # Thank you note - LARGER
-    thank_you_style = ParagraphStyle(
-        'ThankYou',
-        parent=styles['Normal'],
-        fontSize=15,  # Increased from 13
-        textColor=colors.HexColor('#667eea'),
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold',
-        spaceAfter=8,  # Increased
-        spaceBefore=10
-    )
+    # thank_you_style = ParagraphStyle(
+    #     'ThankYou',
+    #     parent=styles['Normal'],
+    #     fontSize=15,  # Increased from 13
+    #     textColor=colors.HexColor('#667eea'),
+    #     alignment=TA_CENTER,
+    #     fontName='Helvetica-Bold',
+    #     spaceAfter=8,  # Increased
+    #     spaceBefore=10
+    # )
     
     thank_you_subtitle = ParagraphStyle(
         'ThankYouSubtitle',
@@ -966,8 +1035,8 @@ def pdf_view(request, order_id):
         leading=18
     )
     
-    elements.append(Paragraph("Thank you for shopping with TrumpKart!", thank_you_style))
-    elements.append(Paragraph("We appreciate your business and look forward to serving you again.", thank_you_subtitle))
+    elements.append(Paragraph("Thank you for shopping with TrumpKart!", thank_you_subtitle))
+    # elements.append(Paragraph("We appreciate your business and look forward to serving you again.", thank_you_subtitle))
     
     # Build PDF
     doc.build(elements)
@@ -980,29 +1049,78 @@ def pdf_view(request, order_id):
     return response
 
 @login_required
-def order_delivered_view(request,order_id):
-    order=get_object_or_404(Order, id=order_id, user=request.user)
-    mark_order_delivered(order)
+def order_delivered_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    try:
+        # Use the model's built-in method
+        order.mark_as_delivered(cod_collected=True) 
+        messages.success(request, "Order marked as delivered successfully!")
+    except Exception as e:
+        messages.error(request, f"Error marking order as delivered: {str(e)}")
+    
     return redirect('order_view')
 
 def mark_order_delivered(order):
-    order.status = False
-    order.delivered_at= timezone.now()
-    order.save()
     
-def cancel_order_view(request,order_id):
-    order=get_object_or_404(Order, id=order_id, user=request.user)
-    if request.method == "POST":
-        order.status= Order.CANCELED
-        order.save()
-        return redirect('order')
+    order.status = Order.DELIVERED
+    order.delivered_at = timezone.now()
+    
+    # payment status for COD orders
+    if order.is_cod:
+        order.payment_status = Order.PAYMENT_COD_COLLECTED
+    
+    order.save()
 
-def return_order_view(request,order_id):
-    order=get_object_or_404(Order, id=order_id, user=request.user)
-    if request.method =="POST":
-        order.status= Order.RETURN
+@login_required
+def cancel_order_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if request.method == "POST":
+        # Validate if order can be canceled
+        if not order.can_cancel:
+            messages.error(request, "This order cannot be canceled at this stage.")
+            return redirect('order')
+        
+        order.status = Order.CANCELED
+        order.canceled_at = timezone.now()
         order.save()
-        return redirect('order')    
+        
+        messages.success(request, "Order canceled successfully!")
+        return redirect('order')
+    
+    return render(request, 'order/cancel_confirm.html', {'order': order})
+
+@login_required
+def return_order_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if request.method == "POST":
+        # Validate order status
+        if order.status != Order.DELIVERED:
+            messages.error(request, "Only delivered orders can be returned.")
+            return redirect('order')
+        
+        # Check if already in return process
+        if order.status in [Order.RETURN_REQUESTED, Order.RETURN_APPROVED, Order.RETURNED, Order.REFUNDED]:
+            messages.error(request, "Return request already exists for this order.")
+            return redirect('order')
+        
+        # Check return window (10 days from delivery) using the model's can_return property
+        if not order.can_return:
+            messages.error(request, "Return window has expired (10 days from delivery).")
+            return redirect('order')
+        
+        # Update status
+        order.status = Order.RETURN_REQUESTED
+        order.return_requested_at = timezone.now()
+        order.save()
+        
+        messages.success(request, "Return request submitted successfully!")
+        return redirect('order')
+    
+    # If GET request, show return confirmation page
+    return render(request, 'order/return_confirm.html', {'order': order})
 
 
 def homepage(request):
@@ -1076,7 +1194,7 @@ def invalidate_categories_cache():
 def add_to_cart(request):
     if request.headers.get('X-requested-with') == 'XMLHttpRequest':
         if request.user.is_authenticated:
-            data = json.loads(request.body)  # Fixed: json.loads() not json.load()
+            data = json.loads(request.body) 
             product_qty = int(data['product_qty'])
             Product_id = data['pid']
             
@@ -1199,7 +1317,7 @@ def favpage(request):
                         return JsonResponse({
                             'status': 'Product removed from wishlist',
                             'wish_count': wish_count,
-                            'action': 'removed'  # Added to help frontend know what happened
+                            'action': 'removed'  
                         }, status=200)
                     else:
                         # ADD to favourites

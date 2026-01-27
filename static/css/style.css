@@ -32,6 +32,48 @@ body.poppins-regular {
   justify-content: center;
   z-index: 9999;
 }
+/* Status Timeline */
+.status-timeline {
+    position: relative;
+    padding-left: 20px;
+}
+
+.status-item {
+    position: relative;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: absolute;
+    left: -20px;
+    top: 5px;
+}
+
+.status-item div {
+    margin-left: 10px;
+}
+
+/* Status colors */
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.bg-secondary {
+    background-color: #6c757d !important;
+}
 
 .iconname{
   font-size: 2vw;
@@ -197,7 +239,7 @@ span{
 }
 
 .card-text {
-    color: black;
+    
     font-size: 1vw;   
  }
 
@@ -245,9 +287,10 @@ span{
   }
   
   h6.card-title{
+    color: #0f0f0f !important;
     font-size: 1vw;
     font-weight: 700;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
     word-spacing: 0.5px;
    
    
@@ -381,9 +424,9 @@ span{
       margin: 0% !important;   
     }
    
-    .card-title{
+    h6.card-title{
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 700;
       margin: 0%;
       
     }
@@ -497,8 +540,9 @@ span{
    
     h6.card-title{
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       margin: 0%;
+      color: #0f0f0f !important;
     }
     p.card-text{
       font-size: 11px;
@@ -626,14 +670,14 @@ span{
     h6.card-title{
       font-size: 3.5vw ;
       /* letter-spacing: 0.2px; */
-      font-weight: 400; 
+      font-weight: 700; 
       margin: 0%;
       
     }
     p.card-text{
       font-size: 3.5vw !important;
      
-      font-weight: 500;
+      font-weight: 400;
     }
     i.fa-brands{
       font-size: 1.2rem;

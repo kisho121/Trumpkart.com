@@ -45,6 +45,8 @@ class product(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
     vendor = models.CharField(max_length=150, null=False, blank=False)
     product_image = CloudinaryField('image', null=True, blank=True)
+    product_image_2 = CloudinaryField('image', null=True, blank=True)
+    product_image_3 = CloudinaryField('image', null=True, blank=True)
     quantity = models.IntegerField(null=False, blank=False)
     original_price = models.IntegerField(null=False, blank=False)
     selling_price = models.IntegerField(null=False, blank=False)
@@ -150,50 +152,239 @@ class addressModel(models.Model):
         db_table = 'shop_addressmodel'
     
 class Order(models.Model):
-    PENDING = 0
-    DELIVERED = 1
-    CANCELED = 2
-    RETURN = 3
+    # ==================== ORDER STATUS ====================
+    # Normal Flow: 0 → 2 → 3 → 4 → 5
+    PLACED = 0              # Order placed, payment pending/confirmed
+    PACKED = 1              # Order packed by dealer/admin
+    SHIPPED = 2             # Handed over to courier/delivery
+    OUT_FOR_DELIVERY = 3    # Out for delivery by delivery person
+    DELIVERED = 4           # Successfully delivered to customer
+    
+    # Cancellation (Can happen before SHIPPED)
+    CANCELED = 5            # Order canceled by customer/admin
+    
+    # Return Flow (After DELIVERED): 4 → 6 → 7 → 8
+    RETURN_REQUESTED = 6    # Customer requested return
+    RETURN_APPROVED = 7     # Return approved, product picked up
+    RETURNED = 8            # Product returned to warehouse
+    REFUNDED = 9            # Money refunded to customer
 
     STATUS_CHOICES = [
-        (PENDING, 'Pending'),
+        (PLACED, 'Order Placed'),
+        (PACKED, 'Packed'),
+        (SHIPPED, 'Shipped'),
+        (OUT_FOR_DELIVERY, 'Out for Delivery'),
         (DELIVERED, 'Delivered'),
         (CANCELED, 'Canceled'),
-        (RETURN, 'Return'),
+        (RETURN_REQUESTED, 'Return Requested'),
+        (RETURN_APPROVED, 'Return Approved'),
+        (RETURNED, 'Returned'),
+        (REFUNDED, 'Refunded'),
     ]
-   
+
+    # ==================== PAYMENT STATUS ====================
+    PAYMENT_PENDING = 'pending'      # COD or payment not completed
+    PAYMENT_COMPLETED = 'completed'  # Razorpay payment successful
+    PAYMENT_FAILED = 'failed'        # Online payment failed
+    PAYMENT_COD_COLLECTED = 'cod_collected'  # COD collected by delivery person
+    PAYMENT_REFUNDED = 'refunded'    # Money refunded (for returns)
+
+    PAYMENT_STATUS_CHOICES = [
+        (PAYMENT_PENDING, 'Pending'),
+        (PAYMENT_COMPLETED, 'Completed'),
+        (PAYMENT_FAILED, 'Failed'),
+        (PAYMENT_COD_COLLECTED, 'COD Collected'),
+        (PAYMENT_REFUNDED, 'Refunded'),
+    ]
+
+    # ==================== FIELDS ====================
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.ForeignKey(addressModel, on_delete=models.CASCADE)
-    payment_method = models.CharField(max_length=20)
+    address = models.ForeignKey('addressModel', on_delete=models.CASCADE)
+    
+    # Payment Info
+    payment_method = models.CharField(max_length=20)  # 'COD' or 'Razorpay'
+    payment_status = models.CharField(
+        max_length=20, 
+        choices=PAYMENT_STATUS_CHOICES,
+        default=PAYMENT_PENDING
+    )
     total_cost = models.DecimalField(max_digits=10, decimal_places=2)
-    final_order_id = models.CharField(max_length=255, null=True, blank=True)
+    
+    # Order IDs
+    final_order_id = models.CharField(max_length=255, null=True, blank=True)  # ORD-XXX
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
-    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True) 
-    payment_status = models.CharField(max_length=50, default='Pending') 
-    created_at = models.DateTimeField(auto_now_add=True)
-    delivered_at = models.DateTimeField(null=True, blank=True)
-    status = models.IntegerField(choices=STATUS_CHOICES, default=PENDING)
-    products = models.ForeignKey(product, on_delete=models.CASCADE)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     cod_order_id = models.UUIDField(default=uuid.uuid4, unique=True)
+    
+    # Shiprocket Integration (NEW)
+    shiprocket_order_id = models.CharField(max_length=100, blank=True, null=True)
+    shiprocket_shipment_id = models.CharField(max_length=100, blank=True, null=True)
+    awb_code = models.CharField(max_length=100, blank=True, null=True)  # Tracking number
+    courier_name = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Status
+    status = models.IntegerField(choices=STATUS_CHOICES, default=PLACED)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    packed_at = models.DateTimeField(null=True, blank=True)
+    shipped_at = models.DateTimeField(null=True, blank=True)
+    out_for_delivery_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    canceled_at = models.DateTimeField(null=True, blank=True)
+    return_requested_at = models.DateTimeField(null=True, blank=True)
+    return_approved_at = models.DateTimeField(null=True, blank=True)
+    returned_at = models.DateTimeField(null=True, blank=True)
+    refunded_at = models.DateTimeField(null=True, blank=True)
+    
+    # Legacy field (keeping for compatibility)
+    products = models.ForeignKey('product', on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'shop_order'
- 
+        ordering = ['-created_at']
+    
     def __str__(self):
-        return f"Order {self.id} by {self.user.username}"
+        return f"Order {self.final_order_id or self.id} by {self.user.username}"
+    
+    # ==================== PROPERTIES ====================
     
     @property
-    def is_old_order(self):
-        if self.delivered_at:
-            return timezone.now() - self.delivered_at > timezone.timedelta(days=10)
+    def customer_status(self):
+        """User-friendly status messages for customers"""
+        status_messages = {
+            self.PLACED: "Order Placed Successfully",
+            self.PACKED: "Your Order is Being Packed",
+            self.SHIPPED: "Order Shipped",
+            self.OUT_FOR_DELIVERY: "Out for Delivery",
+            self.DELIVERED: "Delivered Successfully",
+            self.CANCELED: "Order Canceled",
+            self.RETURN_REQUESTED: "Return Request Submitted",
+            self.RETURN_APPROVED: "Return Approved - Pickup Scheduled",
+            self.RETURNED: "Product Returned",
+            self.REFUNDED: "Refund Processed",
+        }
+        return status_messages.get(self.status, "Unknown Status")
+    
+    @property
+    def can_cancel(self):
+        """Check if order can be canceled"""
+        return self.status in [self.PLACED, self.PACKED]
+    
+    @property
+    def can_return(self):
+        """Check if order can be returned (within 10 days of delivery)"""
+        if self.status == self.DELIVERED and self.delivered_at:
+            days_since_delivery = (timezone.now() - self.delivered_at).days
+            return days_since_delivery <= 10
         return False
     
+    @property
+    def is_cod(self):
+        """Check if this is a COD order"""
+        return self.payment_method.upper() == 'COD'
+    
+    @property
+    def is_returnable(self):
+        """Alias for can_return"""
+        return self.can_return
+    
+    @property
+    def tracking_available(self):
+        """Check if tracking information is available"""
+        return bool(self.awb_code)
+    
+    @property
+    def payment_collected(self):
+        """Check if payment has been collected/completed"""
+        return self.payment_status in [
+            self.PAYMENT_COMPLETED, 
+            self.PAYMENT_COD_COLLECTED
+        ]
+    
+    # ==================== METHODS ====================
+    
+    def mark_as_packed(self):
+        """Mark order as packed"""
+        self.status = self.PACKED
+        self.packed_at = timezone.now()
+        self.save()
+    
+    def mark_as_shipped(self, shiprocket_data=None):
+        """Mark order as shipped"""
+        self.status = self.SHIPPED
+        self.shipped_at = timezone.now()
+        
+        if shiprocket_data:
+            self.shiprocket_order_id = shiprocket_data.get('order_id')
+            self.shiprocket_shipment_id = shiprocket_data.get('shipment_id')
+            self.awb_code = shiprocket_data.get('awb_code')
+            self.courier_name = shiprocket_data.get('courier_name')
+        
+        self.save()
+    
+    def mark_as_out_for_delivery(self):
+        """Mark order as out for delivery"""
+        self.status = self.OUT_FOR_DELIVERY
+        self.out_for_delivery_at = timezone.now()
+        self.save()
+    
+    def mark_as_delivered(self, cod_collected=False):
+        """Mark order as delivered"""
+        self.status = self.DELIVERED
+        self.delivered_at = timezone.now()
+        
+        # Update payment status for COD
+        if self.is_cod and cod_collected:
+            self.payment_status = self.PAYMENT_COD_COLLECTED
+        
+        self.save()
+    
+    def cancel_order(self, reason=None):
+        """Cancel the order"""
+        if not self.can_cancel:
+            raise ValueError("Order cannot be canceled at this stage")
+        
+        self.status = self.CANCELED
+        self.canceled_at = timezone.now()
+        self.save()
+    
+    def request_return(self):
+        """Request return"""
+        if not self.can_return:
+            raise ValueError("Order cannot be returned")
+        
+        self.status = self.RETURN_REQUESTED
+        self.return_requested_at = timezone.now()
+        self.save()
+    
+    def approve_return(self):
+        """Approve return request"""
+        if self.status != self.RETURN_REQUESTED:
+            raise ValueError("No return request found")
+        
+        self.status = self.RETURN_APPROVED
+        self.return_approved_at = timezone.now() 
+        self.save()
+    
+    def mark_as_returned(self):
+        """Mark product as returned"""
+        self.status = self.RETURNED
+        self.returned_at = timezone.now()
+        self.save()
+    
+    def process_refund(self):
+        """Process refund"""
+        self.status = self.REFUNDED
+        self.refunded_at = timezone.now()
+        self.payment_status = self.PAYMENT_REFUNDED
+        self.save()   
+        
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='order_items', on_delete=models.CASCADE)
     Product = models.ForeignKey(product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    
+    price = models.DecimalField(max_digits=10, decimal_places=2) 
     class Meta:
         db_table = 'shop_orderitem'
 
