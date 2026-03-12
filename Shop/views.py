@@ -47,10 +47,169 @@ from django.contrib.auth.models import User
 from .forms import EditProfileForm, customuserform
 from datetime import date, timedelta
 
+from reportlab.graphics.barcode import code128
+from reportlab.graphics import renderPDF
+from reportlab.graphics.shapes import Drawing
+from django.core.files.base import ContentFile
+import qrcode
+
 
 
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 client.set_app_details({"title": "Shop", "version": "1.0"})
+
+def generate_tracking_number():
+    """Generate unique tracking number"""
+    prefix = "TK"
+    unique_id = uuid.uuid4().hex[:10].upper()
+    return f"{prefix}{unique_id}"
+
+
+def generate_shipping_label_pdf(shipping_label):
+    """Generate 4x6 inch thermal shipping label PDF"""
+    order = shipping_label.order
+    address = order.address
+    
+    buffer = io.BytesIO()
+    width, height = 4 * inch, 6 * inch
+    c = canvas.Canvas(buffer, pagesize=(width, height))
+    
+    primary_color = colors.HexColor('#667eea')
+    text_color = colors.HexColor('#1f2937')
+    
+    y_position = height - 0.3 * inch
+    
+    # Header
+    c.setFillColor(primary_color)
+    c.rect(0, height - 0.8 * inch, width, 0.8 * inch, fill=True, stroke=False)
+    
+    c.setFillColor(colors.white)
+    c.setFont("Helvetica-Bold", 18)
+    c.drawCentredString(width / 2, height - 0.45 * inch, "TRUMPKART")
+    
+    c.setFont("Helvetica", 8)
+    c.drawCentredString(width / 2, height - 0.65 * inch, "Your Trusted Shopping Partner")
+    
+    y_position = height - 1 * inch
+    
+    # Tracking number
+    c.setFillColor(text_color)
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(0.2 * inch, y_position, f"Tracking: {shipping_label.tracking_number}")
+    
+    y_position -= 0.4 * inch
+    
+    # Barcode
+    try:
+        barcode = code128.Code128(shipping_label.tracking_number, barHeight=0.4 * inch, barWidth=1.2)
+        barcode.drawOn(c, 0.5 * inch, y_position - 0.4 * inch)
+    except:
+        pass
+    
+    y_position -= 0.7 * inch
+    
+    # Order details
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(0.2 * inch, y_position, f"Order ID: {order.final_order_id}")
+    
+    y_position -= 0.2 * inch
+    c.setFont("Helvetica", 8)
+    c.drawString(0.2 * inch, y_position, f"Date: {order.created_at.strftime('%d %b %Y')}")
+    
+    y_position -= 0.2 * inch
+    c.drawString(0.2 * inch, y_position, f"Payment: {order.payment_method}")
+    
+    y_position -= 0.4 * inch
+    
+    # Ship to address box
+    c.setFillColor(colors.HexColor('#f3f4f6'))
+    c.rect(0.15 * inch, y_position - 1.2 * inch, width - 0.3 * inch, 1.3 * inch, fill=True, stroke=True)
+    
+    c.setFillColor(primary_color)
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(0.25 * inch, y_position - 0.15 * inch, "SHIP TO:")
+    
+    c.setFillColor(text_color)
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(0.25 * inch, y_position - 0.35 * inch, address.name[:30])
+    
+    c.setFont("Helvetica", 9)
+    line_height = 0.18 * inch
+    
+    address_lines = [
+        f"{address.house}, {address.area}"[:35],
+        f"{address.city}, {address.state}"[:35],
+        f"PIN: {address.zipcode}",
+        f"Phone: {address.phone}"
+    ]
+    
+    y_addr = y_position - 0.55 * inch
+    for line in address_lines:
+        c.drawString(0.25 * inch, y_addr, line)
+        y_addr -= line_height
+    
+    y_position -= 1.5 * inch
+    
+    # QR Code
+    if shipping_label.qr_code:
+        try:
+            qr_size = 0.8 * inch
+            c.drawImage(
+                shipping_label.qr_code.path,
+                width - qr_size - 0.2 * inch,
+                0.2 * inch,
+                width=qr_size,
+                height=qr_size,
+                preserveAspectRatio=True
+            )
+            
+            c.setFont("Helvetica", 6)
+            c.drawString(width - qr_size - 0.2 * inch, 0.1 * inch, "Scan to Track")
+        except:
+            pass
+    
+    # Footer
+    c.setFont("Helvetica", 7)
+    c.setFillColor(colors.grey)
+    c.drawString(0.2 * inch, 0.15 * inch, "Handle with Care")
+    
+    c.save()
+    
+    pdf_content = buffer.getvalue()
+    buffer.close()
+    
+    return pdf_content
+
+
+def create_shipping_label(order):
+    """Create shipping label for an order"""
+    from .models import ShippingLabel
+    
+    # Check if label already exists
+    if hasattr(order, 'shipping_label'):
+        return order.shipping_label
+    
+    # Generate tracking number
+    tracking_number = generate_tracking_number()
+    
+    # Create label instance
+    shipping_label = ShippingLabel.objects.create(
+        order=order,
+        tracking_number=tracking_number
+    )
+    
+    # Generate QR code
+    shipping_label.generate_qr_code()
+    shipping_label.save()
+    
+    # Generate PDF label
+    pdf_content = generate_shipping_label_pdf(shipping_label)
+    
+    # Save PDF to model
+    filename = f"label_{order.final_order_id}.pdf"
+    shipping_label.label_pdf.save(filename, ContentFile(pdf_content), save=True)
+    
+    return shipping_label
 
 @login_required
 def update_order_address(request, order_id):
@@ -206,6 +365,14 @@ def checkout_view(request):
                         price=item.Product.selling_price
                     )
                     order_items.append(order_item)
+
+                    # Create shipping label automatically
+                    if len(order_items) == len(cart_items):  # After last item
+                        try:
+                            shipping_label = create_shipping_label(order)
+                            print(f"✓ Shipping label created: {shipping_label.tracking_number}")
+                        except Exception as e:
+                            print(f"✗ Failed to create shipping label: {e}")
                     
                     # Reduce product stock
                     product_obj = item.Product
@@ -288,6 +455,13 @@ def checkout_view(request):
                             price=item.Product.selling_price
                         )
                         order_items.append(order_item)
+
+                        if len(order_items) == len(cart_items):  # After last item
+                            try:
+                                shipping_label = create_shipping_label(order)
+                                print(f"✓ Shipping label created: {shipping_label.tracking_number}")
+                            except Exception as e:
+                                print(f"✗ Failed to create shipping label: {e}")
                         
                         # Reduce product stock
                         product_obj = item.Product
@@ -524,6 +698,13 @@ def buy_now_checkout_view(request):
                     price=product_obj.selling_price
                 )
                 order_items = [order_item]
+
+                # Create shipping label automatically
+                try:
+                    shipping_label = create_shipping_label(order)
+                    print(f"✓ Shipping label created: {shipping_label.tracking_number}")
+                except Exception as e:
+                    print(f"✗ Failed to create shipping label: {e}")
                 
                 # Reduce product stock
                 product_obj.quantity -= quantity
@@ -595,6 +776,13 @@ def buy_now_checkout_view(request):
                         price=product_obj.selling_price
                     )
                     order_items = [order_item]
+
+                    # Create shipping label automatically
+                    try:
+                        shipping_label = create_shipping_label(order)
+                        print(f"✓ Shipping label created: {shipping_label.tracking_number}")
+                    except Exception as e:
+                        print(f"✗ Failed to create shipping label: {e}")
                     
                     # Reduce product stock
                     product_obj.quantity -= quantity

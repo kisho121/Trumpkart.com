@@ -175,9 +175,83 @@ document.addEventListener('DOMContentLoaded', function() {
     const rzpButton = document.getElementById('rzp-button1');
     const codButton = document.getElementById('cod_button');
 
-    // Function to validate form
+    // ✅ NEW: Fullscreen processing overlay
+    function showProcessingOverlay(message = "Processing your order...") {
+        // Prevent user from leaving
+        // window.onbeforeunload = function() {
+        //     return "Your order is being processed. Please do not close or refresh this page.";
+        // };
+
+        const overlay = document.createElement('div');
+        overlay.id = 'order-processing-overlay';
+        overlay.innerHTML = `
+            <div style="
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.75);
+                z-index: 99999;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(4px);
+            ">
+                <div style="
+                    background: white;
+                    border-radius: 16px;
+                    padding: 40px 50px;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+                    max-width: 400px;
+                    width: 90%;
+                ">
+                    <!-- Animated spinner -->
+                    <div style="
+                        width: 70px;
+                        height: 70px;
+                        border: 6px solid #e0e0e0;
+                        border-top-color: #28a745;
+                        border-radius: 50%;
+                        animation: spin 0.9s linear infinite;
+                        margin: 0 auto 20px;
+                    "></div>
+
+                    <h4 style="color: #1a1a1a; margin-bottom: 8px; font-weight: 700; font-size: 1.3rem;">
+                        Placing Your Order
+                    </h4>
+                    <p style="color: #555; margin-bottom: 20px; font-size: 0.95rem;">
+                        ${message}
+                    </p>
+
+                    <!-- Warning box -->
+                    <div style="
+                        background: #fff8e1;
+                        border: 1px solid #ffca28;
+                        border-radius: 10px;
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        text-align: left;
+                    ">
+                        <span style="font-size: 1.4rem;">⚠️</span>
+                        <p style="margin: 0; font-size: 0.85rem; color: #7a5800; font-weight: 600; line-height: 1.4;">
+                            Please do <strong>not</strong> close, refresh, or press the back button.<br>
+                            You'll be redirected automatically.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <style>
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+        `;
+        document.body.appendChild(overlay);
+    }
+
     function validateForm() {
-        // Get all required fields
         const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
         let isValid = true;
         let firstInvalidField = null;
@@ -186,46 +260,40 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!field.value.trim()) {
                 isValid = false;
                 field.classList.add('is-invalid');
-                if (!firstInvalidField) {
-                    firstInvalidField = field;
-                }
+                if (!firstInvalidField) firstInvalidField = field;
             } else {
                 field.classList.remove('is-invalid');
             }
         });
 
-        // If form is invalid, show alert and focus first invalid field
         if (!isValid) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Incomplete Form',
                 text: 'Please fill all required fields before proceeding.',
             });
-            if (firstInvalidField) {
-                firstInvalidField.focus();
-            }
+            if (firstInvalidField) firstInvalidField.focus();
         }
-
         return isValid;
     }
 
-    // Razorpay options
     const options = {
         "key": "{{ razorpay_key }}",
-        "amount": "{{ amount }}", // Amount in paise from backend
+        "amount": "{{ amount }}",
         "currency": "INR",
         "name": "TrumpKart",
         "description": "Order Payment",
         "image": "https://example.com/your_logo",
-        "order_id": "{{ razorpay_order_id }}", // This will be set when needed
+        "order_id": "{{ razorpay_order_id }}",
         "handler": function (response) {
-            // Payment successful - update hidden fields
+            // ✅ Show overlay IMMEDIATELY when Razorpay closes successfully
+            showProcessingOverlay("Payment confirmed! Saving your order...");
+
             document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
             document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
             document.getElementById('razorpay_signature').value = response.razorpay_signature;
             document.getElementById('payment_mode').value = "Razorpay";
-            
-            // Submit the form
+
             form.submit();
         },
         "prefill": {
@@ -233,12 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
             "email": "{{ user.email }}",
             "contact": ""
         },
-        "notes": {
-            "address": "Order from TrumpKart"
-        },
-        "theme": {
-            "color": "#3399cc"
-        },
+        "notes": { "address": "Order from TrumpKart" },
+        "theme": { "color": "#3399cc" },
         "modal": {
             "ondismiss": function() {
                 Swal.fire({
@@ -251,46 +315,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Razorpay button click handler
     rzpButton.addEventListener('click', function(e) {
         e.preventDefault();
-        
-        // Validate form first
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
-        // Show loading
         Swal.fire({
             title: 'Processing...',
             text: 'Creating payment order...',
             allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            didOpen: () => Swal.showLoading()
         });
 
-        // Create Razorpay order via backend
         const formData = new FormData(form);
         formData.set('payment_mode', 'Razorpay');
 
         fetch(checkoutUrl, {
             method: 'POST',
             body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(response => response.json())
         .then(data => {
             Swal.close();
-            
             if (data.success) {
-                // Update Razorpay options with order details
                 options.order_id = data.razorpay_order_id;
                 options.amount = data.amount;
-                
-                // Open Razorpay payment modal
                 const rzp = new Razorpay(options);
                 rzp.open();
             } else {
@@ -303,25 +352,14 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             Swal.close();
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Something went wrong. Please try again.',
-            });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.' });
         });
     });
 
-    // COD button click handler
     codButton.addEventListener('click', function(e) {
         e.preventDefault();
-        
-        // Validate form first
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
-        // Confirm COD order
         Swal.fire({
             title: 'Confirm Order',
             text: 'Place order with Cash on Delivery?',
@@ -333,14 +371,14 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Set payment mode and submit
+                // ✅ Show overlay IMMEDIATELY before form submits
+                showProcessingOverlay("Confirming your Cash on Delivery order...");
                 document.getElementById('payment_mode').value = "COD";
                 form.submit();
             }
         });
     });
 
-    // Add visual feedback for required fields
     const inputs = form.querySelectorAll('input, textarea, select');
     inputs.forEach(input => {
         input.addEventListener('blur', function() {

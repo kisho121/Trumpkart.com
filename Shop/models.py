@@ -401,3 +401,58 @@ class SupportIssue(models.Model):
 
     def __str__(self):
         return self.name
+
+class ShippingLabel(models.Model):
+    """Stores shipping label data for each order"""
+    order = models.OneToOneField('Order', on_delete=models.CASCADE, related_name='shipping_label')
+    tracking_number = models.CharField(max_length=50, unique=True)
+    label_pdf = models.FileField(upload_to='shipping_labels/', null=True, blank=True)
+    qr_code = models.ImageField(upload_to='label_qrcodes/', null=True, blank=True)
+    generated_at = models.DateTimeField(auto_now_add=True)
+    is_printed = models.BooleanField(default=False)
+    printed_at = models.DateTimeField(null=True, blank=True)
+    printed_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='printed_labels')
+    
+    class Meta:
+        ordering = ['-generated_at']
+        verbose_name = 'Shipping Label'
+        verbose_name_plural = 'Shipping Labels'
+    
+    def __str__(self):
+        return f"Label for {self.order.final_order_id}"
+    
+    def generate_qr_code(self):
+        """Generate QR code for tracking"""
+        import qrcode
+        from io import BytesIO
+        from django.core.files import File
+        
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        
+        tracking_url = self.tracking_number
+        qr.add_data(tracking_url)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        filename = f'qr_{self.tracking_number}.png'
+        self.qr_code.save(filename, File(buffer), save=False)
+        buffer.close()
+    
+    def mark_as_printed(self, user=None):
+        """Mark label as printed"""
+        from django.utils import timezone
+        self.is_printed = True
+        self.printed_at = timezone.now()
+        if user:
+            self.printed_by = user
+        self.save()
