@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.conf import settings
 import razorpay
 from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 import random
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -2264,13 +2265,14 @@ def supportView(request):
             )
             
             
-            send_mail(
-                f"mail from {name}",
-                feedback,
-                email,
-                ['kishorehitter1995@gmail.com'],
-                fail_silently=False,
+            email_message = EmailMessage(
+                subject=f"Support Request from {name} [{section.upper()}]",
+                body=f"From: {name}\nEmail: {email}\n\nMessage:\n{feedback}",
+                from_email=settings.DEFAULT_FROM_EMAIL,   # ✅ your verified sender
+                to=['trumpkart.co@gmail.com'],
+                reply_to=[email],                          # ✅ so you can reply to the user
             )
+            email_message.send(fail_silently=False)
             form= supportForm()
             return JsonResponse({'status':'success', 'message':'Your issue has been Sent Successfully'})
         else:

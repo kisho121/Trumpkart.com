@@ -19,15 +19,10 @@ class GoogleSheetsService:
             'https://www.googleapis.com/auth/drive'
         ]
         
-        # Get credentials file path from settings
-        creds_file = os.path.join(
-            settings.BASE_DIR, 
-            settings.GOOGLE_SHEETS_CREDENTIALS_FILE
-        )
         
-        # Authenticate with Google
-        self.creds = Credentials.from_service_account_file(
-            creds_file, 
+       # Authenticate with Google using credentials dict from env
+        self.creds = Credentials.from_service_account_info(
+            settings.GOOGLE_SHEETS_CREDENTIALS,  # ✅ dict loaded from env
             scopes=self.scope
         )
         self.client = gspread.authorize(self.creds)

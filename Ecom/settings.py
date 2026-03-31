@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 import dj_database_url
 from decouple import config, Csv
+import json
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -15,14 +16,6 @@ SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
-
-if DEBUG:
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS_LOCAL', cast=Csv())
-else:
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS_PROD', cast=Csv())
-    # Also allow localhost for testing in production (optional)
-    ALLOWED_HOSTS.append('127.0.0.1')
-    ALLOWED_HOSTS.append('localhost')
     
 # Detect if running with runserver (local development)
 IS_RUNSERVER = 'runserver' in sys.argv
@@ -110,6 +103,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'Shop',
+    'anymail',
     'widget_tweaks',
     'razorpay',
     'django.contrib.sites',
@@ -124,9 +118,9 @@ LOCALE_PATHS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.locale.LocaleMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -313,12 +307,13 @@ ACCOUNT_SIGNUP_FIELDS = [
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# SendGrid Email Backend
-EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-SENDGRID_API_KEY = config("SENDGRID_API_KEY")
+# Brevo Email Backend (via Anymail)
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+ANYMAIL = {
+    "BREVO_API_KEY": config("BREVO_API_KEY"),
+    "IGNORE_RECIPIENT_STATUS": True,
+}
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
-SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-SENDGRID_ECHO_TO_STDOUT = False
 
 # Razorpay Settings
 RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
@@ -327,8 +322,21 @@ RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
 CRON_SECRET_KEY = config('CRON_SECRET_KEY')
 
 # ========== Google Sheets Configuration ==========
-GOOGLE_SHEETS_CREDENTIALS_FILE = 'credentials/google_sheets_credentials.json'
-#GOOGLE_SHEET_ID = '1qKeFpvDaJzoy3u8WWOB46jLUzlrxPvugeg7CQ0CplbA'
-MASTER_SHEET_ID = '14b2YfDSZDYlk9osiwB62QY3u0DuQkSw92ZP8aUpsisQ'
-DEALER_SHEET_ID = '1VzP0fHr1YuF4N-FKcrUvYy-GemO97iuCKrNbW37xZKo'
-DELIVERY_SHEET_ID = '1SJpKnUvqL5Gz07q9kI4Okh1wRla0HqMs3os8krvtBRI'
+
+GOOGLE_SHEETS_CREDENTIALS = json.loads(
+    config("GOOGLE_CREDENTIALS_JSON", "{}")
+)
+
+# Fix newline issue
+if "private_key" in GOOGLE_SHEETS_CREDENTIALS:
+    GOOGLE_SHEETS_CREDENTIALS["private_key"] = GOOGLE_SHEETS_CREDENTIALS["private_key"].replace("\\n", "\n")
+
+# Automatically picks correct sheet based on DEBUG
+if DEBUG:
+    MASTER_SHEET_ID = config('MASTER_SHEET_ID')
+    DEALER_SHEET_ID = config('DEALER_SHEET_ID')
+    DELIVERY_SHEET_ID = config('DELIVERY_SHEET_ID')
+else:
+    MASTER_SHEET_ID = config('PROD_MASTER_SHEET_ID')
+    DEALER_SHEET_ID = config('PROD_DEALER_SHEET_ID')
+    DELIVERY_SHEET_ID = config('PROD_DELIVERY_SHEET_ID')
