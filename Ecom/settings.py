@@ -70,7 +70,7 @@ if DEBUG:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 else:
     ALLOWED_HOSTS = [
-        'trumpkart-in-4hog.onrender.com',
+        'trumpkart-shop.onrender.com',
         '127.0.0.1',
         'localhost',
         '.onrender.com',
@@ -79,7 +79,7 @@ else:
 # Security settings - only apply in actual production, not local testing
 if not DEBUG and not IS_RUNSERVER:
     # Production security settings (on Render)
-    CSRF_TRUSTED_ORIGINS = ['https://trumpkart-in-4hog.onrender.com']
+    CSRF_TRUSTED_ORIGINS = ['https://trumpkart-shop.onrender.com']
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
