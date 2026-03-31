@@ -46,6 +46,7 @@ urlpatterns=[
     path('submit-rating', views.submit_rating, name='submit_rating'),
     path("health/", views.health, name="health"),
     path('ajax/search-suggestions/', views.ajax_search_suggestions, name='ajax_search_suggestions'),
-     path('order/<int:order_id>/update-address/', views.update_order_address, name='update_order_address'),
+    path('order/<int:order_id>/update-address/', views.update_order_address, name='update_order_address'),
+    path('offline/', views.offline_view, name='offline'),
 
 ]  

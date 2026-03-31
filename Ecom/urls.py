@@ -36,6 +36,10 @@ urlpatterns = [
     path('robots.txt', robots_txt),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}),
     path('',include('Shop.urls')),
+    path('sw.js', TemplateView.as_view(
+        template_name='sw.js',
+        content_type='application/javascript'
+    ), name='sw'),
     
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),

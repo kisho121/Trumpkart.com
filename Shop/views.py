@@ -2294,6 +2294,9 @@ def robots_txt(request):
         content_type="text/plain"
     )
 
+def offline_view(request):
+    return render(request, 'Shop/offline.html')
+
 def health(request):
     return JsonResponse({
         "status": "ok",
