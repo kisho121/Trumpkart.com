@@ -93,22 +93,41 @@
             });
         }
 
-        // ── PWA Install Banner ───────────────────────────────────
+        // ── PWA Install Banner ───────────────────────────────────────
         let deferredPrompt = null;
         const banner = document.getElementById('pwa-install-banner');
         const installBtn = document.getElementById('pwa-install-btn');
         const dismissBtn = document.getElementById('pwa-dismiss-btn');
         const subtitle = document.getElementById('pwa-banner-subtitle');
 
-        // Android / Desktop Chrome
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
+        const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+        const isAndroid = /android/i.test(navigator.userAgent);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                            || window.navigator.standalone === true;
+        const isDismissed = localStorage.getItem('pwa-dismissed');
 
-            if (!localStorage.getItem('pwa-dismissed')) {
-                banner.style.display = 'flex';
+        // Don't show if already installed or dismissed
+        if (!isStandalone && !isDismissed) {
+
+            // ── Android Chrome ──
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                // Show after 3 seconds
+                setTimeout(() => {
+                    banner.style.display = 'flex';
+                }, 3000);
+            });
+
+            // ── iOS Safari ──
+            if (isIos) {
+                setTimeout(() => {
+                    banner.style.display = 'flex';
+                    subtitle.textContent = '📲 Tap Share → Add to Home Screen';
+                    installBtn.style.display = 'none';
+                }, 3000);
             }
-        });
+        }
 
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
@@ -130,16 +149,6 @@
             banner.style.display = 'none';
             localStorage.removeItem('pwa-dismissed');
         });
-
-        // iOS Safari
-        const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
-        if (isIos && !isStandalone && !localStorage.getItem('pwa-dismissed')) {
-            banner.style.display = 'flex';
-            subtitle.textContent = '📲 Tap Share → Add to Home Screen';
-            installBtn.style.display = 'none';  // iOS can't trigger install programmatically
-        }
     </script>
     {% endblock scripts %}
 
