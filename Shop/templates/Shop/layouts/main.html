@@ -2,17 +2,13 @@
 <!doctype html>
 <html lang="en">
   <head>
-   
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google-site-verification" content="9mfEoQ0CsPIO4Hrqo0H0787cQ__z3I4ENlSyJ25StKg" />
    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     
-    <title>
-        {% block title %} 
-        {% endblock title %}
-    </title>
+    <title>{% block title %}{% endblock title %}</title>
 
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     
@@ -24,74 +20,128 @@
     <meta name="apple-mobile-web-app-title" content="TrumpKart">
     <link rel="apple-touch-icon" href="/static/images/icon-192.png">
 
-   
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="preload"
           href="{% static 'fontawesome/css/all.min.css' %}"
           as="style"
           onload="this.onload=null;this.rel='stylesheet'">
-
     <noscript>
       <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
     </noscript>
 
-
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-
-
   </head>
+
   <body class="bg-body .poppins-regular">
     {% include 'Shop/inc/navbar.html' %}
+
     {% block content %}
     {% endblock content %}
-    {% include 'Shop/inc/footer.html' %}
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
-   <!-- Global Loader -->
+    {% include 'Shop/inc/footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <!-- Global Loader -->
     <div id="page-loader">
       <div class="spinner-border text-light" role="status"></div>
     </div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999; background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.18); padding:20px 28px; min-width:320px; max-width:90vw; align-items:center; gap:16px; flex-direction:row;">
+        <img src="/static/images/icon-192.png" width="52" height="52" style="border-radius:12px; flex-shrink:0;">
+        <div style="flex:1;">
+            <div style="font-weight:700; font-size:16px;">Install TrumpKart</div>
+            <div id="pwa-banner-subtitle" style="font-size:13px; color:#666;">Shop faster with our app!</div>
+        </div>
+        <button id="pwa-install-btn" style="background:#000; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:14px; cursor:pointer; flex-shrink:0;">Install</button>
+        <button id="pwa-dismiss-btn" style="background:none; border:none; font-size:20px; cursor:pointer; color:#999; flex-shrink:0; line-height:1;">✕</button>
+    </div>
+
     {% block scripts %}
-      <script>
-          const loader = document.getElementById("page-loader");
+    <script>
+        // ── Page Loader ──────────────────────────────────────────
+        const loader = document.getElementById("page-loader");
 
-          /* show loader ONLY for real navigation links */
-          document.querySelectorAll("a.show-loader").forEach(link => {
+        document.querySelectorAll("a.show-loader").forEach(link => {
             link.addEventListener("click", () => {
-              loader.style.display = "flex";
+                loader.style.display = "flex";
             });
-          });
+        });
 
-          /* show loader on form submit (keep this ✔) */
-          document.addEventListener("submit", function () {
+        document.addEventListener("submit", function () {
             loader.style.display = "flex";
-          });
+        });
 
-          /* always hide loader when page loads or comes back */
-          window.addEventListener("pageshow", function () {
+        window.addEventListener("pageshow", function () {
             loader.style.display = "none";
-          });
+        });
 
-          if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js')
-                      .then(reg => console.log('SW registered'))
-                      .catch(err => console.log('SW error:', err));
-              });
-          }
+        // ── Service Worker ───────────────────────────────────────
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registered:', reg.scope))
+                    .catch(err => console.log('SW error:', err));
+            });
+        }
 
-      </script>
+        // ── PWA Install Banner ───────────────────────────────────
+        let deferredPrompt = null;
+        const banner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('pwa-install-btn');
+        const dismissBtn = document.getElementById('pwa-dismiss-btn');
+        const subtitle = document.getElementById('pwa-banner-subtitle');
 
+        // Android / Desktop Chrome
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            if (!localStorage.getItem('pwa-dismissed')) {
+                banner.style.display = 'flex';
+            }
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    banner.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        dismissBtn.addEventListener('click', () => {
+            banner.style.display = 'none';
+            localStorage.setItem('pwa-dismissed', '1');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            banner.style.display = 'none';
+            localStorage.removeItem('pwa-dismissed');
+        });
+
+        // iOS Safari
+        const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+        if (isIos && !isStandalone && !localStorage.getItem('pwa-dismissed')) {
+            banner.style.display = 'flex';
+            subtitle.textContent = '📲 Tap Share → Add to Home Screen';
+            installBtn.style.display = 'none';  // iOS can't trigger install programmatically
+        }
+    </script>
     {% endblock scripts %}
 
-    
-    
   </body>
 </html>
