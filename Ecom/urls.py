@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.http import HttpResponse
+
 from Shop.views import robots_txt
 from django.contrib.sitemaps.views import sitemap
 from Shop.sitemaps import StaticSitemap
@@ -27,19 +29,47 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
+import os
+
 sitemaps = {
     'static': StaticSitemap,
 }
+
+# ============================================
+# PWA VIEWS
+# ============================================
+def serve_manifest(request):
+    manifest_path = os.path.join(settings.BASE_DIR, 'static', 'manifest.json')
+    try:
+        with open(manifest_path, 'r') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='application/manifest+json')
+    except FileNotFoundError:
+        return HttpResponse(f'Not found. Tried: {manifest_path}', status=404)
+
+def serve_sw(request):
+    sw_path = os.path.join(settings.BASE_DIR, 'static', 'sw.js')
+    try:
+        with open(sw_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        response = HttpResponse(content, content_type='application/javascript')
+        response['Cache-Control'] = 'no-cache'
+        response['Service-Worker-Allowed'] = '/'
+        return response
+    except FileNotFoundError:
+        return HttpResponse(f'Not found. Tried: {sw_path}', status=404)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('robots.txt', robots_txt),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}),
+
+    # PWA — must be before app routes
+    path('manifest.json', serve_manifest, name='manifest'),
+    path('sw.js', serve_sw, name='sw'),
+
     path('',include('Shop.urls')),
-    path('sw.js', TemplateView.as_view(
-        template_name='sw.js',
-        content_type='application/javascript'
-    ), name='sw'),
+   
     
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
