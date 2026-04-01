@@ -38,17 +38,12 @@ sitemaps = {
 # ============================================
 # PWA VIEWS
 # ============================================
-def serve_manifest(request):
-    manifest_path = os.path.join(settings.BASE_DIR, 'static', 'manifest.json')
-    try:
-        with open(manifest_path, 'r') as f:
-            content = f.read()
-        return HttpResponse(content, content_type='application/manifest+json')
-    except FileNotFoundError:
-        return HttpResponse(f'Not found. Tried: {manifest_path}', status=404)
-
 def serve_sw(request):
-    sw_path = os.path.join(settings.BASE_DIR, 'static', 'sw.js')
+    # Check staticfiles first (production), then static (development)
+    sw_path = os.path.join(settings.BASE_DIR, 'staticfiles', 'sw.js')
+    if not os.path.exists(sw_path):
+        sw_path = os.path.join(settings.BASE_DIR, 'static', 'sw.js')
+    
     try:
         with open(sw_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -58,6 +53,19 @@ def serve_sw(request):
         return response
     except FileNotFoundError:
         return HttpResponse(f'Not found. Tried: {sw_path}', status=404)
+
+def serve_manifest(request):
+    # Check staticfiles first (production), then static (development)
+    manifest_path = os.path.join(settings.BASE_DIR, 'staticfiles', 'manifest.json')
+    if not os.path.exists(manifest_path):
+        manifest_path = os.path.join(settings.BASE_DIR, 'static', 'manifest.json')
+    
+    try:
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='application/manifest+json')
+    except FileNotFoundError:
+        return HttpResponse(f'Not found. Tried: {manifest_path}', status=404)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
