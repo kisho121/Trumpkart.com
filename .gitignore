@@ -43,6 +43,7 @@ celerybeat-schedule
 credentials/
 *.json
 !package.json
+!static/manifest.json
 
 # Utility/Debug Scripts
 check_orders.py
