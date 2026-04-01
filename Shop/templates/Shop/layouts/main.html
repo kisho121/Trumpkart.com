@@ -5,20 +5,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google-site-verification" content="9mfEoQ0CsPIO4Hrqo0H0787cQ__z3I4ENlSyJ25StKg" />
-   
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    
+
     <title>{% block title %}{% endblock title %}</title>
 
+    <!-- ============================================ -->
+    <!-- PWA META TAGS -->
+    <!-- ============================================ -->
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
-    
-    <!-- PWA -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="TrumpKart">
-    <link rel="apple-touch-icon" href="/static/images/icon-192.png">
+    <meta name="application-name" content="TrumpKart">
+    <link rel="apple-touch-icon" sizes="192x192" href="/static/images/icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/static/images/icon-512.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +41,139 @@
     </noscript>
 
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+    <!-- ============================================ -->
+    <!-- PWA INSTALL BANNER STYLES -->
+    <!-- ============================================ -->
+    <style>
+        #pwa-install-banner {
+            position: fixed;
+            bottom: -200px;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.4);
+            z-index: 99999;
+            transition: bottom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding: 12px 14px;
+            max-height: 100px;
+        }
+
+        #pwa-install-banner.show {
+            bottom: 0;
+        }
+
+        .pwa-banner-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .pwa-banner-icon img {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .pwa-banner-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .pwa-banner-text strong {
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pwa-banner-text span {
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pwa-banner-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .pwa-btn-install {
+            padding: 8px 20px;
+            background: #000;
+            border: 1px solid #fff;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .pwa-btn-install:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .pwa-btn-dismiss {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .pwa-btn-dismiss:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .pwa-btn-dismiss svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        @media (max-width: 480px) {
+            #pwa-install-banner { padding: 10px 12px; }
+            .pwa-banner-icon img { width: 38px; height: 38px; }
+            .pwa-banner-text strong { font-size: 0.82rem; }
+            .pwa-banner-text span { font-size: 0.7rem; }
+            .pwa-btn-install { padding: 7px 16px; font-size: 0.75rem; }
+        }
+
+        @media (max-width: 360px) {
+            .pwa-banner-text span { display: none; }
+            .pwa-btn-install { padding: 6px 14px; font-size: 0.72rem; }
+        }
+
+        @media (max-height: 450px) and (orientation: landscape) {
+            .pwa-banner-text span { display: none; }
+            .pwa-banner-icon img { width: 32px; height: 32px; }
+        }
+    </style>
   </head>
 
   <body class="bg-body .poppins-regular">
@@ -52,17 +189,6 @@
     <!-- Global Loader -->
     <div id="page-loader">
       <div class="spinner-border text-light" role="status"></div>
-    </div>
-
-    <!-- PWA Install Banner -->
-    <div id="pwa-install-banner" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999; background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.18); padding:20px 28px; min-width:320px; max-width:90vw; align-items:center; gap:16px; flex-direction:row;">
-        <img src="/static/images/icon-192.png" width="52" height="52" style="border-radius:12px; flex-shrink:0;">
-        <div style="flex:1;">
-            <div style="font-weight:700; font-size:16px;">Install TrumpKart</div>
-            <div id="pwa-banner-subtitle" style="font-size:13px; color:#666;">Shop faster with our app!</div>
-        </div>
-        <button id="pwa-install-btn" style="background:#000; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:14px; cursor:pointer; flex-shrink:0;">Install</button>
-        <button id="pwa-dismiss-btn" style="background:none; border:none; font-size:20px; cursor:pointer; color:#999; flex-shrink:0; line-height:1;">✕</button>
     </div>
 
     {% block scripts %}
@@ -83,74 +209,103 @@
         window.addEventListener("pageshow", function () {
             loader.style.display = "none";
         });
-
-        // ── Service Worker ───────────────────────────────────────
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.log('SW error:', err));
-            });
-        }
-
-        // ── PWA Install Banner ───────────────────────────────────────
-        let deferredPrompt = null;
-        const banner = document.getElementById('pwa-install-banner');
-        const installBtn = document.getElementById('pwa-install-btn');
-        const dismissBtn = document.getElementById('pwa-dismiss-btn');
-        const subtitle = document.getElementById('pwa-banner-subtitle');
-
-        const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-        const isAndroid = /android/i.test(navigator.userAgent);
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                            || window.navigator.standalone === true;
-        const isDismissed = localStorage.getItem('pwa-dismissed');
-
-        // Don't show if already installed or dismissed
-        if (!isStandalone && !isDismissed) {
-
-            // ── Android Chrome ──
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                // Show after 3 seconds
-                setTimeout(() => {
-                    banner.style.display = 'flex';
-                }, 3000);
-            });
-
-            // ── iOS Safari ──
-            if (isIos) {
-                setTimeout(() => {
-                    banner.style.display = 'flex';
-                    subtitle.textContent = '📲 Tap Share → Add to Home Screen';
-                    installBtn.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    banner.style.display = 'none';
-                }
-                deferredPrompt = null;
-            }
-        });
-
-        dismissBtn.addEventListener('click', () => {
-            banner.style.display = 'none';
-            localStorage.setItem('pwa-dismissed', '1');
-        });
-
-        window.addEventListener('appinstalled', () => {
-            banner.style.display = 'none';
-            localStorage.removeItem('pwa-dismissed');
-        });
     </script>
     {% endblock scripts %}
+
+    <!-- ============================================ -->
+    <!-- PWA SERVICE WORKER + INSTALL BANNER -->
+    <!-- ============================================ -->
+    <script>
+        // ── Service Worker ───────────────────────────────────────
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(function (registration) {
+                        console.log('[TrumpKart PWA] SW registered:', registration.scope);
+                        setInterval(function () {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                    })
+                    .catch(function (error) {
+                        console.error('[TrumpKart PWA] SW failed:', error);
+                    });
+            });
+        }
+
+        // ── Install Prompt ───────────────────────────────────────
+        var deferredPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', function (event) {
+            event.preventDefault();
+            deferredPrompt = event;
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            if (sessionStorage.getItem('pwa-banner-dismissed')) return;
+            if (window.matchMedia('(display-mode: standalone)').matches) return;
+
+            // Create banner dynamically (same as Dabzo)
+            if (!document.getElementById('pwa-install-banner')) {
+                var banner = document.createElement('div');
+                banner.id = 'pwa-install-banner';
+                banner.innerHTML = `
+                    <div class="pwa-banner-content">
+                        <div class="pwa-banner-icon">
+                            <img src="/static/images/icon-192.png" alt="TrumpKart">
+                        </div>
+                        <div class="pwa-banner-text">
+                            <strong>Install TrumpKart App</strong>
+                            <span>Faster access & better experience!</span>
+                        </div>
+                        <div class="pwa-banner-actions">
+                            <button class="pwa-btn-install" onclick="installPWA()">Install</button>
+                            <button class="pwa-btn-dismiss" onclick="dismissInstallBanner()" aria-label="Dismiss">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(banner);
+            }
+
+            // Slide up after 3 seconds
+            setTimeout(function () {
+                var el = document.getElementById('pwa-install-banner');
+                if (el) el.classList.add('show');
+            }, 3000);
+        }
+
+        function installPWA() {
+            if (!deferredPrompt) return;
+            dismissInstallBanner();
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function (outcome) {
+                console.log('[TrumpKart PWA] Install outcome:', outcome.outcome);
+                deferredPrompt = null;
+            });
+        }
+
+        function dismissInstallBanner() {
+            var el = document.getElementById('pwa-install-banner');
+            if (el) {
+                el.classList.remove('show');
+                setTimeout(function () {
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                }, 400);
+            }
+            sessionStorage.setItem('pwa-banner-dismissed', 'true');
+        }
+
+        window.addEventListener('appinstalled', function () {
+            console.log('[TrumpKart PWA] Installed!');
+            dismissInstallBanner();
+            deferredPrompt = null;
+        });
+    </script>
 
   </body>
 </html>
