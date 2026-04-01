@@ -1,27 +1,26 @@
-const CACHE_NAME = 'trumpkart-v1';
+const CACHE_NAME = 'trumpkart-v2';  // ← bump version
 const STATIC_ASSETS = [
     '/',
     '/offline/',
     '/static/css/style.css',
 ];
 
-// Install - cache static assets
 self.addEventListener('install', event => {
+    self.skipWaiting();  // ← activate immediately
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
     );
 });
 
-// Activate - clean old caches
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys =>
             Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
         )
     );
+    self.clients.claim();  // ← take control immediately
 });
 
-// Fetch - network first, fallback to cache
 self.addEventListener('fetch', event => {
     event.respondWith(
         fetch(event.request)

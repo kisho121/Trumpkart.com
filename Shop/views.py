@@ -1612,6 +1612,10 @@ def login_page(request):
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}! You have successfully logged in.")
             
+            # ✅ Redirect admin/staff directly to admin panel
+            if user.is_staff or user.is_superuser:
+                return redirect('/admin/')
+            
             # Redirect to next page if exists, otherwise home
             next_page = request.GET.get('next', '/')
             return redirect(next_page)

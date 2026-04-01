@@ -277,6 +277,8 @@ LOGIN_URL = 'account_login'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
+# ACCOUNT_ADAPTER = 'Shop.adapters.MyAccountAdapter'
+
 # settings.py
 
 # Allow accounts to be authenticated via their email

@@ -234,21 +234,44 @@
 
         // ── Install Prompt ───────────────────────────────────────
         var deferredPrompt = null;
+        var bannerShown = false;
+
+        const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+        const isAndroid = /android/i.test(navigator.userAgent);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                            || window.navigator.standalone === true;
 
         window.addEventListener('beforeinstallprompt', function (event) {
             event.preventDefault();
             deferredPrompt = event;
-            showInstallBanner();
+            console.log('[TrumpKart PWA] beforeinstallprompt fired!');
+            if (!bannerShown) {
+                bannerShown = true;
+                showInstallBanner('android');
+            }
         });
 
-        function showInstallBanner() {
-            if (sessionStorage.getItem('pwa-banner-dismissed')) return;
-            if (window.matchMedia('(display-mode: standalone)').matches) return;
+        // ── Show for iOS automatically ───────────────────────────
+        if (isIos && !isStandalone && !sessionStorage.getItem('pwa-banner-dismissed')) {
+            showInstallBanner('ios');
+        }
 
-            // Create banner dynamically (same as Dabzo)
+        function showInstallBanner(type) {
+            if (sessionStorage.getItem('pwa-banner-dismissed')) return;
+            if (isStandalone) return;
+
             if (!document.getElementById('pwa-install-banner')) {
                 var banner = document.createElement('div');
                 banner.id = 'pwa-install-banner';
+
+                var subtitle = type === 'ios' 
+                    ? '📲 Tap Share → Add to Home Screen'
+                    : 'Faster access & better experience!';
+
+                var installBtnHtml = type === 'ios'
+                    ? '' // iOS can't trigger install programmatically
+                    : '<button class="pwa-btn-install" onclick="installPWA()">Install</button>';
+
                 banner.innerHTML = `
                     <div class="pwa-banner-content">
                         <div class="pwa-banner-icon">
@@ -256,10 +279,10 @@
                         </div>
                         <div class="pwa-banner-text">
                             <strong>Install TrumpKart App</strong>
-                            <span>Faster access & better experience!</span>
+                            <span>${subtitle}</span>
                         </div>
                         <div class="pwa-banner-actions">
-                            <button class="pwa-btn-install" onclick="installPWA()">Install</button>
+                            ${installBtnHtml}
                             <button class="pwa-btn-dismiss" onclick="dismissInstallBanner()" aria-label="Dismiss">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                     <line x1="18" y1="6" x2="6" y2="18"/>
@@ -272,7 +295,6 @@
                 document.body.appendChild(banner);
             }
 
-            // Slide up after 3 seconds
             setTimeout(function () {
                 var el = document.getElementById('pwa-install-banner');
                 if (el) el.classList.add('show');
