@@ -7,9 +7,28 @@ Order Success | TrumpKart
 {% endblock title %}
 
 {% block content %} 
+<style>
+    @keyframes bounceIn {
+        0%   { transform: scale(0) translateY(-100px); opacity: 0; }
+        50%  { transform: scale(1.2) translateY(10px);  opacity: 1; }
+        70%  { transform: scale(0.9) translateY(-5px); }
+        85%  { transform: scale(1.05) translateY(3px); }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    @keyframes continuousBounce {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-18px); }
+    }
+
+    .order-success-img {
+        animation: bounceIn 0.8s ease forwards,
+                   continuousBounce 1.5s ease-in-out 0.8s infinite;
+    }
+</style>
 
 <div class="container-fluid my-1 mx-auto text-center">
-    <img src="{% static 'images/placed.png' %}" alt="Order Placed" width="180px" height="200px">
+    <img src="{% static 'images/placed.png' %}" alt="Order Placed" width="180px" height="200px" class="order-success-img">
     <h5 class=" text-info fw-bold">Thank You!</h5>
     <h2 class="text-success fw-bold py-1">Your order placed Successfully</h2>
     
